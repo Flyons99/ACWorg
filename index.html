@@ -1644,55 +1644,97 @@
         }
 
         async function loadEmployeesFromGitHub() {
+            console.log('=== LOADING EMPLOYEES FROM GITHUB ===');
+            console.log('GitHub config:', githubConfig);
+            
             if (!githubConfig.token || !githubConfig.repo) {
-                console.log('GitHub není nakonfigurován');
-                showAlert('Aplikace načítá data z GitHub...', 'success', 'admin-alerts');
+                console.error('GitHub není nakonfigurován');
+                showAlert('GitHub není nakonfigurován', 'error', 'admin-alerts');
                 return;
             }
 
             try {
                 showAlert('Načítání dat z GitHub...', 'success', 'admin-alerts');
                 
+                // URL pro raw přístup
+                const rawUrl = `https://raw.githubusercontent.com/${githubConfig.repo}/main/data/employees.json`;
+                console.log('Trying raw URL:', rawUrl);
+                
                 // Zkus nejdřív přímý přístup přes raw.githubusercontent.com
                 try {
-                    const rawResponse = await fetch(`https://raw.githubusercontent.com/${githubConfig.repo}/main/data/employees.json`);
+                    const rawResponse = await fetch(rawUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Cache-Control': 'no-cache'
+                        }
+                    });
+                    
+                    console.log('Raw response status:', rawResponse.status);
+                    console.log('Raw response headers:', Object.fromEntries(rawResponse.headers.entries()));
+                    
                     if (rawResponse.ok) {
                         const rawData = await rawResponse.text();
+                        console.log('Raw data length:', rawData.length);
+                        console.log('Raw data preview:', rawData.substring(0, 200));
+                        
                         employees = JSON.parse(rawData);
+                        console.log('Parsed employees count:', employees.length);
+                        console.log('First employee:', employees[0]);
+                        
                         renderAll();
                         showAlert(`Úspěšně načteno ${employees.length} zaměstnanců z GitHub`, 'success', 'admin-alerts');
-                        console.log(`Načteno ${employees.length} zaměstnanců z GitHub (raw)`);
+                        console.log(`✅ SUCCESS: Načteno ${employees.length} zaměstnanců z GitHub (raw)`);
                         return;
+                    } else {
+                        console.log('Raw response not OK:', rawResponse.status, rawResponse.statusText);
                     }
                 } catch (rawError) {
-                    console.log('Raw GitHub přístup selhal, zkouším API...');
+                    console.error('Raw GitHub přístup selhal:', rawError);
                 }
                 
                 // Fallback na GitHub API
-                const response = await fetch(`https://api.github.com/repos/${githubConfig.repo}/contents/data/employees.json`, {
+                console.log('Trying GitHub API...');
+                const apiUrl = `https://api.github.com/repos/${githubConfig.repo}/contents/data/employees.json`;
+                console.log('API URL:', apiUrl);
+                
+                const response = await fetch(apiUrl, {
                     headers: {
                         'Authorization': `token ${githubConfig.token}`,
                         'Accept': 'application/vnd.github.v3+json'
                     }
                 });
 
+                console.log('API response status:', response.status);
+                console.log('API response headers:', Object.fromEntries(response.headers.entries()));
+
                 if (response.ok) {
                     const data = await response.json();
+                    console.log('API response data keys:', Object.keys(data));
+                    
                     const content = atob(data.content);
+                    console.log('Decoded content length:', content.length);
+                    console.log('Decoded content preview:', content.substring(0, 200));
+                    
                     employees = JSON.parse(content);
+                    console.log('API parsed employees count:', employees.length);
                     
                     renderAll();
                     showAlert(`Úspěšně načteno ${employees.length} zaměstnanců z GitHub`, 'success', 'admin-alerts');
-                    console.log(`Načteno ${employees.length} zaměstnanců z GitHub (API)`);
+                    console.log(`✅ SUCCESS: Načteno ${employees.length} zaměstnanců z GitHub (API)`);
                 } else if (response.status === 404) {
-                    showAlert('Soubor employees.json neexistuje. Vytvořte ho v GitHub.', 'error', 'admin-alerts');
-                    console.log('Soubor employees.json neexistuje na GitHub');
+                    console.error('404: Soubor employees.json neexistuje');
+                    showAlert('Soubor employees.json neexistuje na GitHub', 'error', 'admin-alerts');
+                } else if (response.status === 403) {
+                    console.error('403: Forbidden - možná špatný token nebo oprávnění');
+                    showAlert('Přístup odmítnut - zkontrolujte GitHub token', 'error', 'admin-alerts');
                 } else {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
             } catch (error) {
-                console.error('Chyba při načítání z GitHub:', error);
-                showAlert(`Chyba při načítání z GitHub: ${error.message}. Zkontrolujte Console pro více detailů.`, 'error', 'admin-alerts');
+                console.error('=== CRITICAL ERROR ===');
+                console.error('Error details:', error);
+                console.error('Error stack:', error.stack);
+                showAlert(`Kritická chyba: ${error.message}`, 'error', 'admin-alerts');
             }
         }
 
