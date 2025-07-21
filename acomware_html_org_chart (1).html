@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acomware - Organizační schéma</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f9fafb;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            color: #2563eb;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .github-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .github-status.connected {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .github-status.disconnected {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .github-config-btn {
+            background: #6b7280;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .github-config-btn:hover {
+            background: #4b5563;
+        }
+
+        .nav {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-button {
+            background: none;
+            border: none;
+            padding: 1rem 0.5rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .nav-button.active {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+
+        .nav-button:hover {
+            color: #374151;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: #1d4ed8;
+        }
+
+        .btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .card {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th,
+        .table td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .table th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        .table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .badge {
+            display: inline-flex;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-leadership { background: #f3e8ff; color: #7c3aed; }
+        .badge-it { background: #dbeafe; color: #2563eb; }
+        .badge-finance { background: #dcfce7; color: #16a34a; }
+        .badge-hr { background: #fed7aa; color: #ea580c; }
+        .badge-marketing { background: #fce7f3; color: #db2777; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .form-actions .btn {
+            flex: 1;
+        }
+
+        /* GitHub konfigurace */
+        .github-config {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .config-row {
+            display: flex;
+            gap: 1rem;
+            align-items: end;
+            margin-bottom: 1rem;
+        }
+
+        .config-group {
+            flex: 1;
+        }
+
+        .config-instructions {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .config-instructions h4 {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #92400e;
+        }
+
+        .config-instructions ol {
+            margin-left: 1.5rem;
+            color: #92400e;
+        }
+
+        .config-instructions li {
+            margin-bottom: 0.25rem;
+        }
+
+        /* Organizační schéma */
+        .org-chart {
+            padding: 2rem;
+            overflow-x: auto;
+        }
+
+        .legend {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .legend h3 {
+            margin-bottom: 1rem;
+            color: #374151;
+        }
+
+        .legend-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .employee-card {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            min-width: 280px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .employee-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .employee-card.ceo {
+            border-color: #7c3aed;
+            background: linear-gradient(135deg, #f3e8ff 0%, #ffffff 100%);
+        }
+
+        .employee-card.department-head {
+            border-color: #2563eb;
+            background: linear-gradient(135deg, #dbeafe 0%, #ffffff 100%);
+        }
+
+        .employee-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #e5e7eb;
+            margin: 0 auto 1rem;
+            display: block;
+            background: #f3f4f6;
+        }
+
+        .employee-info h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 0.25rem;
+            text-align: center;
+        }
+
+        .employee-info .position {
+            color: #6b7280;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .employee-info .department {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .employee-details {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .employee-details div {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .org-level {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 3rem;
+        }
+
+        .departments-container {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+
+        .department-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .connection-line {
+            width: 2px;
+            height: 40px;
+            background: #d1d5db;
+            margin: 0 auto;
+        }
+
+        .expand-btn {
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin: 0.5rem auto;
+            transition: all 0.2s;
+        }
+
+        .expand-btn:hover {
+            background: #e5e7eb;
+        }
+
+        .employees-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .search-filters {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .filters-row {
+            display: flex;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .filter-group {
+            flex: 1;
+        }
+
+        .photo-upload {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        .photo-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #d1d5db;
+            background: #f3f4f6;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .photo-upload-btn {
+            position: absolute;
+            bottom: 0;
+            right: 50%;
+            transform: translateX(50%);
+            background: #2563eb;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+        }
+
+        .upload-progress {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            border-radius: 0.5rem;
+            display: none;
+        }
+
+        .upload-progress.show {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e7ff;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #2563eb;
+            transition: width 0.3s ease;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .alert-success {
+            background: #dcfce7;
+            border: 1px solid #16a34a;
+            color: #15803d;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            border: 1px solid #dc2626;
+            color: #dc2626;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .nav-content {
+                padding: 0 1rem;
+                flex-wrap: wrap;
+            }
+            
+            .departments-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .filters-row,
+            .config-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <i data-lucide="building-2" class="logo"></i>
+                <h1>Acomware - Organizační schéma</h1>
+            </div>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <div id="github-status" class="github-status disconnected">
+                    <i data-lucide="github"></i>
+                    <span>GitHub nepřipojen</span>
+                </div>
+                <button class="github-config-btn" onclick="showTab('config')">
+                    <i data-lucide="settings"></i>
+                    Konfigurace
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav">
+        <div class="nav-content">
+            <button class="nav-button" onclick="showTab('config')">
+                <i data-lucide="settings"></i>
+                Konfigurace GitHub
+            </button>
+            <button class="nav-button active" onclick="showTab('admin')">
+                <i data-lucide="edit-3"></i>
+                Admin panel
+            </button>
+            <button class="nav-button" onclick="showTab('chart')">
+                <i data-lucide="eye"></i>
+                Organizační schéma
+            </button>
+            <button class="nav-button" onclick="showTab('search')">
+                <i data-lucide="search"></i>
+                Vyhledávání
+            </button>
+        </div>
+    </div>
+
+    <!-- Container -->
+    <div class="container">
+        <!-- GitHub Configuration -->
+        <div id="config-tab" class="tab-content">
+            <h2 style="font-size: 2rem; font-weight: bold; color: #111827; margin-bottom: 2rem;">Konfigurace GitHub</h2>
+            
+            <div class="github-config">
+                <h3 style="margin-bottom: 1rem;">Nastavení GitHub repository</h3>
+                
+                <div class="config-row">
+                    <div class="config-group">
+                        <label class="form-label">GitHub Token</label>
+                        <input type="password" class="form-input" id="github-token" placeholder="ghp_xxxxxxxxxxxx">
+                    </div>
+                    <div class="config-group">
+                        <label class="form-label">Repository (owner/repo)</label>
+                        <input type="text" class="form-input" id="github-repo" placeholder="acomware/org-chart">
+                    </div>
+                    <button class="btn" onclick="saveGitHubConfig()">
+                        <i data-lucide="save"></i>
+                        Uložit
+                    </button>
+                </div>
+
+                <div class="config-instructions">
+                    <h4>Jak získat GitHub Personal Access Token:</h4>
+                    <ol>
+                        <li>Jděte na GitHub.com → Settings → Developer settings → Personal access tokens → Tokens (classic)</li>
+                        <li>Klikněte "Generate new token (classic)"</li>
+                        <li>Nastavte název (např. "Acomware Org Chart")</li>
+                        <li>Vyberte oprávnění: <strong>repo</strong> (Full control of private repositories)</li>
+                        <li>Klikněte "Generate token" a zkopírujte token</li>
+                        <li>Vytvořte repository pro ukládání dat (např. "acomware/org-chart")</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Panel -->
+        <div id="admin-tab" class="tab-content active">
+            <div class="section-header">
+                <h2 style="font-size: 2rem; font-weight: bold; color: #111827;">Správa zaměstnanců</h2>
+                <button class="btn" onclick="openEmployeeModal()" id="add-employee-btn">
+                    <i data-lucide="plus"></i>
+                    Přidat zaměstnance
+                </button>
+            </div>
+
+            <div id="admin-alerts"></div>
+
+            <div class="card">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Foto</th>
+                            <th>Jméno</th>
+                            <th>Pozice</th>
+                            <th>Oddělení</th>
+                            <th>Email</th>
+                            <th>Lokace</th>
+                            <th>Akce</th>
+                        </tr>
+                    </thead>
+                    <tbody id="employees-table">
+                        <!-- Tabulka se naplní JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Organizational Chart -->
+        <div id="chart-tab" class="tab-content">
+            <h2 style="font-size: 2rem; font-weight: bold; color: #111827; margin-bottom: 2rem;">Organizační schéma</h2>
+            
+            <div class="legend">
+                <h3>Legenda oddělení</h3>
+                <div class="legend-items">
+                    <span class="badge badge-leadership">Vedení</span>
+                    <span class="badge badge-it">IT</span>
+                    <span class="badge badge-finance">Finance</span>
+                    <span class="badge badge-hr">HR</span>
+                    <span class="badge badge-marketing">Marketing</span>
+                </div>
+            </div>
+
+            <div class="org-chart">
+                <div id="org-chart-content">
+                    <!-- Organizační schéma se naplní JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div id="search-tab" class="tab-content">
+            <h2 style="font-size: 2rem; font-weight: bold; color: #111827; margin-bottom: 2rem;">Vyhledávání zaměstnanců</h2>
+            
+            <div class="search-filters">
+                <div class="filters-row">
+                    <div class="filter-group">
+                        <label class="form-label">Hledat</label>
+                        <input type="text" class="form-input" id="search-input" placeholder="Hledat podle jména nebo pozice...">
+                    </div>
+                    <div class="filter-group">
+                        <label class="form-label">Oddělení</label>
+                        <select class="form-select" id="department-filter">
+                            <option value="">Všechna oddělení</option>
+                            <option value="Vedení">Vedení</option>
+                            <option value="IT">IT</option>
+                            <option value="Finance">Finance</option>
+                            <option value="HR">HR</option>
+                            <option value="Marketing">Marketing</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="employees-grid" id="search-results">
+                <!-- Výsledky vyhledávání se naplní JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Employee Modal -->
+    <div id="employee-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="modal-title">Přidat zaměstnance</h2>
+            
+            <div class="photo-upload">
+                <img id="photo-preview" class="photo-preview" src="" alt="Foto">
+                <button type="button" class="photo-upload-btn" onclick="document.getElementById('photo-input').click()">
+                    <i data-lucide="camera"></i>
+                </button>
+                <input type="file" id="photo-input" accept="image/*" class="hidden" onchange="handlePhotoUpload(event)">
+            </div>
+
+            <div id="upload-progress" class="upload-progress">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                    <i data-lucide="upload"></i>
+                    <span id="upload-status">Nahrávání fotky...</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Jméno</label>
+                <input type="text" class="form-input" id="employee-name" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Pozice</label>
+                <input type="text" class="form-input" id="employee-position" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Oddělení</label>
+                <select class="form-select" id="employee-department" required>
+                    <option value="">Vyberte oddělení</option>
+                    <option value="Vedení">Vedení</option>
+                    <option value="IT">IT</option>
+                    <option value="Finance">Finance</option>
+                    <option value="HR">HR</option>
+                    <option value="Marketing">Marketing</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" id="employee-email" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Telefon</label>
+                <input type="tel" class="form-input" id="employee-phone">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Lokace</label>
+                <input type="text" class="form-input" id="employee-location">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Datum nástupu</label>
+                <input type="date" class="form-input" id="employee-start-date">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Nadřízený</label>
+                <select class="form-select" id="employee-parent">
+                    <option value="">Bez nadřízeného</option>
+                </select>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn" onclick="saveEmployee()" id="save-employee-btn">
+                    <i data-lucide="save"></i>
+                    Uložit
+                </button>
+                <button class="btn btn-secondary" onclick="closeEmployeeModal()">
+                    Zrušit
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Globální proměnné
+        let employees = [];
+        let currentEmployee = null;
+        let expandedDepartments = new Set();
+        let githubConfig = {
+            token: '',
+            repo: ''
+        };
+        let uploadedPhotoUrl = '';
+
+        // Inicializace
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+            loadGitHubConfig();
+            loadEmployeesFromGitHub();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            document.getElementById('search-input').addEventListener('input', renderSearchResults);
+            document.getElementById('department-filter').addEventListener('change', renderSearchResults);
+        }
+
+        // GitHub konfigurace
+        function loadGitHubConfig() {
+            try {
+                const saved = localStorage.getItem('acomware_github_config');
+                if (saved) {
+                    githubConfig = JSON.parse(saved);
+                    document.getElementById('github-token').value = githubConfig.token || '';
+                    document.getElementById('github-repo').value = githubConfig.repo || '';
+                    updateGitHubStatus();
+                }
+            } catch (e) {
+                console.log('Nelze načíst GitHub konfiguraci');
+            }
+        }
+
+        function saveGitHubConfig() {
+            githubConfig.token = document.getElementById('github-token').value.trim();
+            githubConfig.repo = document.getElementById('github-repo').value.trim();
+            
+            if (!githubConfig.token || !githubConfig.repo) {
+                showAlert('Vyplňte prosím všechna pole', 'error', 'admin-alerts');
+                return;
+            }
+
+            try {
+                localStorage.setItem('acomware_github_config', JSON.stringify(githubConfig));
+                updateGitHubStatus();
+                showAlert('GitHub konfigurace byla uložena', 'success', 'admin-alerts');
+                loadEmployeesFromGitHub(); // Zkusíme načíst data
+            } catch (e) {
+                showAlert('Chyba při ukládání konfigurace', 'error', 'admin-alerts');
+            }
+        }
+
+        function updateGitHubStatus() {
+            const statusElement = document.getElementById('github-status');
+            const isConfigured = githubConfig.token && githubConfig.repo;
+            
+            if (isConfigured) {
+                statusElement.className = 'github-status connected';
+                statusElement.innerHTML = '<i data-lucide="github"></i><span>GitHub připojen</span>';
+            } else {
+                statusElement.className = 'github-status disconnected';
+                statusElement.innerHTML = '<i data-lucide="github"></i><span>GitHub nepřipojen</span>';
+            }
+            
+            lucide.createIcons();
+        }
+
+        // GitHub API funkce
+        async function uploadPhotoToGitHub(file, filename) {
+            if (!githubConfig.token || !githubConfig.repo) {
+                throw new Error('GitHub není konfigurován');
+            }
+
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    try {
+                        const base64Content = e.target.result.split(',')[1];
+                        
+                        const response = await fetch(`https://api.github.com/repos/${githubConfig.repo}/contents/photos/${filename}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Authorization': `token ${githubConfig.token}`,
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                message: `Upload photo: ${filename}`,
+                                content: base64Content,
+                                branch: 'main'
+                            })
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+                        }
+
+                        const result = await response.json();
+                        resolve(result.content.download_url);
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                reader.onerror = () => reject(new Error('Chyba při čtení souboru'));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function saveEmployeesToGitHub() {
+            if (!githubConfig.token || !githubConfig.repo) {
+                return false;
+            }
+
+            try {
+                // Nejdřív zkusíme získat existující soubor
+                let sha = null;
+                try {
+                    const getResponse = await fetch(`https://api.github.com/repos/${githubConfig.repo}/contents/data/employees.json`, {
+                        headers: {
+                            'Authorization': `token ${githubConfig.token}`,
+                        }
+                    });
+                    if (getResponse.ok) {
+                        const existing = await getResponse.json();
+                        sha = existing.sha;
+                    }
+                } catch (e) {
+                    // Soubor neexistuje, to je v pořádku
+                }
+
+                const content = btoa(JSON.stringify(employees, null, 2));
+                const body = {
+                    message: 'Update employees data',
+                    content: content,
+                    branch: 'main'
+                };
+                
+                if (sha) {
+                    body.sha = sha;
+                }
+
+                const response = await fetch(`https://api.github.com/repos/${githubConfig.repo}/contents/data/employees.json`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${githubConfig.token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                return response.ok;
+            } catch (error) {
+                console.error('Chyba při ukládání do GitHub:', error);
+                return false;
+            }
+        }
+
+        async function loadEmployeesFromGitHub() {
+            if (!githubConfig.token || !githubConfig.repo) {
+                loadLocalEmployees(); // Fallback na lokální data
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://api.github.com/repos/${githubConfig.repo}/contents/data/employees.json`, {
+                    headers: {
+                        'Authorization': `token ${githubConfig.token}`,
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const content = atob(data.content);
+                    employees = JSON.parse(content);
+                    renderAll();
+                } else {
+                    loadLocalEmployees(); // Fallback
+                }
+            } catch (error) {
+                console.error('Chyba při načítání z GitHub:', error);
+                loadLocalEmployees(); // Fallback
+            }
+        }
+
+        function loadLocalEmployees() {
+            // Ukázková data
+            employees = [
+                {
+                    id: 1,
+                    name: 'Jan Novák',
+                    position: 'CEO',
+                    department: 'Vedení',
+                    email: 'jan.novak@acomware.cz',
+                    phone: '+420 123 456 789',
+                    location: 'Praha',
+                    startDate: '2020-01-15',
+                    photo: '',
+                    parentId: null,
+                    level: 0
+                },
+                {
+                    id: 2,
+                    name: 'Marie Svobodová',
+                    position: 'CTO',
+                    department: 'IT',
+                    email: 'marie.svobodova@acomware.cz',
+                    phone: '+420 123 456 788',
+                    location: 'Praha',
+                    startDate: '2020-03-01',
+                    photo: '',
+                    parentId: 1,
+                    level: 1
+                },
+                {
+                    id: 3,
+                    name: 'Petr Dvořák',
+                    position: 'CFO',
+                    department: 'Finance',
+                    email: 'petr.dvorak@acomware.cz',
+                    phone: '+420 123 456 787',
+                    location: 'Praha',
+                    startDate: '2020-02-15',
+                    photo: '',
+                    parentId: 1,
+                    level: 1
+                }
+            ];
+            renderAll();
+        }
+
+        // Správa fotek
+        async function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Kontrola velikosti (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showAlert('Soubor je příliš velký. Maximum je 5MB.', 'error', 'admin-alerts');
+                return;
+            }
+
+            // Kontrola typu souboru
+            if (!file.type.startsWith('image/')) {
+                showAlert('Lze nahrát pouze obrázky.', 'error', 'admin-alerts');
+                return;
+            }
+
+            // Zobrazit náhled
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('photo-preview').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+
+            // Pokud je GitHub nakonfigurován, nahraj na GitHub
+            if (githubConfig.token && githubConfig.repo) {
+                try {
+                    showUploadProgress(true);
+                    updateUploadProgress(0, 'Připravuji upload...');
+
+                    const timestamp = Date.now();
+                    const extension = file.name.split('.').pop();
+                    const filename = `employee_${timestamp}.${extension}`;
+
+                    updateUploadProgress(50, 'Nahrávám na GitHub...');
+                    
+                    uploadedPhotoUrl = await uploadPhotoToGitHub(file, filename);
+                    
+                    updateUploadProgress(100, 'Upload dokončen');
+                    setTimeout(() => showUploadProgress(false), 1000);
+                    
+                    showAlert('Fotka byla úspěšně nahrána na GitHub', 'success', 'admin-alerts');
+                } catch (error) {
+                    console.error('Chyba při uploadu:', error);
+                    showUploadProgress(false);
+                    showAlert(`Chyba při nahrávání fotky: ${error.message}`, 'error', 'admin-alerts');
+                    uploadedPhotoUrl = ''; // Použije se lokální preview
+                }
+            }
+        }
+
+        function showUploadProgress(show) {
+            const progress = document.getElementById('upload-progress');
+            if (show) {
+                progress.classList.add('show');
+            } else {
+                progress.classList.remove('show');
+            }
+        }
+
+        function updateUploadProgress(percent, status) {
+            document.getElementById('progress-fill').style.width = percent + '%';
+            document.getElementById('upload-status').textContent = status;
+        }
+
+        // Modal správa
+        function openEmployeeModal(employee = null) {
+            if (!githubConfig.token || !githubConfig.repo) {
+                showAlert('Nejdříve nakonfigurujte GitHub v záložce Konfigurace', 'error', 'admin-alerts');
+                return;
+            }
+
+            currentEmployee = employee;
+            uploadedPhotoUrl = '';
+            const modal = document.getElementById('employee-modal');
+            const title = document.getElementById('modal-title');
+            
+            if (employee) {
+                title.textContent = 'Upravit zaměstnance';
+                fillEmployeeForm(employee);
+            } else {
+                title.textContent = 'Přidat zaměstnance';
+                clearEmployeeForm();
+            }
+            
+            updateParentOptions();
+            modal.classList.add('show');
+        }
+
+        function closeEmployeeModal() {
+            document.getElementById('employee-modal').classList.remove('show');
+            currentEmployee = null;
+            uploadedPhotoUrl = '';
+            showUploadProgress(false);
+        }
+
+        function fillEmployeeForm(employee) {
+            document.getElementById('employee-name').value = employee.name || '';
+            document.getElementById('employee-position').value = employee.position || '';
+            document.getElementById('employee-department').value = employee.department || '';
+            document.getElementById('employee-email').value = employee.email || '';
+            document.getElementById('employee-phone').value = employee.phone || '';
+            document.getElementById('employee-location').value = employee.location || '';
+            document.getElementById('employee-start-date').value = employee.startDate || '';
+            document.getElementById('employee-parent').value = employee.parentId || '';
+            document.getElementById('photo-preview').src = employee.photo || '';
+            uploadedPhotoUrl = employee.photo || '';
+        }
+
+        function clearEmployeeForm() {
+            document.getElementById('employee-name').value = '';
+            document.getElementById('employee-position').value = '';
+            document.getElementById('employee-department').value = '';
+            document.getElementById('employee-email').value = '';
+            document.getElementById('employee-phone').value = '';
+            document.getElementById('employee-location').value = '';
+            document.getElementById('employee-start-date').value = '';
+            document.getElementById('employee-parent').value = '';
+            document.getElementById('photo-preview').src = '';
+        }
+
+        function updateParentOptions() {
+            const select = document.getElementById('employee-parent');
+            select.innerHTML = '<option value="">Bez nadřízeného</option>';
+            
+            employees.forEach(emp => {
+                if (!currentEmployee || emp.id !== currentEmployee.id) {
+                    const option = document.createElement('option');
+                    option.value = emp.id;
+                    option.textContent = emp.name;
+                    select.appendChild(option);
+                }
+            });
+        }
+
+        async function saveEmployee() {
+            const saveBtn = document.getElementById('save-employee-btn');
+            saveBtn.disabled = true;
+            saveBtn.classList.add('loading');
+
+            try {
+                const formData = {
+                    name: document.getElementById('employee-name').value.trim(),
+                    position: document.getElementById('employee-position').value.trim(),
+                    department: document.getElementById('employee-department').value,
+                    email: document.getElementById('employee-email').value.trim(),
+                    phone: document.getElementById('employee-phone').value.trim(),
+                    location: document.getElementById('employee-location').value.trim(),
+                    startDate: document.getElementById('employee-start-date').value,
+                    parentId: document.getElementById('employee-parent').value || null,
+                    photo: uploadedPhotoUrl || document.getElementById('photo-preview').src || ''
+                };
+
+                if (!formData.name || !formData.position || !formData.department || !formData.email) {
+                    showAlert('Vyplňte prosím všechna povinná pole', 'error', 'admin-alerts');
+                    return;
+                }
+
+                if (currentEmployee) {
+                    // Úprava
+                    const index = employees.findIndex(emp => emp.id === currentEmployee.id);
+                    employees[index] = { ...employees[index], ...formData };
+                } else {
+                    // Přidání
+                    const newEmployee = {
+                        ...formData,
+                        id: Math.max(...employees.map(e => e.id), 0) + 1,
+                        level: 0
+                    };
+                    employees.push(newEmployee);
+                }
+
+                // Uložit na GitHub
+                const saved = await saveEmployeesToGitHub();
+                if (saved) {
+                    showAlert('Zaměstnanec byl úspěšně uložen', 'success', 'admin-alerts');
+                } else {
+                    showAlert('Zaměstnanec byl uložen lokálně (GitHub nedostupný)', 'error', 'admin-alerts');
+                }
+
+                renderAll();
+                closeEmployeeModal();
+            } catch (error) {
+                showAlert(`Chyba při ukládání: ${error.message}`, 'error', 'admin-alerts');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.classList.remove('loading');
+            }
+        }
+
+        async function deleteEmployee(id) {
+            if (!confirm('Opravdu chcete smazat tohoto zaměstnance?')) {
+                return;
+            }
+
+            employees = employees.filter(emp => emp.id !== id);
+            
+            const saved = await saveEmployeesToGitHub();
+            if (saved) {
+                showAlert('Zaměstnanec byl smazán', 'success', 'admin-alerts');
+            } else {
+                showAlert('Zaměstnanec byl smazán lokálně (GitHub nedostupný)', 'error', 'admin-alerts');
+            }
+            
+            renderAll();
+        }
+
+        // Navigace
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.nav-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+            
+            lucide.createIcons();
+        }
+
+        // Renderování
+        function renderAll() {
+            renderEmployeesTable();
+            renderOrgChart();
+            renderSearchResults();
+        }
+
+        function renderEmployeesTable() {
+            const tbody = document.getElementById('employees-table');
+            tbody.innerHTML = '';
+
+            employees.forEach(employee => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        ${employee.photo ? 
+                            `<img src="${employee.photo}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">` :
+                            `<div style="width: 40px; height: 40px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center;"><i data-lucide="user" style="color: #9ca3af;"></i></div>`
+                        }
+                    </td>
+                    <td>
+                        <div style="font-weight: 600;">${employee.name}</div>
+                    </td>
+                    <td>${employee.position}</td>
+                    <td>
+                        <span class="badge badge-${getDepartmentClass(employee.department)}">${employee.department}</span>
+                    </td>
+                    <td>${employee.email}</td>
+                    <td>${employee.location || ''}</td>
+                    <td>
+                        <button onclick="openEmployeeModal(${JSON.stringify(employee).replace(/"/g, '&quot;')})" style="background: none; border: none; color: #2563eb; cursor: pointer; margin-right: 0.5rem;">
+                            <i data-lucide="edit-3"></i>
+                        </button>
+                        <button onclick="deleteEmployee(${employee.id})" style="background: none; border: none; color: #dc2626; cursor: pointer;">
+                            <i data-lucide="trash-2"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            lucide.createIcons();
+        }
+
+        function renderOrgChart() {
+            const container = document.getElementById('org-chart-content');
+            container.innerHTML = '';
+
+            const ceo = employees.find(emp => !emp.parentId);
+            if (!ceo) {
+                container.innerHTML = '<p>Není definován CEO</p>';
+                return;
+            }
+
+            const ceoLevel = document.createElement('div');
+            ceoLevel.className = 'org-level';
+            ceoLevel.appendChild(createEmployeeCard(ceo, 'ceo'));
+            container.appendChild(ceoLevel);
+
+            const connectionLine = document.createElement('div');
+            connectionLine.className = 'connection-line';
+            container.appendChild(connectionLine);
+
+            const departmentHeads = employees.filter(emp => emp.parentId === ceo.id);
+            
+            if (departmentHeads.length > 0) {
+                const departmentsContainer = document.createElement('div');
+                departmentsContainer.className = 'departments-container';
+
+                departmentHeads.forEach(head => {
+                    const departmentSection = document.createElement('div');
+                    departmentSection.className = 'department-section';
+
+                    const headCard = createEmployeeCard(head, 'department-head');
+                    departmentSection.appendChild(headCard);
+
+                    const expandBtn = document.createElement('button');
+                    expandBtn.className = 'expand-btn';
+                    expandBtn.onclick = () => toggleDepartment(head.department);
+                    expandBtn.innerHTML = expandedDepartments.has(head.department) ? 
+                        '<i data-lucide="chevron-up"></i>' : '<i data-lucide="chevron-down"></i>';
+                    departmentSection.appendChild(expandBtn);
+
+                    if (expandedDepartments.has(head.department)) {
+                        const departmentEmployees = employees.filter(emp => 
+                            emp.parentId === head.id || 
+                            (emp.department === head.department && emp.id !== head.id && emp.id !== ceo.id)
+                        );
+
+                        if (departmentEmployees.length > 0) {
+                            const employeesGrid = document.createElement('div');
+                            employeesGrid.className = 'employees-grid';
+                            employeesGrid.style.maxWidth = '300px';
+
+                            departmentEmployees.forEach(emp => {
+                                const empCard = createEmployeeCard(emp);
+                                employeesGrid.appendChild(empCard);
+                            });
+
+                            departmentSection.appendChild(employeesGrid);
+                        }
+                    }
+
+                    departmentsContainer.appendChild(departmentSection);
+                });
+
+                container.appendChild(departmentsContainer);
+            }
+
+            lucide.createIcons();
+        }
+
+        function createEmployeeCard(employee, cardType = '') {
+            const card = document.createElement('div');
+            card.className = `employee-card ${cardType}`;
+
+            const photoElement = employee.photo ? 
+                `<img src="${employee.photo}" class="employee-photo" alt="${employee.name}">` :
+                `<div class="employee-photo" style="display: flex; align-items: center; justify-content: center; background: #f3f4f6; color: #9ca3af; font-size: 2rem;">
+                    <i data-lucide="user"></i>
+                </div>`;
+
+            card.innerHTML = `
+                ${photoElement}
+                <div class="employee-info">
+                    <h3>${employee.name}</h3>
+                    <div class="position">${employee.position}</div>
+                    <div class="department">
+                        <span class="badge badge-${getDepartmentClass(employee.department)}">${employee.department}</span>
+                    </div>
+                </div>
+                <div class="employee-details">
+                    <div>
+                        <i data-lucide="mail"></i>
+                        <a href="mailto:${employee.email}" style="color: inherit; text-decoration: none;">${employee.email}</a>
+                    </div>
+                    ${employee.phone ? `
+                    <div>
+                        <i data-lucide="phone"></i>
+                        <span>${employee.phone}</span>
+                    </div>` : ''}
+                    ${employee.location ? `
+                    <div>
+                        <i data-lucide="map-pin"></i>
+                        <span>${employee.location}</span>
+                    </div>` : ''}
+                    ${employee.startDate ? `
+                    <div>
+                        <i data-lucide="calendar"></i>
+                        <span>Nástup: ${new Date(employee.startDate).toLocaleDateString('cs-CZ')}</span>
+                    </div>` : ''}
+                </div>
+            `;
+
+            return card;
+        }
+
+        function toggleDepartment(department) {
+            if (expandedDepartments.has(department)) {
+                expandedDepartments.delete(department);
+            } else {
+                expandedDepartments.add(department);
+            }
+            renderOrgChart();
+        }
+
+        function renderSearchResults() {
+            const searchQuery = document.getElementById('search-input').value.toLowerCase();
+            const departmentFilter = document.getElementById('department-filter').value;
+            const container = document.getElementById('search-results');
+
+            const filteredEmployees = employees.filter(emp => {
+                const matchesSearch = emp.name.toLowerCase().includes(searchQuery) ||
+                                     emp.position.toLowerCase().includes(searchQuery);
+                const matchesDepartment = !departmentFilter || emp.department === departmentFilter;
+                return matchesSearch && matchesDepartment;
+            });
+
+            container.innerHTML = '';
+
+            if (filteredEmployees.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: #6b7280;">
+                        <i data-lucide="users" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                        <h3>Žádní zaměstnanci</h3>
+                        <p>Zkuste změnit vyhledávací kritéria.</p>
+                    </div>
+                `;
+            } else {
+                filteredEmployees.forEach(employee => {
+                    container.appendChild(createEmployeeCard(employee));
+                });
+            }
+
+            lucide.createIcons();
+        }
+
+        // Pomocné funkce
+        function getDepartmentClass(department) {
+            const classes = {
+                'Vedení': 'leadership',
+                'IT': 'it',
+                'Finance': 'finance',
+                'HR': 'hr',
+                'Marketing': 'marketing'
+            };
+            return classes[department] || 'it';
+        }
+
+        function showAlert(message, type, containerId) {
+            const container = document.getElementById(containerId);
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            
+            container.innerHTML = '';
+            container.appendChild(alert);
+            
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.parentNode.removeChild(alert);
+                }
+            }, 5000);
+        }
+
+        // Event listenery pro modal
+        document.addEventListener('click', function(e) {
+            if (e.target.id === 'employee-modal') {
+                closeEmployeeModal();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeEmployeeModal();
+            }
+        });
+    </script>
+</body>
+</html>
