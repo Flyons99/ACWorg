@@ -1441,8 +1441,23 @@
             return false;
         }
 
+        // Safe lucide icon creation
+        function createIconsSafely() {
+            if (typeof lucide !== 'undefined') {
+                createIconsSafely();
+            } else {
+                setTimeout(createIconsSafely, 100);
+            }
+        }
+
         // Initialize app after successful login
         function initializeApp() {
+            // Wait for Lucide to load
+            if (typeof lucide === 'undefined') {
+                setTimeout(initializeApp, 100);
+                return;
+            }
+            
             lucide.createIcons();
             loadGitHubConfig();
             loadLocalEmployees();
@@ -1474,7 +1489,7 @@
             // Check authentication first
             if (!checkAuthentication()) {
                 // Show login screen
-                lucide.createIcons(); // For login screen icon
+                createIconsSafely(); // Safe icon creation for login screen
             }
         });
 
@@ -2157,7 +2172,7 @@
             container.appendChild(alert);
             
             // Aktualizovat ikony
-            lucide.createIcons();
+            createIconsSafely();
             
             // Auto-hide po 10 sekundách pro success, 15 pro error
             const timeout = type === 'success' ? 10000 : 15000;
