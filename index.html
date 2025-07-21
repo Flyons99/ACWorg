@@ -1458,7 +1458,7 @@
                 return;
             }
             
-            lucide.createIcons();
+            createIconsSafely();
             loadGitHubConfig();
             loadLocalEmployees();
             loadEmployeesFromGitHub();
@@ -1917,7 +1917,7 @@
             document.getElementById(tabName + '-tab').classList.add('active');
             event.target.classList.add('active');
             
-            lucide.createIcons();
+            createIconsSafely();
         }
 
         // Renderování
@@ -1961,7 +1961,7 @@
                 tbody.appendChild(row);
             });
             
-            lucide.createIcons();
+            createIconsSafely();
         }
 
         function renderOrgChart() {
@@ -2134,7 +2134,7 @@
                 });
             }
 
-            lucide.createIcons();
+            createIconsSafely();
         }
 
         // Pomocné funkce
