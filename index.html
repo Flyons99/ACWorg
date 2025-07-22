@@ -1144,7 +1144,7 @@
     <div id="login-overlay" class="login-overlay">
         <div class="login-box">
             <div class="login-logo">
-                <i data-lucide="building-2"></i>
+                🏢
             </div>
             <h1 class="login-title">Acomware</h1>
             <p class="login-subtitle">Organizační schéma</p>
@@ -1172,12 +1172,12 @@
     <div class="header">
         <div class="header-content">
             <div class="header-left">
-                <i data-lucide="building-2" class="logo"></i>
+                <span class="logo">🏢</span>
                 <h1>Acomware - Organizační schéma</h1>
             </div>
             <div style="display: flex; align-items: center; gap: 1rem;">
                 <div id="github-status" class="github-status connected">
-                    <i data-lucide="github"></i>
+                    <span>📁</span>
                     <span>GitHub připojen</span>
                 </div>
             </div>
@@ -1188,15 +1188,15 @@
     <div class="nav">
         <div class="nav-content">
             <button class="nav-button active" onclick="showTab('admin')">
-                <i data-lucide="edit-3"></i>
+                <span>⚙️</span>
                 Admin panel
             </button>
             <button class="nav-button" onclick="showTab('chart')">
-                <i data-lucide="eye"></i>
+                <span>👁️</span>
                 Organizační schéma
             </button>
             <button class="nav-button" onclick="showTab('search')">
-                <i data-lucide="search"></i>
+                <span>🔍</span>
                 Vyhledávání
             </button>
         </div>
@@ -1449,36 +1449,40 @@
 
         // Safe lucide icon creation
         function createIconsSafely() {
-            if (typeof lucide !== 'undefined' && lucide.createIcons) {
-                try {
-                    lucide.createIcons(); // ✅ OPRAVENO - volá správnou funkci
-                } catch (e) {
-                    console.log('Error creating icons:', e);
-                    setTimeout(createIconsSafely, 200);
+            try {
+                if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                    lucide.createIcons();
+                    console.log('Icons created successfully');
                 }
-            } else {
-                console.log('Lucide not ready, retrying...');
-                setTimeout(createIconsSafely, 200);
+            } catch (e) {
+                console.log('Icons not available, continuing without them');
             }
         }
 
         // Initialize app after successful login
         function initializeApp() {
-            console.log('Initializing app...');
+            console.log('=== INITIALIZING APP ===');
             
-            // Wait for Lucide to load
-            if (typeof lucide === 'undefined') {
-                console.log('Waiting for Lucide to load...');
-                setTimeout(initializeApp, 200);
-                return;
-            }
-            
-            console.log('Lucide loaded, starting app initialization');
-            createIconsSafely();
+            // Skip Lucide loading - use fallback approach
+            console.log('Starting app without waiting for Lucide');
             loadGitHubConfig();
             loadLocalEmployees();
             loadEmployeesFromGitHub();
             setupEventListeners();
+            
+            // Try to load icons after delay
+            setTimeout(() => {
+                try {
+                    if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                        console.log('Lucide available, creating icons');
+                        lucide.createIcons();
+                    } else {
+                        console.log('Lucide not available, using text fallbacks');
+                    }
+                } catch (e) {
+                    console.log('Error with Lucide, continuing without icons:', e);
+                }
+            }, 2000);
         }
 
         // Add fadeOut animation
@@ -1502,10 +1506,20 @@
 
         // Inicializace
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== DOM LOADED ===');
             // Check authentication first
             if (!checkAuthentication()) {
-                // Show login screen
-                createIconsSafely(); // Safe icon creation for login screen
+                // Show login screen - try to create icons but don't wait
+                console.log('Showing login screen');
+                setTimeout(() => {
+                    try {
+                        if (typeof lucide !== 'undefined') {
+                            lucide.createIcons();
+                        }
+                    } catch (e) {
+                        console.log('Login icons failed, continuing anyway');
+                    }
+                }, 1000);
             }
         });
 
@@ -2044,7 +2058,7 @@
                     <td>
                         ${employee.photo ? 
                             `<img src="${employee.photo}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">` :
-                            `<div style="width: 40px; height: 40px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center;"><i data-lucide="user" style="color: #9ca3af;"></i></div>`
+                            `<div style="width: 40px; height: 40px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; color: #9ca3af;">👤</div>`
                         }
                     </td>
                     <td>
@@ -2057,19 +2071,19 @@
                     <td>${employee.email}</td>
                     <td>${employee.location || ''}</td>
                     <td>
-                        <button onclick="openEmployeeModal(${JSON.stringify(employee).replace(/"/g, '&quot;')})" style="background: none; border: none; color: #2563eb; cursor: pointer; margin-right: 0.5rem;">
-                            <i data-lucide="edit-3"></i>
+                        <button onclick="openEmployeeModal(${JSON.stringify(employee).replace(/"/g, '&quot;')})" style="background: none; border: none; color: #2563eb; cursor: pointer; margin-right: 0.5rem;" title="Upravit">
+                            ✏️
                         </button>
-                        <button onclick="deleteEmployee(${employee.id})" style="background: none; border: none; color: #dc2626; cursor: pointer;">
-                            <i data-lucide="trash-2"></i>
+                        <button onclick="deleteEmployee(${employee.id})" style="background: none; border: none; color: #dc2626; cursor: pointer;" title="Smazat">
+                            🗑️
                         </button>
                     </td>
                 `;
                 tbody.appendChild(row);
             });
             
-            console.log('Table rendered successfully, creating icons...');
-            createIconsSafely();
+            console.log('Table rendered successfully');
+            createIconsSafely(); // Try to replace emoji with icons
         }
 
         function renderOrgChart() {
