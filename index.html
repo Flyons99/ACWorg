@@ -1161,7 +1161,15 @@
 
         function addGitHubTokenInput() {
             const adminTab = document.getElementById('admin-tab');
+            const sectionHeader = adminTab.querySelector('.section-header');
+            
+            // Check if token section already exists
+            if (document.getElementById('github-token-section')) {
+                return;
+            }
+            
             const tokenSection = document.createElement('div');
+            tokenSection.id = 'github-token-section';
             tokenSection.className = 'card';
             tokenSection.style.marginBottom = '2rem';
             tokenSection.innerHTML = `
@@ -1197,8 +1205,9 @@
             `;
             
             // Insert before the section header
-            const sectionHeader = adminTab.querySelector('.section-header');
             adminTab.insertBefore(tokenSection, sectionHeader);
+            
+            console.log('✅ GitHub token input section added');
         }
 
         function setGitHubToken() {
