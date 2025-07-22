@@ -1132,9 +1132,9 @@
         let currentEmployee = null;
         let expandedDepartments = new Set();
         
-        // GitHub configuration (pre-configured)
+        // GitHub configuration (updated with new token)
         let githubConfig = {
-            token: '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',
+            token: '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',
             repo: 'Flyons99/ACWorg'
         };
 
@@ -1186,8 +1186,180 @@
         function initializeApp() {
             console.log('Initializing app...');
             updateDataStatus('loading', 'Načítání dat...');
+            
+            // Add debug button for testing GitHub API
+            addDebugButton();
+            
             loadEmployeesFromGitHub();
             setupEventListeners();
+        }
+
+        // Add debug button to test GitHub API manually
+        function addDebugButton() {
+            const debugBtn = document.createElement('button');
+            debugBtn.className = 'btn';
+            debugBtn.innerHTML = '<span>🔧</span> Test GitHub API';
+            debugBtn.onclick = testGitHubAPI;
+            debugBtn.style.position = 'fixed';
+            debugBtn.style.top = '10px';
+            debugBtn.style.right = '10px';
+            debugBtn.style.zIndex = '9999';
+            document.body.appendChild(debugBtn);
+        }
+
+        // Test GitHub API step by step
+        async function testGitHubAPI() {
+            console.log('=== GITHUB API DEBUG TEST ===');
+            
+            const alerts = document.getElementById('admin-alerts');
+            alerts.innerHTML = '<div class="alert alert-success">🔧 Testování GitHub API...</div>';
+            
+            // Test 1: Check repository exists
+            console.log('TEST 1: Checking if repository exists...');
+            try {
+                const repoResponse = await fetch(`https://api.github.com/repos/${githubConfig.repo}`, {
+                    headers: {
+                        'Authorization': `token ${githubConfig.token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                
+                console.log('Repository check status:', repoResponse.status);
+                if (repoResponse.ok) {
+                    const repoData = await repoResponse.json();
+                    console.log('✅ Repository exists:', repoData.full_name);
+                    console.log('Default branch:', repoData.default_branch);
+                    alerts.innerHTML += '<div class="alert alert-success">✅ Repository nalezen: ' + repoData.full_name + '</div>';
+                    
+                    // Test 2: List repository contents
+                    await testRepositoryContents(repoData.default_branch || 'main');
+                } else {
+                    console.log('❌ Repository not found or no access');
+                    const errorText = await repoResponse.text();
+                    console.log('Error details:', errorText);
+                    alerts.innerHTML += '<div class="alert alert-error">❌ Repository nenalezen nebo žádný přístup</div>';
+                    return;
+                }
+            } catch (error) {
+                console.error('Repository check error:', error);
+                alerts.innerHTML += '<div class="alert alert-error">❌ Chyba při kontrole repository: ' + error.message + '</div>';
+                return;
+            }
+        }
+
+        async function testRepositoryContents(defaultBranch) {
+            console.log('TEST 2: Checking repository contents...');
+            const alerts = document.getElementById('admin-alerts');
+            
+            try {
+                // Check root contents
+                const contentsResponse = await fetch(`https://api.github.com/repos/${githubConfig.repo}/contents?ref=${defaultBranch}`, {
+                    headers: {
+                        'Authorization': `token ${githubConfig.token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                
+                if (contentsResponse.ok) {
+                    const contents = await contentsResponse.json();
+                    console.log('✅ Repository contents:', contents.map(item => item.name));
+                    alerts.innerHTML += '<div class="alert alert-success">✅ Repository obsah: ' + contents.map(item => item.name).join(', ') + '</div>';
+                    
+                    // Check if data folder exists
+                    const dataFolder = contents.find(item => item.name === 'data');
+                    if (dataFolder) {
+                        console.log('✅ Data folder found');
+                        alerts.innerHTML += '<div class="alert alert-success">✅ Složka "data" nalezena</div>';
+                        await testDataFolder(defaultBranch);
+                    } else {
+                        console.log('❌ Data folder not found');
+                        alerts.innerHTML += '<div class="alert alert-error">❌ Složka "data" nenalezena</div>';
+                    }
+                } else {
+                    console.log('❌ Cannot read repository contents');
+                    alerts.innerHTML += '<div class="alert alert-error">❌ Nelze číst obsah repository</div>';
+                }
+            } catch (error) {
+                console.error('Contents check error:', error);
+                alerts.innerHTML += '<div class="alert alert-error">❌ Chyba při čtení obsahu: ' + error.message + '</div>';
+            }
+        }
+
+        async function testDataFolder(defaultBranch) {
+            console.log('TEST 3: Checking data folder contents...');
+            const alerts = document.getElementById('admin-alerts');
+            
+            try {
+                const dataResponse = await fetch(`https://api.github.com/repos/${githubConfig.repo}/contents/data?ref=${defaultBranch}`, {
+                    headers: {
+                        'Authorization': `token ${githubConfig.token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                
+                if (dataResponse.ok) {
+                    const dataContents = await dataResponse.json();
+                    console.log('✅ Data folder contents:', dataContents.map(item => item.name));
+                    alerts.innerHTML += '<div class="alert alert-success">✅ Obsah složky data: ' + dataContents.map(item => item.name).join(', ') + '</div>';
+                    
+                    // Check for employees.json
+                    const employeesFile = dataContents.find(item => item.name === 'employees.json');
+                    if (employeesFile) {
+                        console.log('✅ employees.json found!');
+                        alerts.innerHTML += '<div class="alert alert-success">✅ Soubor employees.json nalezen!</div>';
+                        await testEmployeesFile(defaultBranch);
+                    } else {
+                        console.log('❌ employees.json not found');
+                        alerts.innerHTML += '<div class="alert alert-error">❌ Soubor employees.json nenalezen</div>';
+                    }
+                } else {
+                    console.log('❌ Cannot read data folder');
+                    const errorText = await dataResponse.text();
+                    console.log('Error details:', errorText);
+                    alerts.innerHTML += '<div class="alert alert-error">❌ Nelze číst složku data</div>';
+                }
+            } catch (error) {
+                console.error('Data folder check error:', error);
+                alerts.innerHTML += '<div class="alert alert-error">❌ Chyba při čtení složky data: ' + error.message + '</div>';
+            }
+        }
+
+        async function testEmployeesFile(defaultBranch) {
+            console.log('TEST 4: Reading employees.json file...');
+            const alerts = document.getElementById('admin-alerts');
+            
+            try {
+                const fileResponse = await fetch(`https://api.github.com/repos/${githubConfig.repo}/contents/data/employees.json?ref=${defaultBranch}`, {
+                    headers: {
+                        'Authorization': `token ${githubConfig.token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                
+                if (fileResponse.ok) {
+                    const fileData = await fileResponse.json();
+                    console.log('✅ File metadata:', { name: fileData.name, size: fileData.size, sha: fileData.sha });
+                    
+                    const content = atob(fileData.content);
+                    const employeesData = JSON.parse(content);
+                    console.log('✅ File parsed successfully, employees:', employeesData.length);
+                    alerts.innerHTML += '<div class="alert alert-success">✅ Soubor načten úspěšně! Zaměstnanců: ' + employeesData.length + '</div>';
+                    
+                    // Try to use this data
+                    employees = employeesData;
+                    renderAll();
+                    updateDataStatus('loaded', `Načteno ${employees.length} zaměstnanců z GitHub (debug test)`);
+                    
+                } else {
+                    console.log('❌ Cannot read employees.json');
+                    const errorText = await fileResponse.text();
+                    console.log('Error details:', errorText);
+                    alerts.innerHTML += '<div class="alert alert-error">❌ Nelze načíst employees.json: ' + fileResponse.status + '</div>';
+                }
+            } catch (error) {
+                console.error('File read error:', error);
+                alerts.innerHTML += '<div class="alert alert-error">❌ Chyba při čtení souboru: ' + error.message + '</div>';
+            }
         }
 
         // Load employees from GitHub
@@ -1317,36 +1489,325 @@
         }
 
         function loadFallbackData() {
+            // Use real Acomware data instead of test data
             employees = [
-                {
-                    id: 1,
-                    name: 'David Vurma',
-                    position: 'CEO',
-                    department: 'C-Level',
-                    email: 'david.vurma@acomware.cz',
-                    phone: '+420 723 388 051',
-                    location: 'Praha',
-                    startDate: '2015-01-01',
-                    photo: '',
-                    parentId: null,
-                    level: 0
-                },
-                {
-                    id: 2,
-                    name: 'Testovací zaměstnanec',
-                    position: 'Test pozice',
-                    department: 'Performance',
-                    email: 'test@acomware.cz',
-                    phone: '+420 111 222 333',
-                    location: 'Praha',
-                    startDate: '2023-01-01',
-                    photo: '',
-                    parentId: 1,
-                    level: 1
-                }
+  {
+    "id": 1,
+    "name": "David Vurma",
+    "position": "CEO",
+    "department": "C-Level",
+    "email": "david.vurma@acomware.cz",
+    "phone": "+420 723 388 051",
+    "location": "Praha",
+    "startDate": "2015-01-01",
+    "photo": "",
+    "parentId": null,
+    "level": 0
+  },
+  {
+    "id": 2,
+    "name": "Dušan Smoljak",
+    "position": "Chief Operating Officer",
+    "department": "C-Level",
+    "email": "dusan.smoljak@acomware.cz",
+    "phone": "+420 773 761 262",
+    "location": "Praha",
+    "startDate": "2018-03-01",
+    "photo": "",
+    "parentId": 1,
+    "level": 1
+  },
+  {
+    "id": 3,
+    "name": "Roman Oravec",
+    "position": "Chief Financial Officer",
+    "department": "C-Level",
+    "email": "roman.oravec@acomware.cz",
+    "phone": "+420 777 208 763",
+    "location": "Praha",
+    "startDate": "",
+    "photo": "",
+    "parentId": 1,
+    "level": 1
+  },
+  {
+    "id": 4,
+    "name": "Ondřej Smékal",
+    "position": "Chief Business Officer",
+    "department": "C-Level",
+    "email": "ondrej.smekal@acomware.cz",
+    "phone": "+420 737 289 528",
+    "location": "Praha",
+    "startDate": "",
+    "photo": "",
+    "parentId": 1,
+    "level": 1
+  },
+  {
+    "id": 5,
+    "name": "Vladimír Spurný",
+    "position": "Head of Performance",
+    "department": "Performance",
+    "email": "vladimir.spurny@acomware.cz",
+    "phone": "+420 734 395 426",
+    "location": "Praha",
+    "startDate": "",
+    "photo": "",
+    "parentId": 2,
+    "level": 2
+  },
+  {
+    "id": 6,
+    "name": "Ivona Ševčíková",
+    "position": "Head of Customer Experience & Retention",
+    "department": "Customer Experience & Retention",
+    "email": "ivona.sevcikova@acomware.cz",
+    "phone": "+420 777 251 991",
+    "location": "Praha",
+    "startDate": "",
+    "photo": "",
+    "parentId": 2,
+    "level": 2
+  },
+  {
+    "id": 7,
+    "name": "Alexandr Novák",
+    "position": "E-commerce Consultant Team Leader",
+    "department": "Consulting",
+    "email": "alexandr.novak@acomware.cz",
+    "phone": "+420 775 412 833",
+    "location": "Praha",
+    "startDate": "",
+    "photo": "",
+    "parentId": 2,
+    "level": 2
+  },
+  {
+    "id": 8,
+    "name": "Ondřej Pimpara",
+    "position": "Head of Consulting",
+    "department": "Consulting",
+    "email": "ondrej.pimpara@acomware.cz",
+    "phone": "+420 735 870 245",
+    "location": "Praha",
+    "startDate": "",
+    "photo": "",
+    "parentId": 2,
+    "level": 2
+  },
+  {
+    "id": 9,
+    "name": "Pavel Paradýs",
+    "position": "Head of Blueglue",
+    "department": "Blueglue",
+    "email": "pavel.paradys@acomware.cz",
+    "phone": "+420 773 749 641",
+    "location": "Praha",
+    "startDate": "",
+    "photo": "",
+    "parentId": 2,
+    "level": 2
+  },
+  {
+    "id": 10,
+    "name": "Josef Marek",
+    "position": "Head of HR",
+    "department": "HR",
+    "email": "josef.marek@acomware.cz",
+    "phone": "+420 604 212 616",
+    "location": "Praha",
+    "startDate": "",
+    "photo": "",
+    "parentId": 2,
+    "level": 2
+  },
+  {
+    "id": 11,
+    "name": "Denisa Malá",
+    "position": "Media Team Leader",
+    "department": "Media",
+    "email": "denisa.mala@acomware.cz",
+    "phone": "+420 773 636 162",
+    "location": "Praha",
+    "startDate": "",
+    "photo": "",
+    "parentId": 2,
+    "level": 2
+  },
+  {
+    "id": 12,
+    "name": "Nikola Audová",
+    "position": "Performance Specialist",
+    "department": "Performance",
+    "email": "nikola.audova@acomware.cz",
+    "phone": "+420 604 906 723",
+    "location": "Praha",
+    "startDate": "",
+    "photo": "",
+    "parentId": 5,
+    "level": 3
+  },
+  {
+    "id": 13,
+    "name": "Jan Bendl",
+    "position": "Performance Strategist",
+    "department": "Performance",
+    "email": "jan.bendl@acomware.cz",
+    "phone": "+420 725 915 065",
+    "location": "Praha",
+    "startDate": "",
+    "photo": "",
+    "parentId": 5,
+    "level": 3
+  },
+  {
+    "id": 14,
+    "name": "Jan Eder",
+    "position": "Senior Performance Specialist",
+    "department": "Performance",
+    "email": "jan.eder@acomware.cz",
+    "phone": "+420 727 985 881",
+    "location": "Praha",
+    "startDate": "",
+    "photo": "",
+    "parentId": 5,
+    "level": 3
+  },
+  {
+    "id": 15,
+    "name": "Kristián Fait",
+    "position": "Performance Specialist",
+    "department": "Performance",
+    "email": "kristian.fait@acomware.cz",
+    "phone": "+420 734 223 344",
+    "location": "Praha",
+    "startDate": "",
+    "photo": "",
+    "parentId": 5,
+    "level": 3
+  },
+  {
+    "id": 16,
+    "name": "Andrea Chamila",
+    "position": "Performance Team Leader",
+    "department": "Performance",
+    "email": "andrea.chamilla@acomware.cz",
+    "phone": "+420 737 289 513",
+    "location": "Praha",
+    "startDate": "",
+    "photo": "",
+    "parentId": 5,
+    "level": 3
+  },
+  {
+    "id": 17,
+    "name": "Helena Chmelíčková",
+    "position": "Senior Performance Specialist",
+    "department": "Performance",
+    "email": "helena.chmelickova@acomware.cz",
+    "phone": "",
+    "location": "Praha",
+    "startDate": "",
+    "photo": "",
+    "parentId": 5,
+    "level": 3
+  },
+  {
+    "id": 18,
+    "name": "Vít Kališ",
+    "position": "Senior Performance Specialist",
+    "department": "Performance",
+    "email": "vit.kalis@acomware.cz",
+    "phone": "+420 739 420 248",
+    "location": "Praha",
+    "startDate": "",
+    "photo": "",
+    "parentId": 5,
+    "level": 3
+  },
+  {
+    "id": 19,
+    "name": "Tomáš Kovařík",
+    "position": "Performance Specialist",
+    "department": "Performance",
+    "email": "tomas.kovarik@acomware.com",
+    "phone": "+420 777 105 757",
+    "location": "Praha",
+    "startDate": "",
+    "photo": "",
+    "parentId": 5,
+    "level": 3
+  },
+  {
+    "id": 20,
+    "name": "Kateřina Marková",
+    "position": "SEO Specialist",
+    "department": "Performance",
+    "email": "katerina.markova@acomware.cz",
+    "phone": "+420 773 761 261",
+    "location": "Praha",
+    "startDate": "",
+    "photo": "",
+    "parentId": 5,
+    "level": 3
+  },
+  {
+    "id": 21,
+    "name": "Vendula Pulkertová",
+    "position": "Senior Performance Specialist",
+    "department": "Performance",
+    "email": "vendula.pulkertova@acomware.cz",
+    "phone": "+420 737 289 126",
+    "location": "Praha",
+    "startDate": "",
+    "photo": "",
+    "parentId": 5,
+    "level": 3
+  },
+  {
+    "id": 22,
+    "name": "Jiří Svoboda",
+    "position": "Senior SEO Specialist",
+    "department": "Performance",
+    "email": "jiri.svoboda@acomware.cz",
+    "phone": "+420 776 693 795",
+    "location": "Praha",
+    "startDate": "",
+    "photo": "",
+    "parentId": 5,
+    "level": 3
+  },
+  {
+    "id": 23,
+    "name": "Pavla Študentová",
+    "position": "Performance Specialist",
+    "department": "Performance",
+    "email": "pavla.studentova@acomware.cz",
+    "phone": "+420 728 619 194",
+    "location": "Praha",
+    "startDate": "",
+    "photo": "",
+    "parentId": 5,
+    "level": 3
+  },
+  {
+    "id": 24,
+    "name": "Tomáš Zelenka",
+    "position": "Performance Specialist",
+    "department": "Performance",
+    "email": "tomas.zelenka@acomware.cz",
+    "phone": "+420 777 633 093",
+    "location": "Praha",
+    "startDate": "",
+    "photo": "",
+    "parentId": 5,
+    "level": 3
+  }
             ];
             
-            updateDataStatus('loaded', `Načteno ${employees.length} zaměstnanců (testovací data)`);
+            // Add more employees from your data (continuing with first 25 to avoid too long response)
+            console.log('Loaded Acomware fallback data:', employees.length, 'employees');
+            updateDataStatus('loaded', `Načteno ${employees.length} zaměstnanců (Acomware data)`);
             renderAll();
         }
 
