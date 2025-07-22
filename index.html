@@ -1207,37 +1207,64 @@
             document.body.appendChild(debugBtn);
         }
 
-        // Test GitHub API step by step
+        // Test GitHub API step by step with improved debugging
         async function testGitHubAPI() {
             console.log('=== GITHUB API DEBUG TEST ===');
             
             const alerts = document.getElementById('admin-alerts');
             alerts.innerHTML = '<div class="alert alert-success">🔧 Testování GitHub API...</div>';
             
-            // Test 1: Check repository exists
+            // Test 1: Check repository exists with proper headers
             console.log('TEST 1: Checking if repository exists...');
             try {
                 const repoResponse = await fetch(`https://api.github.com/repos/${githubConfig.repo}`, {
                     headers: {
-                        'Authorization': `token ${githubConfig.token}`,
-                        'Accept': 'application/vnd.github.v3+json'
+                        'Authorization': `Bearer ${githubConfig.token}`,
+                        'Accept': 'application/vnd.github+json',
+                        'X-GitHub-Api-Version': '2022-11-28',
+                        'User-Agent': 'ACW-App'
                     }
                 });
                 
                 console.log('Repository check status:', repoResponse.status);
+                console.log('Repository response headers:', Object.fromEntries(repoResponse.headers.entries()));
+                
+                // Check for permission headers
+                const permissions = repoResponse.headers.get('X-Accepted-GitHub-Permissions');
+                if (permissions) {
+                    console.log('GitHub permissions available:', permissions);
+                    alerts.innerHTML += '<div class="alert alert-success">📋 Dostupná oprávnění: ' + permissions + '</div>';
+                }
+                
                 if (repoResponse.ok) {
                     const repoData = await repoResponse.json();
                     console.log('✅ Repository exists:', repoData.full_name);
                     console.log('Default branch:', repoData.default_branch);
-                    alerts.innerHTML += '<div class="alert alert-success">✅ Repository nalezen: ' + repoData.full_name + '</div>';
+                    console.log('Repository permissions:', repoData.permissions);
                     
-                    // Test 2: List repository contents
-                    await testRepositoryContents(repoData.default_branch || 'main');
+                    alerts.innerHTML += '<div class="alert alert-success">✅ Repository nalezen: ' + repoData.full_name + '</div>';
+                    alerts.innerHTML += '<div class="alert alert-success">📌 Default branch: ' + repoData.default_branch + '</div>';
+                    
+                    if (repoData.permissions) {
+                        const perms = Object.entries(repoData.permissions)
+                            .filter(([key, value]) => value === true)
+                            .map(([key]) => key)
+                            .join(', ');
+                        alerts.innerHTML += '<div class="alert alert-success">🔑 Token oprávnění: ' + perms + '</div>';
+                    }
+                    
+                    // Test 2: Try to access the file
+                    await testFileAccess(repoData.default_branch || 'main');
+                } else if (repoResponse.status === 403) {
+                    const errorData = await repoResponse.text();
+                    console.log('❌ 403 Forbidden accessing repository:', errorData);
+                    alerts.innerHTML += '<div class="alert alert-error">❌ 403 Forbidden - Token nemá oprávnění nebo chybí SAML SSO autorizace</div>';
+                    return;
                 } else {
                     console.log('❌ Repository not found or no access');
-                    const errorText = await repoResponse.text();
-                    console.log('Error details:', errorText);
-                    alerts.innerHTML += '<div class="alert alert-error">❌ Repository nenalezen nebo žádný přístup</div>';
+                    const errorData = await repoResponse.text();
+                    console.log('Error details:', errorData);
+                    alerts.innerHTML += '<div class="alert alert-error">❌ Repository nenalezen: ' + repoResponse.status + '</div>';
                     return;
                 }
             } catch (error) {
@@ -1247,118 +1274,150 @@
             }
         }
 
-        async function testRepositoryContents(defaultBranch) {
-            console.log('TEST 2: Checking repository contents...');
-            const alerts = document.getElementById('admin-alerts');
-            
-            try {
-                // Check root contents
-                const contentsResponse = await fetch(`https://api.github.com/repos/${githubConfig.repo}/contents?ref=${defaultBranch}`, {
-                    headers: {
-                        'Authorization': `token ${githubConfig.token}`,
-                        'Accept': 'application/vnd.github.v3+json'
-                    }
-                });
-                
-                if (contentsResponse.ok) {
-                    const contents = await contentsResponse.json();
-                    console.log('✅ Repository contents:', contents.map(item => item.name));
-                    alerts.innerHTML += '<div class="alert alert-success">✅ Repository obsah: ' + contents.map(item => item.name).join(', ') + '</div>';
-                    
-                    // Check if data folder exists
-                    const dataFolder = contents.find(item => item.name === 'data');
-                    if (dataFolder) {
-                        console.log('✅ Data folder found');
-                        alerts.innerHTML += '<div class="alert alert-success">✅ Složka "data" nalezena</div>';
-                        await testDataFolder(defaultBranch);
-                    } else {
-                        console.log('❌ Data folder not found');
-                        alerts.innerHTML += '<div class="alert alert-error">❌ Složka "data" nenalezena</div>';
-                    }
-                } else {
-                    console.log('❌ Cannot read repository contents');
-                    alerts.innerHTML += '<div class="alert alert-error">❌ Nelze číst obsah repository</div>';
-                }
-            } catch (error) {
-                console.error('Contents check error:', error);
-                alerts.innerHTML += '<div class="alert alert-error">❌ Chyba při čtení obsahu: ' + error.message + '</div>';
-            }
-        }
-
-        async function testDataFolder(defaultBranch) {
-            console.log('TEST 3: Checking data folder contents...');
-            const alerts = document.getElementById('admin-alerts');
-            
-            try {
-                const dataResponse = await fetch(`https://api.github.com/repos/${githubConfig.repo}/contents/data?ref=${defaultBranch}`, {
-                    headers: {
-                        'Authorization': `token ${githubConfig.token}`,
-                        'Accept': 'application/vnd.github.v3+json'
-                    }
-                });
-                
-                if (dataResponse.ok) {
-                    const dataContents = await dataResponse.json();
-                    console.log('✅ Data folder contents:', dataContents.map(item => item.name));
-                    alerts.innerHTML += '<div class="alert alert-success">✅ Obsah složky data: ' + dataContents.map(item => item.name).join(', ') + '</div>';
-                    
-                    // Check for employees.json
-                    const employeesFile = dataContents.find(item => item.name === 'employees.json');
-                    if (employeesFile) {
-                        console.log('✅ employees.json found!');
-                        alerts.innerHTML += '<div class="alert alert-success">✅ Soubor employees.json nalezen!</div>';
-                        await testEmployeesFile(defaultBranch);
-                    } else {
-                        console.log('❌ employees.json not found');
-                        alerts.innerHTML += '<div class="alert alert-error">❌ Soubor employees.json nenalezen</div>';
-                    }
-                } else {
-                    console.log('❌ Cannot read data folder');
-                    const errorText = await dataResponse.text();
-                    console.log('Error details:', errorText);
-                    alerts.innerHTML += '<div class="alert alert-error">❌ Nelze číst složku data</div>';
-                }
-            } catch (error) {
-                console.error('Data folder check error:', error);
-                alerts.innerHTML += '<div class="alert alert-error">❌ Chyba při čtení složky data: ' + error.message + '</div>';
-            }
-        }
-
-        async function testEmployeesFile(defaultBranch) {
-            console.log('TEST 4: Reading employees.json file...');
+        async function testFileAccess(defaultBranch) {
+            console.log('TEST 2: Testing file access...');
             const alerts = document.getElementById('admin-alerts');
             
             try {
                 const fileResponse = await fetch(`https://api.github.com/repos/${githubConfig.repo}/contents/data/employees.json?ref=${defaultBranch}`, {
                     headers: {
-                        'Authorization': `token ${githubConfig.token}`,
-                        'Accept': 'application/vnd.github.v3+json'
+                        'Authorization': `Bearer ${githubConfig.token}`,
+                        'Accept': 'application/vnd.github+json',
+                        'X-GitHub-Api-Version': '2022-11-28',
+                        'User-Agent': 'ACW-App'
                     }
                 });
+                
+                console.log('File access status:', fileResponse.status);
+                console.log('File response headers:', Object.fromEntries(fileResponse.headers.entries()));
                 
                 if (fileResponse.ok) {
                     const fileData = await fileResponse.json();
                     console.log('✅ File metadata:', { name: fileData.name, size: fileData.size, sha: fileData.sha });
                     
-                    const content = atob(fileData.content);
+                    const content = atob(fileData.content.replace(/\s/g, ''));
                     const employeesData = JSON.parse(content);
                     console.log('✅ File parsed successfully, employees:', employeesData.length);
-                    alerts.innerHTML += '<div class="alert alert-success">✅ Soubor načten úspěšně! Zaměstnanců: ' + employeesData.length + '</div>';
                     
-                    // Try to use this data
+                    alerts.innerHTML += '<div class="alert alert-success">✅ Soubor načten úspěšně! Zaměstnanců: ' + employeesData.length + '</div>';
+                    alerts.innerHTML += '<div class="alert alert-success">📄 SHA: ' + fileData.sha.substring(0, 8) + '...</div>';
+                    
+                    // Use this data
                     employees = employeesData;
                     renderAll();
                     updateDataStatus('loaded', `Načteno ${employees.length} zaměstnanců z GitHub (debug test)`);
                     
+                    // Test 3: Try a write test (create a test file)
+                    await testWriteAccess();
+                    
+                } else if (fileResponse.status === 403) {
+                    const errorData = await fileResponse.text();
+                    console.log('❌ 403 Forbidden accessing file:', errorData);
+                    alerts.innerHTML += '<div class="alert alert-error">❌ 403 Forbidden - Token nemá "Contents: read" oprávnění</div>';
                 } else {
                     console.log('❌ Cannot read employees.json');
-                    const errorText = await fileResponse.text();
-                    console.log('Error details:', errorText);
+                    const errorData = await fileResponse.text();
+                    console.log('Error details:', errorData);
                     alerts.innerHTML += '<div class="alert alert-error">❌ Nelze načíst employees.json: ' + fileResponse.status + '</div>';
                 }
             } catch (error) {
-                console.error('File read error:', error);
-                alerts.innerHTML += '<div class="alert alert-error">❌ Chyba při čtení souboru: ' + error.message + '</div>';
+                console.error('File access error:', error);
+                alerts.innerHTML += '<div class="alert alert-error">❌ Chyba při přístupu k souboru: ' + error.message + '</div>';
+            }
+        }
+
+        async function testWriteAccess() {
+            console.log('TEST 3: Testing write access...');
+            const alerts = document.getElementById('admin-alerts');
+            
+            try {
+                const testContent = btoa(JSON.stringify({ test: true, timestamp: new Date().toISOString() }, null, 2));
+                
+                const testBody = {
+                    message: 'Test write access - ACW App',
+                    content: testContent,
+                    branch: 'main',
+                    committer: {
+                        name: 'Acomware System',
+                        email: 'system@acomware.cz'
+                    },
+                    author: {
+                        name: 'Acomware System',
+                        email: 'system@acomware.cz'
+                    }
+                };
+
+                const testResponse = await fetch(`https://api.github.com/repos/${githubConfig.repo}/contents/test-acw-write.json`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${githubConfig.token}`,
+                        'Accept': 'application/vnd.github+json',
+                        'X-GitHub-Api-Version': '2022-11-28',
+                        'User-Agent': 'ACW-App',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testBody)
+                });
+
+                console.log('Write test status:', testResponse.status);
+                console.log('Write test headers:', Object.fromEntries(testResponse.headers.entries()));
+
+                if (testResponse.ok) {
+                    const result = await testResponse.json();
+                    console.log('✅ Write test successful, commit SHA:', result.commit?.sha);
+                    alerts.innerHTML += '<div class="alert alert-success">✅ Zápis funguje! Token má "Contents: write" oprávnění</div>';
+                    
+                    // Clean up test file
+                    setTimeout(() => deleteTestFile(result.content.sha), 2000);
+                    
+                } else if (testResponse.status === 403) {
+                    const errorData = await testResponse.text();
+                    console.log('❌ 403 Forbidden on write:', errorData);
+                    alerts.innerHTML += '<div class="alert alert-error">❌ 403 Forbidden - Token nemá "Contents: write" oprávnění</div>';
+                    
+                    const permissions = testResponse.headers.get('X-Accepted-GitHub-Permissions');
+                    if (permissions) {
+                        alerts.innerHTML += '<div class="alert alert-error">📋 Potřebná oprávnění: ' + permissions + '</div>';
+                    }
+                } else {
+                    const errorData = await testResponse.text();
+                    console.log('❌ Write test failed:', testResponse.status, errorData);
+                    alerts.innerHTML += '<div class="alert alert-error">❌ Test zápisu selhal: ' + testResponse.status + '</div>';
+                }
+            } catch (error) {
+                console.error('Write test error:', error);
+                alerts.innerHTML += '<div class="alert alert-error">❌ Chyba při testu zápisu: ' + error.message + '</div>';
+            }
+        }
+
+        async function deleteTestFile(sha) {
+            try {
+                const deleteResponse = await fetch(`https://api.github.com/repos/${githubConfig.repo}/contents/test-acw-write.json`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${githubConfig.token}`,
+                        'Accept': 'application/vnd.github+json',
+                        'X-GitHub-Api-Version': '2022-11-28',
+                        'User-Agent': 'ACW-App',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: 'Clean up test file - ACW App',
+                        sha: sha,
+                        committer: {
+                            name: 'Acomware System',
+                            email: 'system@acomware.cz'
+                        }
+                    })
+                });
+                
+                if (deleteResponse.ok) {
+                    console.log('✅ Test file cleaned up');
+                } else {
+                    console.log('⚠️ Could not clean up test file:', deleteResponse.status);
+                }
+            } catch (error) {
+                console.log('⚠️ Error cleaning up test file:', error);
             }
         }
 
@@ -1459,59 +1518,108 @@
             }
         }
 
-        // Save employees to GitHub
+        // Save employees to GitHub with proper metadata
         async function saveEmployeesToGitHub() {
             if (!githubConfig.token || !githubConfig.repo) {
                 return false;
             }
 
             try {
+                console.log('Saving to GitHub...');
+                
                 // Get existing file SHA (needed for updates)
                 let sha = null;
                 try {
                     const getResponse = await fetch(`https://api.github.com/repos/${githubConfig.repo}/contents/data/employees.json`, {
                         headers: {
-                            'Authorization': `token ${githubConfig.token}`,
+                            'Authorization': `Bearer ${githubConfig.token}`,
+                            'Accept': 'application/vnd.github+json',
+                            'X-GitHub-Api-Version': '2022-11-28',
+                            'User-Agent': 'ACW-App'
                         }
                     });
+                    
+                    console.log('Get existing file status:', getResponse.status);
+                    
                     if (getResponse.ok) {
                         const existing = await getResponse.json();
                         sha = existing.sha;
+                        console.log('Existing file SHA:', sha);
+                    } else if (getResponse.status !== 404) {
+                        const errorData = await getResponse.text();
+                        console.error('Error getting existing file:', getResponse.status, errorData);
                     }
                 } catch (e) {
                     console.log('File does not exist yet, will create new');
                 }
 
+                // Prepare content
                 const content = btoa(JSON.stringify(employees, null, 2));
+                const timestamp = new Date().toISOString();
+                
                 const body = {
-                    message: `Update employees data - ${new Date().toISOString()}`,
+                    message: `Update employees data - ${timestamp}`,
                     content: content,
-                    branch: 'main'
+                    branch: 'main',
+                    committer: {
+                        name: 'Acomware System',
+                        email: 'system@acomware.cz'
+                    },
+                    author: {
+                        name: 'Acomware System', 
+                        email: 'system@acomware.cz'
+                    }
                 };
                 
                 if (sha) {
                     body.sha = sha;
                 }
 
+                console.log('Sending PUT request with body:', JSON.stringify(body, null, 2));
+
                 const response = await fetch(`https://api.github.com/repos/${githubConfig.repo}/contents/data/employees.json`, {
                     method: 'PUT',
                     headers: {
-                        'Authorization': `token ${githubConfig.token}`,
-                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${githubConfig.token}`,
+                        'Accept': 'application/vnd.github+json',
+                        'X-GitHub-Api-Version': '2022-11-28',
+                        'User-Agent': 'ACW-App',
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(body)
                 });
 
+                console.log('PUT response status:', response.status);
+                console.log('PUT response headers:', Object.fromEntries(response.headers.entries()));
+
                 if (response.ok) {
-                    console.log('Successfully saved to GitHub');
+                    const result = await response.json();
+                    console.log('✅ Successfully saved to GitHub');
+                    console.log('Commit SHA:', result.commit?.sha);
                     return true;
                 } else {
                     const errorData = await response.text();
-                    console.error('GitHub save error:', response.status, errorData);
+                    console.error('❌ GitHub save error:', response.status, errorData);
+                    
+                    // Log GitHub permissions for debugging
+                    const permissions = response.headers.get('X-Accepted-GitHub-Permissions');
+                    if (permissions) {
+                        console.log('Required GitHub permissions:', permissions);
+                    }
+                    
+                    if (response.status === 403) {
+                        console.error('403 Forbidden - Token nemá správná oprávnění nebo SAML SSO authorization');
+                        showAlert('403 Forbidden - Token nemá oprávnění "Contents: write" nebo chybí SAML SSO autorizace', 'error', 'admin-alerts');
+                    } else if (response.status === 422) {
+                        console.error('422 Unprocessable Entity - Možná chybí committer metadata');
+                        showAlert('422 Unprocessable Entity - Chyba v metadatech commitu', 'error', 'admin-alerts');
+                    }
+                    
                     return false;
                 }
             } catch (error) {
                 console.error('Error saving to GitHub:', error);
+                showAlert(`Chyba při ukládání na GitHub: ${error.message}`, 'error', 'admin-alerts');
                 return false;
             }
         }
