@@ -1394,12 +1394,16 @@
         
         function handleLogin(event) {
             event.preventDefault();
+            console.log('=== LOGIN ATTEMPT ===');
             
             const passwordInput = document.getElementById('password-input');
             const errorDiv = document.getElementById('login-error');
             const enteredPassword = passwordInput.value;
             
+            console.log('Password entered, checking...');
+            
             if (enteredPassword === CORRECT_PASSWORD) {
+                console.log('✅ CORRECT PASSWORD - proceeding with login');
                 // Correct password
                 const loginOverlay = document.getElementById('login-overlay');
                 const appContent = document.getElementById('app-content');
@@ -1408,16 +1412,19 @@
                 setTimeout(() => {
                     loginOverlay.classList.add('hidden');
                     appContent.classList.add('unlocked');
+                    console.log('Login screen hidden, starting app...');
                     initializeApp();
                 }, 500);
                 
                 // Store login state
                 try {
                     sessionStorage.setItem('acw_authenticated', 'true');
+                    console.log('Authentication stored in sessionStorage');
                 } catch (e) {
-                    console.log('SessionStorage není dostupný');
+                    console.log('SessionStorage není dostupný, continuing anyway');
                 }
             } else {
+                console.log('❌ WRONG PASSWORD');
                 // Wrong password
                 errorDiv.textContent = 'Nesprávné heslo';
                 errorDiv.classList.add('show');
@@ -1433,17 +1440,21 @@
 
         // Check if already authenticated
         function checkAuthentication() {
+            console.log('=== CHECK AUTHENTICATION ===');
             try {
                 const isAuthenticated = sessionStorage.getItem('acw_authenticated');
+                console.log('Authentication status:', isAuthenticated);
                 if (isAuthenticated === 'true') {
+                    console.log('User is authenticated, hiding login and showing app');
                     document.getElementById('login-overlay').classList.add('hidden');
                     document.getElementById('app-content').classList.add('unlocked');
                     initializeApp();
                     return true;
                 }
             } catch (e) {
-                console.log('SessionStorage není dostupný');
+                console.log('SessionStorage není dostupný, continuing with login');
             }
+            console.log('User not authenticated, showing login screen');
             return false;
         }
 
@@ -1463,11 +1474,17 @@
         function initializeApp() {
             console.log('=== INITIALIZING APP ===');
             
-            // Skip Lucide loading - use fallback approach
             console.log('Starting app without waiting for Lucide');
             loadGitHubConfig();
+            
+            // Explicitly call these functions
+            console.log('Loading local employees...');
             loadLocalEmployees();
+            
+            console.log('Loading employees from GitHub...');  
             loadEmployeesFromGitHub();
+            
+            console.log('Setting up event listeners...');
             setupEventListeners();
             
             // Try to load icons after delay
@@ -1524,8 +1541,24 @@
         });
 
         function setupEventListeners() {
-            document.getElementById('search-input').addEventListener('input', renderSearchResults);
-            document.getElementById('department-filter').addEventListener('change', renderSearchResults);
+            console.log('=== SETUP EVENT LISTENERS ===');
+            
+            const searchInput = document.getElementById('search-input');
+            const departmentFilter = document.getElementById('department-filter');
+            
+            if (searchInput) {
+                searchInput.addEventListener('input', renderSearchResults);
+                console.log('Search input listener added');
+            } else {
+                console.warn('Search input not found');
+            }
+            
+            if (departmentFilter) {
+                departmentFilter.addEventListener('change', renderSearchResults);
+                console.log('Department filter listener added');
+            } else {
+                console.warn('Department filter not found');
+            }
         }
 
         // GitHub konfigurace (přednastavená)
