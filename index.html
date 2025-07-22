@@ -1132,11 +1132,154 @@
         let currentEmployee = null;
         let expandedDepartments = new Set();
         
-        // GitHub configuration (updated with fine-grained token)
+        // GitHub configuration (secure - token from environment or user input)
         let githubConfig = {
-            token: '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',
+            token: '', // Will be set by user or environment
             repo: 'Flyons99/ACWorg'
         };
+
+        // Add token input in initialization
+        function initializeApp() {
+            console.log('Initializing app...');
+            updateDataStatus('loading', 'Načítání dat...');
+            
+            // Add GitHub token input section
+            addGitHubTokenInput();
+            
+            // Add debug button
+            addDebugButton();
+            
+            // Try to load from GitHub if token is available
+            if (githubConfig.token) {
+                loadEmployeesFromGitHub();
+            } else {
+                loadFallbackData();
+            }
+            
+            setupEventListeners();
+        }
+
+        function addGitHubTokenInput() {
+            const adminTab = document.getElementById('admin-tab');
+            const tokenSection = document.createElement('div');
+            tokenSection.className = 'card';
+            tokenSection.style.marginBottom = '2rem';
+            tokenSection.innerHTML = `
+                <div style="padding: 2rem;">
+                    <h3 style="margin-bottom: 1.5rem; color: var(--acw-primary);">🔑 GitHub Token Configuration</h3>
+                    <p style="margin-bottom: 1rem; color: var(--acw-gray);">
+                        Pro ukládání změn do GitHub repozitáře zadejte váš Personal Access Token:
+                    </p>
+                    <div style="display: flex; gap: 1rem; align-items: end;">
+                        <div style="flex: 1;">
+                            <input 
+                                type="password" 
+                                id="github-token-input" 
+                                class="form-input" 
+                                placeholder="github_pat_11BQWODFY0..."
+                                value="${githubConfig.token}"
+                            >
+                            <small style="color: var(--acw-gray); font-size: 0.8rem;">
+                                Token potřebuje oprávnění: Contents (write) + Metadata (read)
+                            </small>
+                        </div>
+                        <button class="btn" onclick="setGitHubToken()" id="set-token-btn">
+                            <span>💾</span>
+                            Nastavit Token
+                        </button>
+                        <button class="btn btn-secondary" onclick="showTokenHelp()">
+                            <span>❓</span>
+                            Pomoct
+                        </button>
+                    </div>
+                    <div id="token-status" style="margin-top: 1rem;"></div>
+                </div>
+            `;
+            
+            // Insert before the section header
+            const sectionHeader = adminTab.querySelector('.section-header');
+            adminTab.insertBefore(tokenSection, sectionHeader);
+        }
+
+        function setGitHubToken() {
+            const tokenInput = document.getElementById('github-token-input');
+            const token = tokenInput.value.trim();
+            
+            if (!token) {
+                showAlert('Zadejte prosím GitHub token', 'error', 'admin-alerts');
+                return;
+            }
+            
+            if (!token.startsWith('github_pat_') && !token.startsWith('ghp_')) {
+                showAlert('Token musí začínat "github_pat_" nebo "ghp_"', 'error', 'admin-alerts');
+                return;
+            }
+            
+            githubConfig.token = token;
+            
+            // Store in sessionStorage (not localStorage for security)
+            try {
+                sessionStorage.setItem('github_token', token);
+            } catch (e) {
+                console.log('Cannot store token in session');
+            }
+            
+            const tokenStatus = document.getElementById('token-status');
+            tokenStatus.innerHTML = '<div class="alert alert-success">✅ Token nastaven! Můžete testovat GitHub API.</div>';
+            
+            updateDataStatus('loading', 'Token nastaven, testování připojení...');
+            
+            // Try to load data immediately
+            loadEmployeesFromGitHub();
+        }
+
+        function showTokenHelp() {
+            const helpModal = document.createElement('div');
+            helpModal.className = 'modal show';
+            helpModal.innerHTML = `
+                <div class="modal-content">
+                    <h2>🔑 Jak získat GitHub Token</h2>
+                    <div style="text-align: left; line-height: 1.6;">
+                        <h3 style="margin-top: 1.5rem;">1. Jděte na GitHub:</h3>
+                        <p><a href="https://github.com/settings/personal-access-tokens/fine-grained" target="_blank" style="color: var(--acw-primary);">
+                            github.com/settings/personal-access-tokens/fine-grained
+                        </a></p>
+                        
+                        <h3 style="margin-top: 1.5rem;">2. Vytvořte nový token:</h3>
+                        <ul>
+                            <li><strong>Repository access:</strong> Selected repositories → ACWorg</li>
+                            <li><strong>Contents:</strong> Read and write</li>
+                            <li><strong>Metadata:</strong> Read</li>
+                        </ul>
+                        
+                        <h3 style="margin-top: 1.5rem;">3. Zkopírujte token a vložte výše</h3>
+                        <p style="background: #fef3c7; padding: 1rem; border-radius: 8px; font-size: 0.9rem;">
+                            ⚠️ <strong>Důležité:</strong> Token začíná "github_pat_" a je velmi dlouhý. 
+                            Nikdy ho nesdílejte veřejně!
+                        </p>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn" onclick="this.closest('.modal').remove()">
+                            Zavřít
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(helpModal);
+        }
+
+        // Load token from session on startup
+        function loadStoredToken() {
+            try {
+                const storedToken = sessionStorage.getItem('github_token');
+                if (storedToken) {
+                    githubConfig.token = storedToken;
+                    console.log('Token loaded from session');
+                }
+            } catch (e) {
+                console.log('Cannot load token from session');
+            }
+        }
 
         function handleLogin(event) {
             event.preventDefault();
@@ -1173,6 +1316,7 @@
                 if (isAuthenticated === 'true') {
                     document.getElementById('login-overlay').classList.add('hidden');
                     document.getElementById('app-content').classList.add('unlocked');
+                    loadStoredToken(); // Load GitHub token from session
                     initializeApp();
                     return true;
                 }
