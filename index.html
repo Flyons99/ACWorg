@@ -1333,11 +1333,17 @@
                 <label class="form-label">Oddělení</label>
                 <select class="form-select" id="employee-department" required>
                     <option value="">Vyberte oddělení</option>
-                    <option value="Vedení">Vedení</option>
-                    <option value="IT">IT</option>
-                    <option value="Finance">Finance</option>
+                    <option value="C-Level">C-Level</option>
+                    <option value="Performance">Performance</option>
+                    <option value="Customer Experience & Retention">Customer Experience & Retention</option>
+                    <option value="Consulting">Consulting</option>
+                    <option value="Blueglue">Blueglue</option>
                     <option value="HR">HR</option>
+                    <option value="Media">Media</option>
+                    <option value="Controlling & Finance">Controlling & Finance</option>
+                    <option value="Sales">Sales</option>
                     <option value="Marketing">Marketing</option>
+                    <option value="Back Office">Back Office</option>
                 </select>
             </div>
 
@@ -1443,21 +1449,31 @@
 
         // Safe lucide icon creation
         function createIconsSafely() {
-            if (typeof lucide !== 'undefined') {
-                createIconsSafely();
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                try {
+                    lucide.createIcons(); // ✅ OPRAVENO - volá správnou funkci
+                } catch (e) {
+                    console.log('Error creating icons:', e);
+                    setTimeout(createIconsSafely, 200);
+                }
             } else {
-                setTimeout(createIconsSafely, 100);
+                console.log('Lucide not ready, retrying...');
+                setTimeout(createIconsSafely, 200);
             }
         }
 
         // Initialize app after successful login
         function initializeApp() {
+            console.log('Initializing app...');
+            
             // Wait for Lucide to load
             if (typeof lucide === 'undefined') {
-                setTimeout(initializeApp, 100);
+                console.log('Waiting for Lucide to load...');
+                setTimeout(initializeApp, 200);
                 return;
             }
             
+            console.log('Lucide loaded, starting app initialization');
             createIconsSafely();
             loadGitHubConfig();
             loadLocalEmployees();
@@ -1739,9 +1755,38 @@
         }
 
         function loadLocalEmployees() {
-            // Prázdné pole - data se načtou z GitHub
-            employees = [];
-            console.log('Čekám na načtení dat z GitHub...');
+            // Testovací data pro debug
+            console.log('Loading fallback test data...');
+            employees = [
+                {
+                    id: 1,
+                    name: 'David Vurma - TEST',
+                    position: 'CEO',
+                    department: 'C-Level',
+                    email: 'david.vurma@acomware.cz',
+                    phone: '+420 723 388 051',
+                    location: 'Praha',
+                    startDate: '2015-01-01',
+                    photo: '',
+                    parentId: null,
+                    level: 0
+                },
+                {
+                    id: 2,
+                    name: 'Test Employee',
+                    position: 'Test Position',
+                    department: 'Performance',
+                    email: 'test@acomware.cz',
+                    phone: '+420 111 222 333',
+                    location: 'Praha',
+                    startDate: '2023-01-01',
+                    photo: '',
+                    parentId: 1,
+                    level: 1
+                }
+            ];
+            console.log('Fallback data loaded:', employees.length, 'employees');
+            renderAll();
         }
 
         // Správa fotek
@@ -1964,16 +2009,36 @@
 
         // Renderování
         function renderAll() {
+            console.log('=== RENDER ALL ===');
+            console.log('Current employees count:', employees.length);
+            console.log('First 3 employees:', employees.slice(0, 3));
+            
             renderEmployeesTable();
             renderOrgChart();
             renderSearchResults();
+            
+            console.log('Rendering completed');
         }
 
         function renderEmployeesTable() {
+            console.log('=== RENDER EMPLOYEES TABLE ===');
             const tbody = document.getElementById('employees-table');
+            
+            if (!tbody) {
+                console.error('Element employees-table not found!');
+                return;
+            }
+            
+            console.log('Table body element found, rendering', employees.length, 'employees');
             tbody.innerHTML = '';
 
-            employees.forEach(employee => {
+            if (employees.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem; color: #6b7280;">Žádná data k zobrazení</td></tr>';
+                return;
+            }
+
+            employees.forEach((employee, index) => {
+                console.log(`Rendering employee ${index + 1}:`, employee.name);
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>
@@ -2003,6 +2068,7 @@
                 tbody.appendChild(row);
             });
             
+            console.log('Table rendered successfully, creating icons...');
             createIconsSafely();
         }
 
