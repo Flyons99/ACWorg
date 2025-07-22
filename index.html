@@ -1373,55 +1373,83 @@
             }
 
             try {
-                // Try direct raw access first
+                // Try direct raw access first (works for public repos)
                 const rawUrl = `https://raw.githubusercontent.com/${githubConfig.repo}/main/data/employees.json`;
                 console.log('Trying raw URL:', rawUrl);
                 
                 const rawResponse = await fetch(rawUrl, {
                     method: 'GET',
                     headers: {
-                        'Cache-Control': 'no-cache'
+                        'Cache-Control': 'no-cache',
+                        'Accept': 'application/json'
                     }
                 });
+                
+                console.log('Raw response status:', rawResponse.status);
                 
                 if (rawResponse.ok) {
                     const rawData = await rawResponse.text();
-                    employees = JSON.parse(rawData);
-                    console.log(`Loaded ${employees.length} employees from GitHub (raw)`);
-                    updateDataStatus('loaded', `Načteno ${employees.length} zaměstnanců z GitHub`);
-                    renderAll();
-                    showAlert(`Úspěšně načteno ${employees.length} zaměstnanců z GitHub`, 'success', 'admin-alerts');
-                    return;
+                    console.log('Raw data received, length:', rawData.length);
+                    
+                    try {
+                        employees = JSON.parse(rawData);
+                        console.log(`✅ SUCCESS: Loaded ${employees.length} employees from GitHub (raw)`);
+                        updateDataStatus('loaded', `Načteno ${employees.length} zaměstnanců z GitHub`);
+                        renderAll();
+                        showAlert(`Úspěšně načteno ${employees.length} zaměstnanců z GitHub`, 'success', 'admin-alerts');
+                        return;
+                    } catch (parseError) {
+                        console.error('JSON parse error:', parseError);
+                        console.log('Raw data preview:', rawData.substring(0, 500));
+                        throw new Error('Nepodařilo se parsovat JSON data');
+                    }
                 }
                 
-                // Fallback to GitHub API
-                console.log('Trying GitHub API...');
+                // Fallback to GitHub API with authentication
+                console.log('Raw access failed, trying GitHub API...');
                 const apiUrl = `https://api.github.com/repos/${githubConfig.repo}/contents/data/employees.json`;
+                console.log('API URL:', apiUrl);
                 
                 const response = await fetch(apiUrl, {
                     headers: {
-                        'Authorization': `token ${githubConfig.token}`,
-                        'Accept': 'application/vnd.github.v3+json'
+                        'Authorization': `Bearer ${githubConfig.token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'X-GitHub-Api-Version': '2022-11-28'
                     }
                 });
 
+                console.log('API response status:', response.status);
+                console.log('API response headers:', Object.fromEntries(response.headers.entries()));
+
                 if (response.ok) {
                     const data = await response.json();
-                    const content = atob(data.content);
-                    employees = JSON.parse(content);
-                    console.log(`Loaded ${employees.length} employees from GitHub (API)`);
-                    updateDataStatus('loaded', `Načteno ${employees.length} zaměstnanců z GitHub`);
-                    renderAll();
-                    showAlert(`Úspěšně načteno ${employees.length} zaměstnanců z GitHub`, 'success', 'admin-alerts');
+                    console.log('API response data keys:', Object.keys(data));
+                    
+                    if (data.content) {
+                        const content = atob(data.content.replace(/\s/g, ''));
+                        console.log('Decoded content length:', content.length);
+                        
+                        employees = JSON.parse(content);
+                        console.log(`✅ SUCCESS: Loaded ${employees.length} employees from GitHub (API)`);
+                        updateDataStatus('loaded', `Načteno ${employees.length} zaměstnanců z GitHub`);
+                        renderAll();
+                        showAlert(`Úspěšně načteno ${employees.length} zaměstnanců z GitHub`, 'success', 'admin-alerts');
+                    } else {
+                        throw new Error('API response missing content field');
+                    }
                 } else if (response.status === 404) {
                     console.error('404: employees.json file does not exist');
                     showAlert('Soubor employees.json neexistuje na GitHub', 'error', 'admin-alerts');
                     loadFallbackData();
                 } else if (response.status === 403) {
-                    console.error('403: Forbidden - check GitHub token');
+                    console.error('403: Forbidden - token issue');
+                    const errorData = await response.text();
+                    console.error('403 error details:', errorData);
                     showAlert('Přístup odmítnut - zkontrolujte GitHub token', 'error', 'admin-alerts');
                     loadFallbackData();
                 } else {
+                    const errorData = await response.text();
+                    console.error(`HTTP ${response.status} error:`, errorData);
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
             } catch (error) {
