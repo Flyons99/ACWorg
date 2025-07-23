@@ -628,7 +628,7 @@
             transform: translateX(4px);
         }
 
-        /* Collapsible Organization Chart Styles - Fixed Scrolling */
+        /* Collapsible Organization Chart Styles - with Pan & Compact Cards */
         .org-chart-container {
             position: relative;
             width: 100%;
@@ -638,14 +638,20 @@
             box-shadow: var(--acw-shadow-lg);
             border: 1px solid rgba(30, 58, 138, 0.05);
             overflow: hidden;
+            user-select: none;
         }
 
         .org-chart-viewport {
             width: 100%;
             height: 100%;
-            overflow: auto;
+            overflow: hidden;
             position: relative;
+            cursor: grab;
             scroll-behavior: smooth;
+        }
+
+        .org-chart-viewport.dragging {
+            cursor: grabbing;
         }
 
         .org-chart-content {
@@ -658,6 +664,7 @@
             min-height: 100%;
             transform-origin: center top;
             transition: transform 0.3s ease;
+            position: relative;
         }
 
         .org-node {
@@ -668,12 +675,13 @@
             margin: 2rem 0;
         }
 
+        /* Compact Organization Node Cards */
         .org-node-card {
             background: var(--acw-white);
-            border-radius: 16px;
-            padding: 1.5rem;
-            min-width: 280px;
-            max-width: 350px;
+            border-radius: 12px;
+            padding: 1rem;
+            min-width: 180px;
+            max-width: 200px;
             box-shadow: var(--acw-shadow-md);
             border: 2px solid transparent;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -684,79 +692,183 @@
         }
 
         .org-node-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--acw-shadow-xl);
+            transform: translateY(-2px);
+            box-shadow: var(--acw-shadow-lg);
             border-color: var(--acw-primary);
         }
 
         .org-node-card.ceo {
             background: linear-gradient(135deg, rgba(30, 58, 138, 0.08) 0%, rgba(15, 23, 42, 0.04) 100%);
             border-color: var(--acw-primary);
-            min-width: 320px;
+            min-width: 220px;
+            max-width: 240px;
             box-shadow: var(--acw-shadow-lg);
         }
 
         .org-node-card.ceo::after {
             content: '👑';
             position: absolute;
-            top: 1rem;
-            right: 1rem;
-            font-size: 1.5rem;
+            top: 0.5rem;
+            right: 0.5rem;
+            font-size: 1.2rem;
         }
 
         .org-node-card.department-head {
             background: linear-gradient(135deg, rgba(249, 115, 22, 0.06) 0%, rgba(251, 191, 36, 0.04) 100%);
             border-color: var(--acw-accent-1);
+            min-width: 200px;
         }
 
         .org-node-photo {
-            width: 80px;
-            height: 80px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             object-fit: cover;
-            border: 3px solid var(--acw-white);
-            margin: 0 auto 1rem;
+            border: 2px solid var(--acw-white);
+            margin: 0 auto 0.75rem;
             display: block;
             background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%);
             box-shadow: var(--acw-shadow-sm);
-            font-size: 2rem;
+            font-size: 1.5rem;
             color: #9ca3af;
+            flex-shrink: 0;
         }
 
         .org-node-name {
-            font-size: 1.3rem;
+            font-size: 1rem;
             font-weight: 700;
             color: var(--acw-primary);
-            margin-bottom: 0.5rem;
-            line-height: 1.3;
+            margin-bottom: 0.25rem;
+            line-height: 1.2;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .org-node-position {
             color: var(--acw-gray);
             font-weight: 600;
-            margin-bottom: 1rem;
-            font-size: 1rem;
-            line-height: 1.4;
+            margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+            line-height: 1.3;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .org-node-department {
-            margin-bottom: 1rem;
+            margin-bottom: 0;
         }
 
-        .org-node-details {
-            font-size: 0.85rem;
-            color: var(--acw-gray);
-            font-weight: 500;
+        .org-node-department .badge {
+            font-size: 0.65rem;
+            padding: 0.25rem 0.5rem;
         }
 
-        .org-node-details div {
-            display: flex;
+        /* Employee Detail Modal */
+        .employee-detail-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
-            margin-bottom: 0.4rem;
-            padding: 0.2rem;
-            border-radius: 4px;
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        .employee-detail-modal.show {
+            display: flex;
+        }
+
+        .employee-detail-content {
+            background: var(--acw-white);
+            border-radius: 24px;
+            padding: 2.5rem;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--acw-shadow-xl);
+            border: 1px solid rgba(30, 58, 138, 0.1);
+            transform: translateY(20px);
+            animation: modalSlideIn 0.4s ease-out forwards;
+            position: relative;
+        }
+
+        .employee-detail-photo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--acw-white);
+            margin: 0 auto 1.5rem;
+            display: block;
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%);
+            box-shadow: var(--acw-shadow-md);
+            font-size: 3rem;
+            color: #9ca3af;
+        }
+
+        .employee-detail-name {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--acw-primary);
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .employee-detail-position {
+            color: var(--acw-gray);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .employee-detail-info {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .employee-detail-info div {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            border-radius: 12px;
+            background: rgba(30, 58, 138, 0.02);
+            transition: all 0.2s ease;
+        }
+
+        .employee-detail-info div:hover {
+            background: rgba(30, 58, 138, 0.05);
+            transform: translateX(4px);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--acw-gray);
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+            transform: scale(1.1);
         }
 
         /* Expand/Collapse Button */
@@ -1558,6 +1670,12 @@
         let allDepartments = new Set();
         let expandedNodes = new Set();
         let currentZoom = 1;
+        
+        // Pan/Drag variables
+        let isDragging = false;
+        let dragStart = { x: 0, y: 0 };
+        let panOffset = { x: 0, y: 0 };
+        let lastPanOffset = { x: 0, y: 0 };
         
         // GitHub configuration
         let githubConfig = {
@@ -2481,29 +2599,21 @@
                 <div class="org-node-department">
                     <span class="badge badge-${getDepartmentClass(employee.department)}">${employee.department}</span>
                 </div>
-                <div class="org-node-details">
-                    <div>
-                        <span>📧</span>
-                        <a href="mailto:${employee.email}" style="color: inherit; text-decoration: none;">${employee.email}</a>
-                    </div>
-                    ${employee.phone ? `
-                    <div>
-                        <span>📞</span>
-                        <a href="tel:${employee.phone}" style="color: inherit; text-decoration: none;">${employee.phone}</a>
-                    </div>` : ''}
-                    ${employee.location ? `
-                    <div>
-                        <span>📍</span>
-                        <span>${employee.location}</span>
-                    </div>` : ''}
-                </div>
                 ${hasChildren ? `
                     <div class="employee-count">${directReports.length}</div>
-                    <button class="expand-toggle" onclick="toggleNode(${employee.id})" title="Rozbalit/sbalit">
+                    <button class="expand-toggle" onclick="event.stopPropagation(); toggleNode(${employee.id})" title="Rozbalit/sbalit">
                         ${expandedNodes.has(employee.id) ? '−' : '+'}
                     </button>
                 ` : ''}
             `;
+
+            // Add click handler for employee details
+            card.addEventListener('click', (e) => {
+                // Don't trigger if clicking on expand button
+                if (!e.target.classList.contains('expand-toggle')) {
+                    showEmployeeDetail(employee);
+                }
+            });
 
             nodeContainer.appendChild(card);
 
@@ -2531,6 +2641,85 @@
             }
 
             return nodeContainer;
+        }
+
+        // Employee Detail Modal Functions
+        function showEmployeeDetail(employee) {
+            const modal = document.getElementById('employee-detail-modal') || createEmployeeDetailModal();
+            
+            const photoElement = employee.photo ? 
+                `<img src="${employee.photo}" class="employee-detail-photo" alt="${employee.name}">` :
+                `<div class="employee-detail-photo" style="display: flex; align-items: center; justify-content: center;">👤</div>`;
+
+            modal.querySelector('.employee-detail-content').innerHTML = `
+                <button class="modal-close" onclick="closeEmployeeDetail()">×</button>
+                ${photoElement}
+                <div class="employee-detail-name">${employee.name}</div>
+                <div class="employee-detail-position">${employee.position}</div>
+                <div class="org-node-department" style="text-align: center; margin-bottom: 2rem;">
+                    <span class="badge badge-${getDepartmentClass(employee.department)}">${employee.department}</span>
+                </div>
+                <div class="employee-detail-info">
+                    <div>
+                        <span style="font-size: 1.2rem;">📧</span>
+                        <div>
+                            <strong>Email:</strong><br>
+                            <a href="mailto:${employee.email}" style="color: var(--acw-primary); text-decoration: none;">${employee.email}</a>
+                        </div>
+                    </div>
+                    ${employee.phone ? `
+                    <div>
+                        <span style="font-size: 1.2rem;">📞</span>
+                        <div>
+                            <strong>Telefon:</strong><br>
+                            <a href="tel:${employee.phone}" style="color: var(--acw-primary); text-decoration: none;">${employee.phone}</a>
+                        </div>
+                    </div>` : ''}
+                    ${employee.location ? `
+                    <div>
+                        <span style="font-size: 1.2rem;">📍</span>
+                        <div>
+                            <strong>Lokace:</strong><br>
+                            <span>${employee.location}</span>
+                        </div>
+                    </div>` : ''}
+                    ${employee.startDate ? `
+                    <div>
+                        <span style="font-size: 1.2rem;">📅</span>
+                        <div>
+                            <strong>Datum nástupu:</strong><br>
+                            <span>${new Date(employee.startDate).toLocaleDateString('cs-CZ')}</span>
+                        </div>
+                    </div>` : ''}
+                </div>
+            `;
+            
+            modal.classList.add('show');
+            console.log('👤 Employee detail opened:', employee.name);
+        }
+
+        function createEmployeeDetailModal() {
+            const modal = document.createElement('div');
+            modal.id = 'employee-detail-modal';
+            modal.className = 'employee-detail-modal';
+            modal.innerHTML = '<div class="employee-detail-content"></div>';
+            
+            // Close on background click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeEmployeeDetail();
+                }
+            });
+            
+            document.body.appendChild(modal);
+            return modal;
+        }
+
+        function closeEmployeeDetail() {
+            const modal = document.getElementById('employee-detail-modal');
+            if (modal) {
+                modal.classList.remove('show');
+            }
         }
 
         function toggleNode(employeeId) {
@@ -2561,7 +2750,7 @@
             }
         }
 
-        // Zoom Functions with proper scrolling support
+        // Updated zoom functions
         function zoomIn() {
             currentZoom = Math.min(currentZoom * 1.2, 3);
             applyZoom();
@@ -2574,36 +2763,93 @@
 
         function resetZoom() {
             currentZoom = 1;
+            panOffset = { x: 0, y: 0 };
+            lastPanOffset = { x: 0, y: 0 };
             applyZoom();
+            console.log('🔄 Zoom and pan reset');
+        }
+
+        // Pan/Drag functionality
+        function initializePanDrag() {
+            const viewport = document.getElementById('org-chart-viewport');
+            const content = document.getElementById('org-chart-content');
+            
+            if (!viewport || !content) return;
+
+            // Mouse events
+            viewport.addEventListener('mousedown', startDrag);
+            viewport.addEventListener('mousemove', drag);
+            viewport.addEventListener('mouseup', endDrag);
+            viewport.addEventListener('mouseleave', endDrag);
+            
+            // Touch events for mobile
+            viewport.addEventListener('touchstart', startDrag, { passive: false });
+            viewport.addEventListener('touchmove', drag, { passive: false });
+            viewport.addEventListener('touchend', endDrag);
+            
+            // Prevent context menu on right click
+            viewport.addEventListener('contextmenu', e => e.preventDefault());
+        }
+
+        function startDrag(e) {
+            e.preventDefault();
+            isDragging = true;
+            
+            const viewport = document.getElementById('org-chart-viewport');
+            viewport.classList.add('dragging');
+            
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            
+            dragStart.x = clientX - panOffset.x;
+            dragStart.y = clientY - panOffset.y;
+            
+            console.log('🖱️ Drag started');
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+            
+            e.preventDefault();
+            
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            
+            panOffset.x = clientX - dragStart.x;
+            panOffset.y = clientY - dragStart.y;
+            
+            updatePanTransform();
+        }
+
+        function endDrag(e) {
+            if (!isDragging) return;
+            
+            isDragging = false;
+            const viewport = document.getElementById('org-chart-viewport');
+            viewport.classList.remove('dragging');
+            
+            lastPanOffset.x = panOffset.x;
+            lastPanOffset.y = panOffset.y;
+            
+            console.log('🖱️ Drag ended');
+        }
+
+        function updatePanTransform() {
+            const content = document.getElementById('org-chart-content');
+            if (content) {
+                content.style.transform = `scale(${currentZoom}) translate(${panOffset.x}px, ${panOffset.y}px)`;
+            }
         }
 
         function applyZoom() {
-            const viewport = document.getElementById('org-chart-viewport');
             const content = document.getElementById('org-chart-content');
             const zoomLevel = document.getElementById('zoom-level');
             
             // Update zoom level indicator
             zoomLevel.textContent = `${Math.round(currentZoom * 100)}%`;
             
-            // Apply zoom transform to content
-            content.style.transform = `scale(${currentZoom})`;
-            
-            // Center content when zoomed out significantly
-            if (currentZoom <= 0.7) {
-                setTimeout(() => {
-                    const containerWidth = viewport.clientWidth;
-                    const contentWidth = content.scrollWidth * currentZoom;
-                    const containerHeight = viewport.clientHeight;
-                    const contentHeight = content.scrollHeight * currentZoom;
-                    
-                    if (contentWidth < containerWidth) {
-                        viewport.scrollLeft = (contentWidth - containerWidth) / 2;
-                    }
-                    if (contentHeight < containerHeight) {
-                        viewport.scrollTop = (contentHeight - containerHeight) / 2;
-                    }
-                }, 100);
-            }
+            // Apply zoom and pan transform
+            updatePanTransform();
             
             console.log(`🔍 Zoom applied: ${Math.round(currentZoom * 100)}%`);
         }
