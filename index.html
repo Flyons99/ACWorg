@@ -133,6 +133,9 @@
             top: 0;
             z-index: 100;
             backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .nav-content {
@@ -141,6 +144,58 @@
             padding: 0 2rem;
             display: flex;
             gap: 0;
+            flex: 1;
+        }
+
+        /* Hidden Admin Access */
+        .admin-access {
+            padding-right: 2rem;
+        }
+
+        .admin-btn {
+            background: none;
+            border: none;
+            padding: 0.75rem;
+            cursor: pointer;
+            color: var(--acw-gray);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+            opacity: 0.3;
+            position: relative;
+        }
+
+        .admin-btn:hover {
+            color: var(--acw-primary);
+            background: rgba(30, 58, 138, 0.05);
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .admin-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Admin button tooltip */
+        .admin-btn::after {
+            content: attr(title);
+            position: absolute;
+            bottom: -35px;
+            right: 0;
+            background: var(--acw-dark);
+            color: var(--acw-white);
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+
+        .admin-btn:hover::after {
+            opacity: 1;
         }
 
         .nav-button {
@@ -573,16 +628,16 @@
             transform: translateX(4px);
         }
 
-        /* Collapsible Organization Chart Styles */
+        /* Collapsible Organization Chart Styles - Fixed Scrolling */
         .org-chart-container {
             position: relative;
             width: 100%;
             height: 80vh;
-            overflow: hidden;
             background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             border-radius: 20px;
             box-shadow: var(--acw-shadow-lg);
             border: 1px solid rgba(30, 58, 138, 0.05);
+            overflow: hidden;
         }
 
         .org-chart-viewport {
@@ -590,11 +645,7 @@
             height: 100%;
             overflow: auto;
             position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transform-origin: center center;
-            transition: transform 0.3s ease;
+            scroll-behavior: smooth;
         }
 
         .org-chart-content {
@@ -602,9 +653,11 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            min-width: fit-content;
-            min-height: fit-content;
+            justify-content: flex-start;
+            min-width: max-content;
+            min-height: 100%;
+            transform-origin: center top;
+            transition: transform 0.3s ease;
         }
 
         .org-node {
@@ -739,18 +792,22 @@
             background: var(--acw-accent-1);
         }
 
-        /* Children Container */
+        /* Children Container - Better horizontal layout */
         .org-children {
             display: none;
             flex-direction: row;
             justify-content: center;
-            gap: 3rem;
+            align-items: flex-start;
+            gap: 2rem;
             margin-top: 4rem;
             padding-top: 2rem;
             position: relative;
             opacity: 0;
             transform: translateY(-20px);
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-wrap: wrap;
+            width: max-content;
+            min-width: 100%;
         }
 
         .org-children.expanded {
@@ -879,12 +936,25 @@
             box-shadow: var(--acw-shadow-sm);
         }
 
-        /* Responsive */
+        /* Responsive - Better mobile handling */
+        @media (max-width: 1200px) {
+            .org-children {
+                gap: 1.5rem;
+            }
+            
+            .org-node-card {
+                min-width: 260px;
+                max-width: 280px;
+            }
+        }
+
         @media (max-width: 1024px) {
             .org-children {
                 flex-direction: column;
                 gap: 2rem;
                 align-items: center;
+                width: auto;
+                min-width: auto;
             }
 
             .org-children .org-node::after {
@@ -919,6 +989,11 @@
                 width: 35px;
                 height: 35px;
                 font-size: 1rem;
+            }
+
+            .zoom-level {
+                font-size: 0.7rem;
+                padding: 0.2rem 0.4rem;
             }
         }
 
@@ -1231,11 +1306,7 @@
         <!-- Navigation -->
         <div class="nav">
             <div class="nav-content">
-                <button class="nav-button active" onclick="showTab('admin')">
-                    <span>⚙️</span>
-                    Admin panel
-                </button>
-                <button class="nav-button" onclick="showTab('chart')">
+                <button class="nav-button active" onclick="showTab('chart')">
                     <span>👁️</span>
                     Organizační schéma
                 </button>
@@ -1244,12 +1315,19 @@
                     Vyhledávání
                 </button>
             </div>
+            
+            <!-- Hidden Admin Access -->
+            <div class="admin-access">
+                <button class="admin-btn" onclick="showTab('admin')" title="Admin panel">
+                    <span>⚙️</span>
+                </button>
+            </div>
         </div>
 
         <!-- Container -->
         <div class="container">
             <!-- Admin Panel -->
-            <div id="admin-tab" class="tab-content active">
+            <div id="admin-tab" class="tab-content">
                 <div class="section-header">
                     <h2>Správa zaměstnanců</h2>
                     <button class="btn" onclick="openEmployeeModal()" id="add-employee-btn">
@@ -1317,7 +1395,7 @@
             </div>
 
             <!-- Organizational Chart -->
-            <div id="chart-tab" class="tab-content">
+            <div id="chart-tab" class="tab-content active">
                 <h2 style="font-size: 2rem; font-weight: bold; color: #111827; margin-bottom: 2rem;">Organizační schéma</h2>
                 
                 <div class="legend">
@@ -2118,7 +2196,7 @@
             });
         }
 
-        // Navigation
+        // Navigation with admin access control
         function showTab(tabName) {
             // Remove active from all tabs and buttons
             document.querySelectorAll('.tab-content').forEach(tab => {
@@ -2129,9 +2207,25 @@
                 btn.classList.remove('active');
             });
             
-            // Add active to selected tab and button
+            // Add active to selected tab
             document.getElementById(tabName + '-tab').classList.add('active');
-            event.target.classList.add('active');
+            
+            // Add active to corresponding nav button (if exists)
+            const navButtons = document.querySelectorAll('.nav-button');
+            navButtons.forEach(btn => {
+                if ((tabName === 'chart' && btn.textContent.includes('Organizační schéma')) ||
+                    (tabName === 'search' && btn.textContent.includes('Vyhledávání'))) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Special handling for admin - no nav button highlight
+            if (tabName === 'admin') {
+                console.log('🔐 Admin panel accessed');
+                // Optionally add some admin access logging here
+            }
+            
+            console.log(`📑 Switched to tab: ${tabName}`);
         }
 
         // Modal management
@@ -2467,7 +2561,7 @@
             }
         }
 
-        // Zoom Functions with better centering
+        // Zoom Functions with proper scrolling support
         function zoomIn() {
             currentZoom = Math.min(currentZoom * 1.2, 3);
             applyZoom();
@@ -2491,25 +2585,84 @@
             // Update zoom level indicator
             zoomLevel.textContent = `${Math.round(currentZoom * 100)}%`;
             
-            // Apply zoom transform
+            // Apply zoom transform to content
             content.style.transform = `scale(${currentZoom})`;
             
-            // Ensure proper centering at all zoom levels
-            if (currentZoom < 1) {
-                // When zoomed out, ensure content stays centered
-                viewport.style.alignItems = 'center';
-                viewport.style.justifyContent = 'center';
-                content.style.minWidth = '100%';
-                content.style.minHeight = '100%';
-            } else {
-                // When zoomed in or normal, allow scrolling
-                viewport.style.alignItems = 'flex-start';
-                viewport.style.justifyContent = 'flex-start';
-                content.style.minWidth = 'fit-content';
-                content.style.minHeight = 'fit-content';
+            // Center content when zoomed out significantly
+            if (currentZoom <= 0.7) {
+                setTimeout(() => {
+                    const containerWidth = viewport.clientWidth;
+                    const contentWidth = content.scrollWidth * currentZoom;
+                    const containerHeight = viewport.clientHeight;
+                    const contentHeight = content.scrollHeight * currentZoom;
+                    
+                    if (contentWidth < containerWidth) {
+                        viewport.scrollLeft = (contentWidth - containerWidth) / 2;
+                    }
+                    if (contentHeight < containerHeight) {
+                        viewport.scrollTop = (contentHeight - containerHeight) / 2;
+                    }
+                }, 100);
             }
             
             console.log(`🔍 Zoom applied: ${Math.round(currentZoom * 100)}%`);
+        }
+
+        // Auto-center when expanding nodes
+        function toggleNode(employeeId) {
+            console.log('🔄 Toggling node:', employeeId);
+            
+            const button = document.querySelector(`[data-employee-id="${employeeId}"] .expand-toggle`);
+            const childrenContainer = document.querySelector(`[data-parent-id="${employeeId}"]`);
+            
+            if (!button || !childrenContainer) {
+                console.error('❌ Could not find button or children container');
+                return;
+            }
+
+            if (expandedNodes.has(employeeId)) {
+                // Collapse
+                expandedNodes.delete(employeeId);
+                childrenContainer.classList.remove('expanded');
+                button.textContent = '+';
+                button.classList.remove('expanded');
+                console.log('📁 Node collapsed');
+            } else {
+                // Expand
+                expandedNodes.add(employeeId);
+                childrenContainer.classList.add('expanded');
+                button.textContent = '−';
+                button.classList.add('expanded');
+                console.log('📂 Node expanded');
+                
+                // Auto-scroll to center the expanded content after animation
+                setTimeout(() => {
+                    centerExpandedNode(employeeId);
+                }, 500);
+            }
+        }
+
+        function centerExpandedNode(employeeId) {
+            const viewport = document.getElementById('org-chart-viewport');
+            const nodeElement = document.querySelector(`[data-employee-id="${employeeId}"]`);
+            const childrenContainer = document.querySelector(`[data-parent-id="${employeeId}"]`);
+            
+            if (nodeElement && childrenContainer) {
+                const nodeRect = nodeElement.getBoundingClientRect();
+                const viewportRect = viewport.getBoundingClientRect();
+                const childrenRect = childrenContainer.getBoundingClientRect();
+                
+                // Calculate scroll position to center the expanded content
+                const targetScrollLeft = (childrenRect.width - viewportRect.width) / 2 + viewport.scrollLeft + (childrenRect.left - viewportRect.left);
+                
+                // Smooth scroll to center
+                viewport.scrollTo({
+                    left: Math.max(0, targetScrollLeft),
+                    behavior: 'smooth'
+                });
+                
+                console.log('🎯 Centered expanded node');
+            }
         }
 
         // Legacy functions for backward compatibility
