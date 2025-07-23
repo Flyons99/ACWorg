@@ -1,4 +1,47 @@
-<!DOCTYPE html>
+// Create employee card for search results and admin table
+        function createEmployeeCard(employee, cardType = '') {
+            const card = document.createElement('div');
+            card.className = `employee-card ${cardType}`;
+
+            const photoElement = employee.photo ? 
+                `<img src="${employee.photo}" class="employee-photo" alt="${employee.name}">` :
+                `<div class="employee-photo" style="display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%); color: #9ca3af; font-size: 2rem;">👤</div>`;
+
+            card.innerHTML = `
+                ${photoElement}
+                <div class="employee-info">
+                    <h3>${employee.name}</h3>
+                    <div class="position">${employee.position}</div>
+                    <div class="department">
+                        <span class="badge badge-${getDepartmentClass(employee.department)}">${employee.department}</span>
+                    </div>
+                </div>
+                <div class="employee-details">
+                    <div>
+                        <span>📧</span>
+                        <a href="mailto:${employee.email}" style="color: inherit; text-decoration: none;">${employee.email}</a>
+                    </div>
+                    ${employee.phone ? `
+                    <div>
+                        <span>📞</span>
+                        <a href="tel:${employee.phone}" style="color: inherit; text-decoration: none;">${employee.phone}</a>
+                    </div>` : ''}
+                    ${employee.location ? `
+                    <div>
+                        <span>📍</span>
+                        <span>${employee.location}</span>
+                    </div>` : ''}
+                    ${employee.startDate ? `
+                    <div>
+                        <span>📅</span>
+                        <span>Nástup: ${new Date(employee.startDate).toLocaleDateString('cs-CZ')}</span>
+                    </div>` : ''}
+                </div>
+            `;
+
+            return card;
+        }
+                <!DOCTYPE html>
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
@@ -590,17 +633,21 @@
             height: 100%;
             overflow: auto;
             position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transform-origin: center center;
             transition: transform 0.3s ease;
         }
 
         .org-chart-content {
-            min-width: 100%;
-            min-height: 100%;
             padding: 4rem;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
+            min-width: fit-content;
+            min-height: fit-content;
         }
 
         .org-node {
@@ -804,14 +851,20 @@
             right: -1.5rem;
         }
 
-        /* Zoom Controls */
+        /* Zoom Controls with zoom level indicator */
         .zoom-controls {
             position: absolute;
             top: 1rem;
             right: 1rem;
             display: flex;
+            flex-direction: column;
             gap: 0.5rem;
             z-index: 20;
+        }
+
+        .zoom-buttons {
+            display: flex;
+            gap: 0.5rem;
         }
 
         .zoom-btn {
@@ -836,6 +889,19 @@
             color: var(--acw-white);
             transform: scale(1.1);
             box-shadow: var(--acw-shadow-md);
+        }
+
+        .zoom-level {
+            background: var(--acw-white);
+            border: 2px solid var(--acw-primary);
+            border-radius: 6px;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--acw-primary);
+            text-align: center;
+            box-shadow: var(--acw-shadow-sm);
+            min-width: 60px;
         }
 
         /* Employee Counter Badge */
@@ -1322,9 +1388,12 @@
 
                 <div class="org-chart-container">
                     <div class="zoom-controls">
-                        <button class="zoom-btn" onclick="zoomIn()" title="Přiblížit">+</button>
-                        <button class="zoom-btn" onclick="zoomOut()" title="Oddálit">−</button>
-                        <button class="zoom-btn" onclick="resetZoom()" title="Reset zoom">⌂</button>
+                        <div class="zoom-buttons">
+                            <button class="zoom-btn" onclick="zoomIn()" title="Přiblížit">+</button>
+                            <button class="zoom-btn" onclick="zoomOut()" title="Oddálit">−</button>
+                            <button class="zoom-btn" onclick="resetZoom()" title="Reset zoom">⌂</button>
+                        </div>
+                        <div class="zoom-level" id="zoom-level">100%</div>
                     </div>
                     <div class="org-chart-viewport" id="org-chart-viewport">
                         <div class="org-chart-content" id="org-chart-content">
@@ -2441,7 +2510,7 @@
             }
         }
 
-        // Zoom Functions
+        // Zoom Functions with better centering
         function zoomIn() {
             currentZoom = Math.min(currentZoom * 1.2, 3);
             applyZoom();
@@ -2459,7 +2528,31 @@
 
         function applyZoom() {
             const viewport = document.getElementById('org-chart-viewport');
-            viewport.style.transform = `scale(${currentZoom})`;
+            const content = document.getElementById('org-chart-content');
+            const zoomLevel = document.getElementById('zoom-level');
+            
+            // Update zoom level indicator
+            zoomLevel.textContent = `${Math.round(currentZoom * 100)}%`;
+            
+            // Apply zoom transform
+            content.style.transform = `scale(${currentZoom})`;
+            
+            // Ensure proper centering at all zoom levels
+            if (currentZoom < 1) {
+                // When zoomed out, ensure content stays centered
+                viewport.style.alignItems = 'center';
+                viewport.style.justifyContent = 'center';
+                content.style.minWidth = '100%';
+                content.style.minHeight = '100%';
+            } else {
+                // When zoomed in or normal, allow scrolling
+                viewport.style.alignItems = 'flex-start';
+                viewport.style.justifyContent = 'flex-start';
+                content.style.minWidth = 'fit-content';
+                content.style.minHeight = 'fit-content';
+            }
+            
+            console.log(`🔍 Zoom applied: ${Math.round(currentZoom * 100)}%`);
         }
 
         // Legacy functions for backward compatibility
