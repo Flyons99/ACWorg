@@ -1,51 +1,4 @@
-function createEmployeeCard(employee, cardType = '') {
-            const card = document.createElement('div');
-            card.className = `employee-card ${cardType}`;
-
-            const photoElement = employee.photo ? 
-                `<img src="${employee.photo}" class="employee-photo" alt="${employee.name}">` :
-                `<div class="employee-photo" style="display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%); color: #9ca3af; font-size: 2rem;">👤</div>`;
-
-            card.innerHTML = `
-                ${photoElement}
-                <div class="employee-info">
-                    <h3>${employee.name}</h3>
-                    <div class="position">${employee.position}</div>
-                    <div class="department">
-                        <span class="badge badge-${getDepartmentClass(employee.department)}">${employee.department}</span>
-                    </div>
-                </div>
-                <div class="employee-details">
-                    <div>
-                        <span>📧</span>
-                        <a href="mailto:${employee.email}" style="color: inherit; text-decoration: none;">${employee.email}</a>
-                    </div>
-                    ${employee.phone ? `
-                    <div>
-                        <span>📞</span>
-                        <a href="tel:${employee.phone}" style="color: inherit; text-decoration: none;">${employee.phone}</a>
-                    </div>` : ''}
-                    ${employee.location ? `
-                    <div>
-                        <span>📍</span>
-                        <span>${employee.location}</span>
-                    </div>` : ''}
-                    ${employee.startDate ? `
-                    <div>
-                        <span>📅</span>
-                        <span>Nástup: ${new Date(employee.startDate).toLocaleDateString('cs-CZ')}</span>
-                    </div>` : ''}
-                </div>
-            `;
-
-            return card;
-        }
-
-        function toggleDepartment(department) {
-            // This function is kept for backward compatibility but not used in new tree structure
-            console.log('Toggle department:', department);
-        }
-                <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
@@ -620,28 +573,30 @@ function createEmployeeCard(employee, cardType = '') {
             transform: translateX(4px);
         }
 
-        /* Tree Organization Chart Styles */
+        /* Simplified Tree Organization Chart Styles */
         .org-tree {
             display: flex;
             justify-content: center;
             padding: 2rem;
             font-family: 'Montserrat', sans-serif;
+            overflow-x: auto;
         }
 
         .org-tree ul {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             list-style: none;
             margin: 0;
             padding: 0;
             position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .org-tree ul ul {
             flex-direction: row;
-            padding-top: 2rem;
-            gap: 2rem;
+            justify-content: center;
+            padding-top: 4rem;
+            gap: 3rem;
         }
 
         .org-tree li {
@@ -649,92 +604,83 @@ function createEmployeeCard(employee, cardType = '') {
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 0;
         }
 
-        /* Connection lines */
+        /* Simple connection lines */
         .org-tree ul ul::before {
             content: '';
             position: absolute;
-            top: -1px;
+            top: 0;
             left: 50%;
             transform: translateX(-50%);
-            width: 2px;
+            width: 3px;
             height: 2rem;
-            background: linear-gradient(180deg, var(--acw-primary) 0%, var(--acw-accent-1) 100%);
-            z-index: 1;
+            background: var(--acw-primary);
+            border-radius: 2px;
         }
 
-        .org-tree ul ul li:not(:only-child)::before {
+        .org-tree ul ul li::before {
             content: '';
             position: absolute;
             top: -2rem;
             left: 50%;
             transform: translateX(-50%);
-            width: 2px;
+            width: 3px;
             height: 2rem;
-            background: linear-gradient(180deg, var(--acw-primary) 0%, var(--acw-accent-1) 100%);
-            z-index: 1;
+            background: var(--acw-primary);
+            border-radius: 2px;
         }
 
-        .org-tree ul ul li:not(:only-child):not(:first-child):not(:last-child)::after {
+        .org-tree ul ul li:not(:only-child)::after {
             content: '';
             position: absolute;
             top: -2rem;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, var(--acw-primary) 0%, var(--acw-accent-1) 100%);
-            z-index: 0;
+            height: 3px;
+            background: var(--acw-primary);
+            border-radius: 2px;
         }
 
         .org-tree ul ul li:first-child:not(:only-child)::after {
-            content: '';
-            position: absolute;
-            top: -2rem;
             left: 50%;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, var(--acw-primary) 0%, var(--acw-accent-1) 100%);
-            z-index: 0;
+            right: -1.5rem;
         }
 
         .org-tree ul ul li:last-child:not(:only-child)::after {
-            content: '';
-            position: absolute;
-            top: -2rem;
-            left: 0;
             right: 50%;
-            height: 2px;
-            background: linear-gradient(90deg, var(--acw-primary) 0%, var(--acw-accent-1) 100%);
-            z-index: 0;
+            left: -1.5rem;
         }
 
-        /* Tree node cards */
+        .org-tree ul ul li:not(:first-child):not(:last-child)::after {
+            left: -1.5rem;
+            right: -1.5rem;
+        }
+
+        /* Tree node cards - simplified */
         .tree-node {
             background: var(--acw-white);
             border-radius: 16px;
             padding: 1.5rem;
-            min-width: 250px;
+            min-width: 280px;
+            max-width: 320px;
             box-shadow: var(--acw-shadow-md);
             border: 2px solid transparent;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
             text-align: center;
             position: relative;
-            z-index: 2;
+            z-index: 10;
             cursor: pointer;
         }
 
         .tree-node:hover {
-            transform: translateY(-4px) scale(1.02);
+            transform: translateY(-4px);
             box-shadow: var(--acw-shadow-xl);
-            border-color: rgba(30, 58, 138, 0.2);
+            border-color: var(--acw-primary);
         }
 
         .tree-node.ceo-node {
-            background: linear-gradient(135deg, rgba(30, 58, 138, 0.05) 0%, rgba(15, 23, 42, 0.02) 100%);
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.08) 0%, rgba(15, 23, 42, 0.04) 100%);
             border-color: var(--acw-primary);
-            min-width: 300px;
+            min-width: 320px;
         }
 
         .tree-node.ceo-node::after {
@@ -743,13 +689,11 @@ function createEmployeeCard(employee, cardType = '') {
             top: 1rem;
             right: 1rem;
             font-size: 1.5rem;
-            opacity: 0.8;
         }
 
         .tree-node.head-node {
-            background: linear-gradient(135deg, rgba(249, 115, 22, 0.03) 0%, rgba(251, 191, 36, 0.02) 100%);
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.06) 0%, rgba(251, 191, 36, 0.04) 100%);
             border-color: var(--acw-accent-1);
-            min-width: 280px;
         }
 
         .tree-node.hidden {
@@ -757,36 +701,33 @@ function createEmployeeCard(employee, cardType = '') {
         }
 
         .tree-node-photo {
-            width: 80px;
-            height: 80px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
             object-fit: cover;
-            border: 4px solid var(--acw-white);
+            border: 3px solid var(--acw-white);
             margin: 0 auto 1rem;
             display: block;
             background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%);
-            box-shadow: var(--acw-shadow-md);
-            transition: all 0.3s ease;
-        }
-
-        .tree-node:hover .tree-node-photo {
-            transform: scale(1.05);
-            box-shadow: var(--acw-shadow-lg);
+            box-shadow: var(--acw-shadow-sm);
+            font-size: 1.8rem;
+            color: #9ca3af;
         }
 
         .tree-node-name {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 700;
             color: var(--acw-primary);
             margin-bottom: 0.5rem;
-            letter-spacing: -0.02em;
+            line-height: 1.3;
         }
 
         .tree-node-position {
             color: var(--acw-gray);
             font-weight: 600;
             margin-bottom: 1rem;
-            font-size: 1rem;
+            font-size: 0.95rem;
+            line-height: 1.4;
         }
 
         .tree-node-department {
@@ -794,7 +735,7 @@ function createEmployeeCard(employee, cardType = '') {
         }
 
         .tree-node-details {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--acw-gray);
             font-weight: 500;
         }
@@ -804,125 +745,19 @@ function createEmployeeCard(employee, cardType = '') {
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
-            margin-bottom: 0.5rem;
-            padding: 0.3rem;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-        }
-
-        .tree-node-details div:hover {
-            background: rgba(30, 58, 138, 0.03);
-        }
-
-        /* Legend improvements */
-        .legend {
-            margin-bottom: 3rem;
-            padding: 2rem;
-            background: var(--acw-white);
-            border-radius: 20px;
-            box-shadow: var(--acw-shadow-md);
-            border: 1px solid rgba(30, 58, 138, 0.05);
-        }
-
-        .legend h3 {
-            margin-bottom: 1.5rem;
-            color: var(--acw-primary);
-            font-weight: 700;
-            font-size: 1.25rem;
-            text-align: center;
-        }
-
-        .legend-items {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            justify-content: center;
-        }
-
-        .legend-badge {
-            display: inline-flex;
-            padding: 0.75rem 1.25rem;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            letter-spacing: 0.02em;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .legend-badge::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            transition: left 0.5s;
-        }
-
-        .legend-badge:hover::before {
-            left: 100%;
-        }
-
-        .legend-badge:hover {
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: var(--acw-shadow-lg);
-        }
-
-        .legend-badge.active {
-            transform: scale(1.1);
-            box-shadow: var(--acw-shadow-xl);
-            border: 2px solid rgba(255, 255, 255, 0.8);
-        }
-
-        .legend-badge.inactive {
-            opacity: 0.3;
-            transform: scale(0.95);
-        }
-
-        /* Department expand/collapse */
-        .department-toggle {
-            background: var(--acw-white);
-            border: 2px solid var(--acw-primary);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            margin: 1rem auto;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: var(--acw-shadow-md);
-            color: var(--acw-primary);
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        .department-toggle:hover {
-            background: var(--acw-primary);
-            color: var(--acw-white);
-            transform: scale(1.1);
-            box-shadow: var(--acw-shadow-lg);
+            margin-bottom: 0.4rem;
+            padding: 0.2rem;
+            border-radius: 4px;
         }
 
         /* Responsive tree */
-        @media (max-width: 1024px) {
+        @media (max-width: 1200px) {
             .org-tree ul ul {
-                flex-direction: column;
-                gap: 1.5rem;
+                gap: 2rem;
             }
-
-            .org-tree ul ul li:not(:only-child)::after {
-                display: none;
-            }
-
+            
             .tree-node {
-                min-width: 220px;
+                min-width: 260px;
             }
         }
 
@@ -931,22 +766,19 @@ function createEmployeeCard(employee, cardType = '') {
                 padding: 1rem;
             }
 
+            .org-tree ul ul {
+                flex-direction: column;
+                gap: 2rem;
+                padding-top: 3rem;
+            }
+
+            .org-tree ul ul li::after {
+                display: none;
+            }
+
             .tree-node {
-                min-width: 200px;
+                min-width: 240px;
                 padding: 1.2rem;
-            }
-
-            .tree-node-name {
-                font-size: 1.1rem;
-            }
-
-            .legend-items {
-                gap: 0.5rem;
-            }
-
-            .legend-badge {
-                padding: 0.5rem 1rem;
-                font-size: 0.75rem;
             }
         }
 
@@ -2345,6 +2177,7 @@ function createEmployeeCard(employee, cardType = '') {
         }
 
         function renderOrgChart() {
+            console.log('🎨 Rendering org chart...');
             const container = document.getElementById('org-chart-content');
             container.innerHTML = '';
 
@@ -2360,12 +2193,18 @@ function createEmployeeCard(employee, cardType = '') {
                 return;
             }
 
+            console.log('📊 CEO found:', ceo.name);
+            console.log('👥 Total employees:', employees.length);
+            console.log('🏢 Filtered departments:', Array.from(filteredDepartments));
+
             // Collect all departments for filtering
             allDepartments.clear();
             employees.forEach(emp => allDepartments.add(emp.department));
+            console.log('🏛️ All departments:', Array.from(allDepartments));
 
             // Build tree structure
             const treeStructure = buildTreeStructure(ceo);
+            console.log('🌳 Tree structure built:', treeStructure);
             
             // Create tree HTML
             const treeContainer = document.createElement('div');
@@ -2373,6 +2212,7 @@ function createEmployeeCard(employee, cardType = '') {
             treeContainer.appendChild(createTreeHTML(treeStructure));
             
             container.appendChild(treeContainer);
+            console.log('✅ Org chart rendered successfully');
         }
 
         function buildTreeStructure(rootEmployee) {
