@@ -1,7 +1,55 @@
-<!DOCTYPE html>
+function createEmployeeCard(employee, cardType = '') {
+            const card = document.createElement('div');
+            card.className = `employee-card ${cardType}`;
+
+            const photoElement = employee.photo ? 
+                `<img src="${employee.photo}" class="employee-photo" alt="${employee.name}">` :
+                `<div class="employee-photo" style="display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%); color: #9ca3af; font-size: 2rem;">👤</div>`;
+
+            card.innerHTML = `
+                ${photoElement}
+                <div class="employee-info">
+                    <h3>${employee.name}</h3>
+                    <div class="position">${employee.position}</div>
+                    <div class="department">
+                        <span class="badge badge-${getDepartmentClass(employee.department)}">${employee.department}</span>
+                    </div>
+                </div>
+                <div class="employee-details">
+                    <div>
+                        <span>📧</span>
+                        <a href="mailto:${employee.email}" style="color: inherit; text-decoration: none;">${employee.email}</a>
+                    </div>
+                    ${employee.phone ? `
+                    <div>
+                        <span>📞</span>
+                        <a href="tel:${employee.phone}" style="color: inherit; text-decoration: none;">${employee.phone}</a>
+                    </div>` : ''}
+                    ${employee.location ? `
+                    <div>
+                        <span>📍</span>
+                        <span>${employee.location}</span>
+                    </div>` : ''}
+                    ${employee.startDate ? `
+                    <div>
+                        <span>📅</span>
+                        <span>Nástup: ${new Date(employee.startDate).toLocaleDateString('cs-CZ')}</span>
+                    </div>` : ''}
+                </div>
+            `;
+
+            return card;
+        }
+
+        function toggleDepartment(department) {
+            // This function is kept for backward compatibility but not used in new tree structure
+            console.log('Toggle department:', department);
+        }
+                <!DOCTYPE html>
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acomware - Organizační schéma</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -572,59 +620,201 @@
             transform: translateX(4px);
         }
 
-        .org-level {
+        /* Tree Organization Chart Styles */
+        .org-tree {
             display: flex;
             justify-content: center;
-            margin-bottom: 4rem;
+            padding: 2rem;
+            font-family: 'Montserrat', sans-serif;
         }
 
-        .departments-container {
-            display: flex;
-            justify-content: center;
-            gap: 3rem;
-            flex-wrap: wrap;
-            margin-bottom: 4rem;
-        }
-
-        .department-section {
+        .org-tree ul {
             display: flex;
             flex-direction: column;
             align-items: center;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+
+        .org-tree ul ul {
+            flex-direction: row;
+            padding-top: 2rem;
             gap: 2rem;
         }
 
-        .connection-line {
-            width: 3px;
-            height: 60px;
-            background: linear-gradient(180deg, var(--acw-primary) 0%, var(--acw-accent-1) 100%);
-            margin: 0 auto;
-            border-radius: 2px;
-            box-shadow: 0 2px 8px rgba(30, 58, 138, 0.2);
-        }
-
-        .expand-btn {
-            background: var(--acw-white);
-            border: 2px solid var(--acw-primary);
-            border-radius: 50%;
-            width: 48px;
-            height: 48px;
+        .org-tree li {
+            position: relative;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            margin: 1rem auto;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: var(--acw-shadow-md);
-            color: var(--acw-primary);
+            padding: 0;
         }
 
-        .expand-btn:hover {
-            background: var(--acw-primary);
-            color: var(--acw-white);
-            transform: scale(1.1);
+        /* Connection lines */
+        .org-tree ul ul::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 2rem;
+            background: linear-gradient(180deg, var(--acw-primary) 0%, var(--acw-accent-1) 100%);
+            z-index: 1;
+        }
+
+        .org-tree ul ul li:not(:only-child)::before {
+            content: '';
+            position: absolute;
+            top: -2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 2rem;
+            background: linear-gradient(180deg, var(--acw-primary) 0%, var(--acw-accent-1) 100%);
+            z-index: 1;
+        }
+
+        .org-tree ul ul li:not(:only-child):not(:first-child):not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: -2rem;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--acw-primary) 0%, var(--acw-accent-1) 100%);
+            z-index: 0;
+        }
+
+        .org-tree ul ul li:first-child:not(:only-child)::after {
+            content: '';
+            position: absolute;
+            top: -2rem;
+            left: 50%;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--acw-primary) 0%, var(--acw-accent-1) 100%);
+            z-index: 0;
+        }
+
+        .org-tree ul ul li:last-child:not(:only-child)::after {
+            content: '';
+            position: absolute;
+            top: -2rem;
+            left: 0;
+            right: 50%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--acw-primary) 0%, var(--acw-accent-1) 100%);
+            z-index: 0;
+        }
+
+        /* Tree node cards */
+        .tree-node {
+            background: var(--acw-white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            min-width: 250px;
+            box-shadow: var(--acw-shadow-md);
+            border: 2px solid transparent;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            cursor: pointer;
+        }
+
+        .tree-node:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: var(--acw-shadow-xl);
+            border-color: rgba(30, 58, 138, 0.2);
+        }
+
+        .tree-node.ceo-node {
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.05) 0%, rgba(15, 23, 42, 0.02) 100%);
+            border-color: var(--acw-primary);
+            min-width: 300px;
+        }
+
+        .tree-node.ceo-node::after {
+            content: '👑';
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            opacity: 0.8;
+        }
+
+        .tree-node.head-node {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.03) 0%, rgba(251, 191, 36, 0.02) 100%);
+            border-color: var(--acw-accent-1);
+            min-width: 280px;
+        }
+
+        .tree-node.hidden {
+            display: none !important;
+        }
+
+        .tree-node-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--acw-white);
+            margin: 0 auto 1rem;
+            display: block;
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%);
+            box-shadow: var(--acw-shadow-md);
+            transition: all 0.3s ease;
+        }
+
+        .tree-node:hover .tree-node-photo {
+            transform: scale(1.05);
             box-shadow: var(--acw-shadow-lg);
         }
 
+        .tree-node-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--acw-primary);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .tree-node-position {
+            color: var(--acw-gray);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        .tree-node-department {
+            margin-bottom: 1rem;
+        }
+
+        .tree-node-details {
+            font-size: 0.85rem;
+            color: var(--acw-gray);
+            font-weight: 500;
+        }
+
+        .tree-node-details div {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            padding: 0.3rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .tree-node-details div:hover {
+            background: rgba(30, 58, 138, 0.03);
+        }
+
+        /* Legend improvements */
         .legend {
             margin-bottom: 3rem;
             padding: 2rem;
@@ -639,12 +829,125 @@
             color: var(--acw-primary);
             font-weight: 700;
             font-size: 1.25rem;
+            text-align: center;
         }
 
         .legend-items {
             display: flex;
             flex-wrap: wrap;
             gap: 1rem;
+            justify-content: center;
+        }
+
+        .legend-badge {
+            display: inline-flex;
+            padding: 0.75rem 1.25rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .legend-badge::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .legend-badge:hover::before {
+            left: 100%;
+        }
+
+        .legend-badge:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: var(--acw-shadow-lg);
+        }
+
+        .legend-badge.active {
+            transform: scale(1.1);
+            box-shadow: var(--acw-shadow-xl);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .legend-badge.inactive {
+            opacity: 0.3;
+            transform: scale(0.95);
+        }
+
+        /* Department expand/collapse */
+        .department-toggle {
+            background: var(--acw-white);
+            border: 2px solid var(--acw-primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin: 1rem auto;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--acw-shadow-md);
+            color: var(--acw-primary);
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .department-toggle:hover {
+            background: var(--acw-primary);
+            color: var(--acw-white);
+            transform: scale(1.1);
+            box-shadow: var(--acw-shadow-lg);
+        }
+
+        /* Responsive tree */
+        @media (max-width: 1024px) {
+            .org-tree ul ul {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .org-tree ul ul li:not(:only-child)::after {
+                display: none;
+            }
+
+            .tree-node {
+                min-width: 220px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .org-tree {
+                padding: 1rem;
+            }
+
+            .tree-node {
+                min-width: 200px;
+                padding: 1.2rem;
+            }
+
+            .tree-node-name {
+                font-size: 1.1rem;
+            }
+
+            .legend-items {
+                gap: 0.5rem;
+            }
+
+            .legend-badge {
+                padding: 0.5rem 1rem;
+                font-size: 0.75rem;
+            }
         }
 
         .org-chart {
@@ -1046,15 +1349,25 @@
                 <h2 style="font-size: 2rem; font-weight: bold; color: #111827; margin-bottom: 2rem;">Organizační schéma</h2>
                 
                 <div class="legend">
-                    <h3>Legenda oddělení</h3>
+                    <h3>🏢 Filtrovat podle oddělení</h3>
                     <div class="legend-items">
-                        <span class="badge badge-clevel">C-Level</span>
-                        <span class="badge badge-performance">Performance</span>
-                        <span class="badge badge-customer-experience-retention">Customer Experience & Retention</span>
-                        <span class="badge badge-consulting">Consulting</span>
-                        <span class="badge badge-blueglue">Blueglue</span>
-                        <span class="badge badge-hr">HR</span>
-                        <span class="badge badge-media">Media</span>
+                        <span class="legend-badge badge-clevel active" onclick="filterDepartments('C-Level')" data-dept="C-Level">C-Level</span>
+                        <span class="legend-badge badge-performance active" onclick="filterDepartments('Performance')" data-dept="Performance">Performance</span>
+                        <span class="legend-badge badge-customer-experience-retention active" onclick="filterDepartments('Customer Experience & Retention')" data-dept="Customer Experience & Retention">Customer Experience</span>
+                        <span class="legend-badge badge-consulting active" onclick="filterDepartments('Consulting')" data-dept="Consulting">Consulting</span>
+                        <span class="legend-badge badge-blueglue active" onclick="filterDepartments('Blueglue')" data-dept="Blueglue">Blueglue</span>
+                        <span class="legend-badge badge-hr active" onclick="filterDepartments('HR')" data-dept="HR">HR</span>
+                        <span class="legend-badge badge-media active" onclick="filterDepartments('Media')" data-dept="Media">Media</span>
+                        <span class="legend-badge badge-customer-experience-retention active" onclick="filterDepartments('Controlling & Finance')" data-dept="Controlling & Finance">Finance</span>
+                        <span class="legend-badge badge-consulting active" onclick="filterDepartments('Sales')" data-dept="Sales">Sales</span>
+                        <span class="legend-badge badge-media active" onclick="filterDepartments('Marketing')" data-dept="Marketing">Marketing</span>
+                        <span class="legend-badge badge-hr active" onclick="filterDepartments('Back Office')" data-dept="Back Office">Back Office</span>
+                    </div>
+                    <div style="text-align: center; margin-top: 1rem;">
+                        <button class="btn btn-secondary" onclick="resetDepartmentFilter()" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                            <span>🔄</span>
+                            Zobrazit všechny
+                        </button>
                     </div>
                 </div>
 
@@ -1181,7 +1494,8 @@
         // Global variables
         let employees = [];
         let currentEmployee = null;
-        let expandedDepartments = new Set();
+        let filteredDepartments = new Set();
+        let allDepartments = new Set();
         
         // GitHub configuration
         let githubConfig = {
@@ -1541,7 +1855,7 @@
             }
         }
 
-        // Load employees from GitHub
+        // Load employees from GitHub with better error handling and encoding
         async function loadEmployeesFromGitHub() {
             console.log('📥 Loading employees from GitHub...');
             
@@ -1552,7 +1866,7 @@
             }
 
             try {
-                // Try GitHub API first
+                // Try GitHub API with explicit UTF-8 handling
                 console.log('🔗 Trying GitHub API...');
                 const apiUrl = `https://api.github.com/repos/${githubConfig.repo}/contents/data/employees.json`;
                 
@@ -1561,7 +1875,8 @@
                         'Authorization': `Bearer ${githubConfig.token}`,
                         'Accept': 'application/vnd.github+json',
                         'X-GitHub-Api-Version': '2022-11-28',
-                        'User-Agent': 'Acomware-OrgChart'
+                        'User-Agent': 'Acomware-OrgChart',
+                        'Accept-Charset': 'utf-8'
                     }
                 });
 
@@ -1571,9 +1886,20 @@
                     const data = await response.json();
                     
                     if (data.content) {
-                        const content = atob(data.content.replace(/\s/g, ''));
-                        employees = JSON.parse(content);
-                        console.log(`✅ SUCCESS: Loaded ${employees.length} employees from GitHub`);
+                        // Decode base64 content with proper UTF-8 handling
+                        const base64Content = data.content.replace(/\s/g, '');
+                        const binaryString = atob(base64Content);
+                        
+                        // Convert binary string to UTF-8
+                        const bytes = new Uint8Array(binaryString.length);
+                        for (let i = 0; i < binaryString.length; i++) {
+                            bytes[i] = binaryString.charCodeAt(i);
+                        }
+                        
+                        const utf8Content = new TextDecoder('utf-8').decode(bytes);
+                        employees = JSON.parse(utf8Content);
+                        
+                        console.log(`✅ SUCCESS: Loaded ${employees.length} employees from GitHub with UTF-8 encoding`);
                         updateDataStatus('loaded', `Načteno ${employees.length} zaměstnanců z GitHub`);
                         renderAll();
                         showAlert(`Úspěšně načteno ${employees.length} zaměstnanců z GitHub`, 'success', 'admin-alerts');
@@ -1598,14 +1924,14 @@
             }
         }
 
-        // Save employees to GitHub
+        // Save employees to GitHub with UTF-8 encoding
         async function saveEmployeesToGitHub() {
             if (!githubConfig.token) {
                 return false;
             }
 
             try {
-                console.log('💾 Saving to GitHub...');
+                console.log('💾 Saving to GitHub with UTF-8 encoding...');
                 
                 // Get existing file SHA (needed for updates)
                 let sha = null;
@@ -1628,8 +1954,12 @@
                     console.log('File does not exist yet, will create new');
                 }
 
-                // Prepare content
-                const content = btoa(JSON.stringify(employees, null, 2));
+                // Prepare content with proper UTF-8 encoding
+                const jsonString = JSON.stringify(employees, null, 2);
+                const utf8Bytes = new TextEncoder().encode(jsonString);
+                const binaryString = String.fromCharCode.apply(null, utf8Bytes);
+                const content = btoa(binaryString);
+                
                 const timestamp = new Date().toISOString();
                 
                 const body = {
@@ -1657,14 +1987,14 @@
                         'Accept': 'application/vnd.github+json',
                         'X-GitHub-Api-Version': '2022-11-28',
                         'User-Agent': 'Acomware-OrgChart',
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json; charset=utf-8'
                     },
                     body: JSON.stringify(body)
                 });
 
                 if (response.ok) {
                     const result = await response.json();
-                    console.log('✅ Successfully saved to GitHub');
+                    console.log('✅ Successfully saved to GitHub with UTF-8 encoding');
                     console.log('Commit SHA:', result.commit?.sha);
                     return true;
                 } else {
@@ -2023,77 +2353,170 @@
                 return;
             }
 
+            // Find CEO
             const ceo = employees.find(emp => !emp.parentId || emp.parentId === null);
             if (!ceo) {
                 container.innerHTML = '<div style="text-align: center; padding: 3rem; color: var(--acw-gray);">Není definován CEO (zaměstnanec bez nadřízeného)</div>';
                 return;
             }
 
-            // CEO card
-            const ceoLevel = document.createElement('div');
-            ceoLevel.className = 'org-level';
-            ceoLevel.appendChild(createEmployeeCard(ceo, 'ceo'));
-            container.appendChild(ceoLevel);
+            // Collect all departments for filtering
+            allDepartments.clear();
+            employees.forEach(emp => allDepartments.add(emp.department));
 
-            // Connection line
-            const connectionLine = document.createElement('div');
-            connectionLine.className = 'connection-line';
-            container.appendChild(connectionLine);
-
-            // Direct reports
-            const directReports = employees.filter(emp => emp.parentId === ceo.id);
+            // Build tree structure
+            const treeStructure = buildTreeStructure(ceo);
             
-            if (directReports.length > 0) {
-                const departmentsContainer = document.createElement('div');
-                departmentsContainer.className = 'departments-container';
+            // Create tree HTML
+            const treeContainer = document.createElement('div');
+            treeContainer.className = 'org-tree';
+            treeContainer.appendChild(createTreeHTML(treeStructure));
+            
+            container.appendChild(treeContainer);
+        }
 
-                const departmentOrder = ['C-Level', 'Performance', 'Customer Experience & Retention', 'Consulting', 'Blueglue', 'HR', 'Media', 'Controlling & Finance', 'Sales', 'Marketing', 'Back Office'];
-                const sortedReports = directReports.sort((a, b) => {
-                    const aIndex = departmentOrder.indexOf(a.department);
-                    const bIndex = departmentOrder.indexOf(b.department);
-                    return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
-                });
+        function buildTreeStructure(rootEmployee) {
+            return {
+                employee: rootEmployee,
+                children: employees
+                    .filter(emp => emp.parentId === rootEmployee.id)
+                    .map(emp => buildTreeStructure(emp))
+                    .sort((a, b) => {
+                        const departmentOrder = ['C-Level', 'Performance', 'Customer Experience & Retention', 'Consulting', 'Blueglue', 'HR', 'Media', 'Controlling & Finance', 'Sales', 'Marketing', 'Back Office'];
+                        const aIndex = departmentOrder.indexOf(a.employee.department);
+                        const bIndex = departmentOrder.indexOf(b.employee.department);
+                        return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
+                    })
+            };
+        }
 
-                sortedReports.forEach(head => {
-                    const departmentSection = document.createElement('div');
-                    departmentSection.className = 'department-section';
-
-                    const cardType = head.department === 'C-Level' ? 'ceo' : 'department-head';
-                    const headCard = createEmployeeCard(head, cardType);
-                    departmentSection.appendChild(headCard);
-
-                    const departmentEmployees = employees.filter(emp => 
-                        emp.parentId === head.id || 
-                        (emp.department === head.department && emp.id !== head.id && emp.id !== ceo.id)
-                    );
-
-                    if (departmentEmployees.length > 0) {
-                        const expandBtn = document.createElement('button');
-                        expandBtn.className = 'expand-btn';
-                        expandBtn.onclick = () => toggleDepartment(head.department);
-                        expandBtn.innerHTML = expandedDepartments.has(head.department) ? '🔼' : '🔽';
-                        expandBtn.title = `${expandedDepartments.has(head.department) ? 'Skrýt' : 'Zobrazit'} zaměstnance oddělení ${head.department}`;
-                        departmentSection.appendChild(expandBtn);
-
-                        if (expandedDepartments.has(head.department)) {
-                            const employeesGrid = document.createElement('div');
-                            employeesGrid.className = 'employees-grid';
-                            employeesGrid.style.maxWidth = '600px';
-
-                            departmentEmployees.forEach(emp => {
-                                const empCard = createEmployeeCard(emp);
-                                employeesGrid.appendChild(empCard);
-                            });
-
-                            departmentSection.appendChild(employeesGrid);
-                        }
-                    }
-
-                    departmentsContainer.appendChild(departmentSection);
-                });
-
-                container.appendChild(departmentsContainer);
+        function createTreeHTML(node) {
+            const ul = document.createElement('ul');
+            const li = document.createElement('li');
+            
+            // Determine if node should be hidden based on department filter
+            const shouldHide = filteredDepartments.size > 0 && !filteredDepartments.has(node.employee.department);
+            
+            // Create node card
+            const nodeCard = createTreeNode(node.employee);
+            if (shouldHide) {
+                nodeCard.classList.add('hidden');
             }
+            
+            li.appendChild(nodeCard);
+            
+            // Add children if any exist and aren't all hidden
+            if (node.children && node.children.length > 0) {
+                const childrenVisible = node.children.some(child => 
+                    filteredDepartments.size === 0 || filteredDepartments.has(child.employee.department)
+                );
+                
+                if (childrenVisible) {
+                    const childrenUl = document.createElement('ul');
+                    
+                    node.children.forEach(child => {
+                        const childLi = document.createElement('li');
+                        childLi.appendChild(createTreeHTML(child));
+                        childrenUl.appendChild(childLi);
+                    });
+                    
+                    li.appendChild(childrenUl);
+                }
+            }
+            
+            ul.appendChild(li);
+            return ul;
+        }
+
+        function createTreeNode(employee) {
+            const node = document.createElement('div');
+            let nodeClass = 'tree-node';
+            
+            // Determine node type
+            if (!employee.parentId) {
+                nodeClass += ' ceo-node';
+            } else if (employees.some(emp => emp.parentId === employee.id)) {
+                nodeClass += ' head-node';
+            }
+            
+            node.className = nodeClass;
+
+            const photoElement = employee.photo ? 
+                `<img src="${employee.photo}" class="tree-node-photo" alt="${employee.name}">` :
+                `<div class="tree-node-photo" style="display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%); color: #9ca3af; font-size: 2rem;">👤</div>`;
+
+            node.innerHTML = `
+                ${photoElement}
+                <div class="tree-node-name">${employee.name}</div>
+                <div class="tree-node-position">${employee.position}</div>
+                <div class="tree-node-department">
+                    <span class="badge badge-${getDepartmentClass(employee.department)}">${employee.department}</span>
+                </div>
+                <div class="tree-node-details">
+                    <div>
+                        <span>📧</span>
+                        <a href="mailto:${employee.email}" style="color: inherit; text-decoration: none;">${employee.email}</a>
+                    </div>
+                    ${employee.phone ? `
+                    <div>
+                        <span>📞</span>
+                        <a href="tel:${employee.phone}" style="color: inherit; text-decoration: none;">${employee.phone}</a>
+                    </div>` : ''}
+                    ${employee.location ? `
+                    <div>
+                        <span>📍</span>
+                        <span>${employee.location}</span>
+                    </div>` : ''}
+                </div>
+            `;
+
+            return node;
+        }
+
+        // Department filtering functions
+        function filterDepartments(department) {
+            const badge = document.querySelector(`.legend-badge[data-dept="${department}"]`);
+            
+            if (filteredDepartments.has(department)) {
+                // Remove from filter
+                filteredDepartments.delete(department);
+                badge.classList.remove('inactive');
+                badge.classList.add('active');
+            } else {
+                // Add to filter - but first check if we need to clear others
+                if (filteredDepartments.size === 0) {
+                    // First selection - make all others inactive
+                    document.querySelectorAll('.legend-badge').forEach(b => {
+                        if (b !== badge) {
+                            b.classList.add('inactive');
+                            b.classList.remove('active');
+                        }
+                    });
+                }
+                
+                filteredDepartments.add(department);
+                badge.classList.remove('inactive');
+                badge.classList.add('active');
+            }
+            
+            // If no departments selected, show all
+            if (filteredDepartments.size === 0) {
+                document.querySelectorAll('.legend-badge').forEach(b => {
+                    b.classList.remove('inactive');
+                    b.classList.add('active');
+                });
+            }
+            
+            renderOrgChart();
+        }
+
+        function resetDepartmentFilter() {
+            filteredDepartments.clear();
+            document.querySelectorAll('.legend-badge').forEach(badge => {
+                badge.classList.remove('inactive');
+                badge.classList.add('active');
+            });
+            renderOrgChart();
         }
 
         function createEmployeeCard(employee, cardType = '') {
