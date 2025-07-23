@@ -573,117 +573,73 @@
             transform: translateX(4px);
         }
 
-        /* Simplified Tree Organization Chart Styles */
-        .org-tree {
-            display: flex;
-            justify-content: center;
-            padding: 2rem;
-            font-family: 'Montserrat', sans-serif;
-            overflow-x: auto;
+        /* Collapsible Organization Chart Styles */
+        .org-chart-container {
+            position: relative;
+            width: 100%;
+            height: 80vh;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 20px;
+            box-shadow: var(--acw-shadow-lg);
+            border: 1px solid rgba(30, 58, 138, 0.05);
         }
 
-        .org-tree ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
+        .org-chart-viewport {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
             position: relative;
+            transform-origin: center center;
+            transition: transform 0.3s ease;
+        }
+
+        .org-chart-content {
+            min-width: 100%;
+            min-height: 100%;
+            padding: 4rem;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
-        .org-tree ul ul {
-            flex-direction: row;
-            justify-content: center;
-            padding-top: 4rem;
-            gap: 3rem;
-        }
-
-        .org-tree li {
+        .org-node {
             position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
+            margin: 2rem 0;
         }
 
-        /* Simple connection lines */
-        .org-tree ul ul::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 3px;
-            height: 2rem;
-            background: var(--acw-primary);
-            border-radius: 2px;
-        }
-
-        .org-tree ul ul li::before {
-            content: '';
-            position: absolute;
-            top: -2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 3px;
-            height: 2rem;
-            background: var(--acw-primary);
-            border-radius: 2px;
-        }
-
-        .org-tree ul ul li:not(:only-child)::after {
-            content: '';
-            position: absolute;
-            top: -2rem;
-            height: 3px;
-            background: var(--acw-primary);
-            border-radius: 2px;
-        }
-
-        .org-tree ul ul li:first-child:not(:only-child)::after {
-            left: 50%;
-            right: -1.5rem;
-        }
-
-        .org-tree ul ul li:last-child:not(:only-child)::after {
-            right: 50%;
-            left: -1.5rem;
-        }
-
-        .org-tree ul ul li:not(:first-child):not(:last-child)::after {
-            left: -1.5rem;
-            right: -1.5rem;
-        }
-
-        /* Tree node cards - simplified */
-        .tree-node {
+        .org-node-card {
             background: var(--acw-white);
             border-radius: 16px;
             padding: 1.5rem;
             min-width: 280px;
-            max-width: 320px;
+            max-width: 350px;
             box-shadow: var(--acw-shadow-md);
             border: 2px solid transparent;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-align: center;
+            cursor: pointer;
             position: relative;
             z-index: 10;
-            cursor: pointer;
         }
 
-        .tree-node:hover {
+        .org-node-card:hover {
             transform: translateY(-4px);
             box-shadow: var(--acw-shadow-xl);
             border-color: var(--acw-primary);
         }
 
-        .tree-node.ceo-node {
+        .org-node-card.ceo {
             background: linear-gradient(135deg, rgba(30, 58, 138, 0.08) 0%, rgba(15, 23, 42, 0.04) 100%);
             border-color: var(--acw-primary);
             min-width: 320px;
+            box-shadow: var(--acw-shadow-lg);
         }
 
-        .tree-node.ceo-node::after {
+        .org-node-card.ceo::after {
             content: '👑';
             position: absolute;
             top: 1rem;
@@ -691,18 +647,14 @@
             font-size: 1.5rem;
         }
 
-        .tree-node.head-node {
+        .org-node-card.department-head {
             background: linear-gradient(135deg, rgba(249, 115, 22, 0.06) 0%, rgba(251, 191, 36, 0.04) 100%);
             border-color: var(--acw-accent-1);
         }
 
-        .tree-node.hidden {
-            display: none !important;
-        }
-
-        .tree-node-photo {
-            width: 70px;
-            height: 70px;
+        .org-node-photo {
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             object-fit: cover;
             border: 3px solid var(--acw-white);
@@ -710,37 +662,37 @@
             display: block;
             background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%);
             box-shadow: var(--acw-shadow-sm);
-            font-size: 1.8rem;
+            font-size: 2rem;
             color: #9ca3af;
         }
 
-        .tree-node-name {
-            font-size: 1.2rem;
+        .org-node-name {
+            font-size: 1.3rem;
             font-weight: 700;
             color: var(--acw-primary);
             margin-bottom: 0.5rem;
             line-height: 1.3;
         }
 
-        .tree-node-position {
+        .org-node-position {
             color: var(--acw-gray);
             font-weight: 600;
             margin-bottom: 1rem;
-            font-size: 0.95rem;
+            font-size: 1rem;
             line-height: 1.4;
         }
 
-        .tree-node-department {
+        .org-node-department {
             margin-bottom: 1rem;
         }
 
-        .tree-node-details {
-            font-size: 0.8rem;
+        .org-node-details {
+            font-size: 0.85rem;
             color: var(--acw-gray);
             font-weight: 500;
         }
 
-        .tree-node-details div {
+        .org-node-details div {
             display: flex;
             align-items: center;
             justify-content: center;
@@ -750,35 +702,200 @@
             border-radius: 4px;
         }
 
-        /* Responsive tree */
-        @media (max-width: 1200px) {
-            .org-tree ul ul {
+        /* Expand/Collapse Button */
+        .expand-toggle {
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--acw-primary);
+            color: var(--acw-white);
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            box-shadow: var(--acw-shadow-md);
+            transition: all 0.3s ease;
+            z-index: 15;
+        }
+
+        .expand-toggle:hover {
+            transform: translateX(-50%) scale(1.1);
+            box-shadow: var(--acw-shadow-lg);
+            background: var(--acw-accent-1);
+        }
+
+        .expand-toggle.expanded {
+            background: var(--acw-accent-1);
+        }
+
+        /* Children Container */
+        .org-children {
+            display: none;
+            flex-direction: row;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            position: relative;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .org-children.expanded {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Connection Lines */
+        .org-children::before {
+            content: '';
+            position: absolute;
+            top: -2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 2rem;
+            background: linear-gradient(180deg, var(--acw-primary) 0%, var(--acw-accent-1) 100%);
+            border-radius: 2px;
+        }
+
+        .org-children .org-node::before {
+            content: '';
+            position: absolute;
+            top: -2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 2rem;
+            background: linear-gradient(180deg, var(--acw-primary) 0%, var(--acw-accent-1) 100%);
+            border-radius: 2px;
+        }
+
+        .org-children .org-node:not(:only-child)::after {
+            content: '';
+            position: absolute;
+            top: -2rem;
+            height: 3px;
+            background: linear-gradient(90deg, var(--acw-primary) 0%, var(--acw-accent-1) 100%);
+            border-radius: 2px;
+        }
+
+        .org-children .org-node:first-child:not(:only-child)::after {
+            left: 50%;
+            right: -1.5rem;
+        }
+
+        .org-children .org-node:last-child:not(:only-child)::after {
+            right: 50%;
+            left: -1.5rem;
+        }
+
+        .org-children .org-node:not(:first-child):not(:last-child)::after {
+            left: -1.5rem;
+            right: -1.5rem;
+        }
+
+        /* Zoom Controls */
+        .zoom-controls {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 20;
+        }
+
+        .zoom-btn {
+            background: var(--acw-white);
+            border: 2px solid var(--acw-primary);
+            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--acw-primary);
+            transition: all 0.3s ease;
+            box-shadow: var(--acw-shadow-sm);
+        }
+
+        .zoom-btn:hover {
+            background: var(--acw-primary);
+            color: var(--acw-white);
+            transform: scale(1.1);
+            box-shadow: var(--acw-shadow-md);
+        }
+
+        /* Employee Counter Badge */
+        .employee-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--acw-accent-1);
+            color: var(--acw-white);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            box-shadow: var(--acw-shadow-sm);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .org-children {
+                flex-direction: column;
                 gap: 2rem;
+                align-items: center;
             }
-            
-            .tree-node {
+
+            .org-children .org-node::after {
+                display: none;
+            }
+
+            .org-node-card {
                 min-width: 260px;
             }
         }
 
         @media (max-width: 768px) {
-            .org-tree {
-                padding: 1rem;
+            .org-chart-content {
+                padding: 2rem;
             }
 
-            .org-tree ul ul {
-                flex-direction: column;
-                gap: 2rem;
-                padding-top: 3rem;
-            }
-
-            .org-tree ul ul li::after {
-                display: none;
-            }
-
-            .tree-node {
+            .org-node-card {
                 min-width: 240px;
                 padding: 1.2rem;
+            }
+
+            .org-node-name {
+                font-size: 1.1rem;
+            }
+
+            .zoom-controls {
+                top: 0.5rem;
+                right: 0.5rem;
+            }
+
+            .zoom-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
             }
         }
 
@@ -1203,9 +1320,16 @@
                     </div>
                 </div>
 
-                <div class="org-chart">
-                    <div id="org-chart-content">
-                        <div style="text-align: center; padding: 3rem; color: var(--acw-gray);">Načítání organizačního schématu...</div>
+                <div class="org-chart-container">
+                    <div class="zoom-controls">
+                        <button class="zoom-btn" onclick="zoomIn()" title="Přiblížit">+</button>
+                        <button class="zoom-btn" onclick="zoomOut()" title="Oddálit">−</button>
+                        <button class="zoom-btn" onclick="resetZoom()" title="Reset zoom">⌂</button>
+                    </div>
+                    <div class="org-chart-viewport" id="org-chart-viewport">
+                        <div class="org-chart-content" id="org-chart-content">
+                            <div style="text-align: center; padding: 3rem; color: var(--acw-gray);">Načítání organizačního schématu...</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1328,6 +1452,8 @@
         let currentEmployee = null;
         let filteredDepartments = new Set();
         let allDepartments = new Set();
+        let expandedNodes = new Set();
+        let currentZoom = 1;
         
         // GitHub configuration
         let githubConfig = {
@@ -2176,8 +2302,9 @@
             });
         }
 
+        // Collapsible Organization Chart Functions
         function renderOrgChart() {
-            console.log('🎨 Rendering org chart...');
+            console.log('🎨 Rendering collapsible org chart...');
             const container = document.getElementById('org-chart-content');
             container.innerHTML = '';
 
@@ -2193,106 +2320,48 @@
                 return;
             }
 
-            console.log('📊 CEO found:', ceo.name);
+            console.log('👑 CEO found:', ceo.name);
             console.log('👥 Total employees:', employees.length);
-            console.log('🏢 Filtered departments:', Array.from(filteredDepartments));
 
-            // Collect all departments for filtering
-            allDepartments.clear();
-            employees.forEach(emp => allDepartments.add(emp.department));
-            console.log('🏛️ All departments:', Array.from(allDepartments));
+            // Create CEO node
+            const ceoNode = createOrgNode(ceo, true);
+            container.appendChild(ceoNode);
 
-            // Build tree structure
-            const treeStructure = buildTreeStructure(ceo);
-            console.log('🌳 Tree structure built:', treeStructure);
-            
-            // Create tree HTML
-            const treeContainer = document.createElement('div');
-            treeContainer.className = 'org-tree';
-            treeContainer.appendChild(createTreeHTML(treeStructure));
-            
-            container.appendChild(treeContainer);
             console.log('✅ Org chart rendered successfully');
         }
 
-        function buildTreeStructure(rootEmployee) {
-            return {
-                employee: rootEmployee,
-                children: employees
-                    .filter(emp => emp.parentId === rootEmployee.id)
-                    .map(emp => buildTreeStructure(emp))
-                    .sort((a, b) => {
-                        const departmentOrder = ['C-Level', 'Performance', 'Customer Experience & Retention', 'Consulting', 'Blueglue', 'HR', 'Media', 'Controlling & Finance', 'Sales', 'Marketing', 'Back Office'];
-                        const aIndex = departmentOrder.indexOf(a.employee.department);
-                        const bIndex = departmentOrder.indexOf(b.employee.department);
-                        return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
-                    })
-            };
-        }
+        function createOrgNode(employee, isCeo = false) {
+            const nodeContainer = document.createElement('div');
+            nodeContainer.className = 'org-node';
+            nodeContainer.setAttribute('data-employee-id', employee.id);
 
-        function createTreeHTML(node) {
-            const ul = document.createElement('ul');
-            const li = document.createElement('li');
+            // Create card
+            const card = document.createElement('div');
+            card.className = `org-node-card ${isCeo ? 'ceo' : ''}`;
             
-            // Determine if node should be hidden based on department filter
-            const shouldHide = filteredDepartments.size > 0 && !filteredDepartments.has(node.employee.department);
-            
-            // Create node card
-            const nodeCard = createTreeNode(node.employee);
-            if (shouldHide) {
-                nodeCard.classList.add('hidden');
+            // Determine if this is a department head
+            const isHead = employees.some(emp => emp.parentId === employee.id);
+            if (isHead && !isCeo) {
+                card.classList.add('department-head');
             }
-            
-            li.appendChild(nodeCard);
-            
-            // Add children if any exist and aren't all hidden
-            if (node.children && node.children.length > 0) {
-                const childrenVisible = node.children.some(child => 
-                    filteredDepartments.size === 0 || filteredDepartments.has(child.employee.department)
-                );
-                
-                if (childrenVisible) {
-                    const childrenUl = document.createElement('ul');
-                    
-                    node.children.forEach(child => {
-                        const childLi = document.createElement('li');
-                        childLi.appendChild(createTreeHTML(child));
-                        childrenUl.appendChild(childLi);
-                    });
-                    
-                    li.appendChild(childrenUl);
-                }
-            }
-            
-            ul.appendChild(li);
-            return ul;
-        }
 
-        function createTreeNode(employee) {
-            const node = document.createElement('div');
-            let nodeClass = 'tree-node';
-            
-            // Determine node type
-            if (!employee.parentId) {
-                nodeClass += ' ceo-node';
-            } else if (employees.some(emp => emp.parentId === employee.id)) {
-                nodeClass += ' head-node';
-            }
-            
-            node.className = nodeClass;
-
+            // Photo element
             const photoElement = employee.photo ? 
-                `<img src="${employee.photo}" class="tree-node-photo" alt="${employee.name}">` :
-                `<div class="tree-node-photo" style="display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%); color: #9ca3af; font-size: 2rem;">👤</div>`;
+                `<img src="${employee.photo}" class="org-node-photo" alt="${employee.name}">` :
+                `<div class="org-node-photo" style="display: flex; align-items: center; justify-content: center;">${isCeo ? '👤' : '👤'}</div>`;
 
-            node.innerHTML = `
+            // Get direct reports
+            const directReports = employees.filter(emp => emp.parentId === employee.id);
+            const hasChildren = directReports.length > 0;
+
+            card.innerHTML = `
                 ${photoElement}
-                <div class="tree-node-name">${employee.name}</div>
-                <div class="tree-node-position">${employee.position}</div>
-                <div class="tree-node-department">
+                <div class="org-node-name">${employee.name}</div>
+                <div class="org-node-position">${employee.position}</div>
+                <div class="org-node-department">
                     <span class="badge badge-${getDepartmentClass(employee.department)}">${employee.department}</span>
                 </div>
-                <div class="tree-node-details">
+                <div class="org-node-details">
                     <div>
                         <span>📧</span>
                         <a href="mailto:${employee.email}" style="color: inherit; text-decoration: none;">${employee.email}</a>
@@ -2308,12 +2377,107 @@
                         <span>${employee.location}</span>
                     </div>` : ''}
                 </div>
+                ${hasChildren ? `
+                    <div class="employee-count">${directReports.length}</div>
+                    <button class="expand-toggle" onclick="toggleNode(${employee.id})" title="Rozbalit/sbalit">
+                        ${expandedNodes.has(employee.id) ? '−' : '+'}
+                    </button>
+                ` : ''}
             `;
 
-            return node;
+            nodeContainer.appendChild(card);
+
+            // Create children container if has children
+            if (hasChildren) {
+                const childrenContainer = document.createElement('div');
+                childrenContainer.className = `org-children ${expandedNodes.has(employee.id) ? 'expanded' : ''}`;
+                childrenContainer.setAttribute('data-parent-id', employee.id);
+
+                // Sort children by department priority
+                const departmentOrder = ['C-Level', 'Performance', 'Customer Experience & Retention', 'Consulting', 'Blueglue', 'HR', 'Media', 'Controlling & Finance', 'Sales', 'Marketing', 'Back Office'];
+                const sortedReports = directReports.sort((a, b) => {
+                    const aIndex = departmentOrder.indexOf(a.department);
+                    const bIndex = departmentOrder.indexOf(b.department);
+                    return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
+                });
+
+                // Add children
+                sortedReports.forEach(child => {
+                    const childNode = createOrgNode(child, false);
+                    childrenContainer.appendChild(childNode);
+                });
+
+                nodeContainer.appendChild(childrenContainer);
+            }
+
+            return nodeContainer;
         }
 
-        // Department filtering functions
+        function toggleNode(employeeId) {
+            console.log('🔄 Toggling node:', employeeId);
+            
+            const button = document.querySelector(`[data-employee-id="${employeeId}"] .expand-toggle`);
+            const childrenContainer = document.querySelector(`[data-parent-id="${employeeId}"]`);
+            
+            if (!button || !childrenContainer) {
+                console.error('❌ Could not find button or children container');
+                return;
+            }
+
+            if (expandedNodes.has(employeeId)) {
+                // Collapse
+                expandedNodes.delete(employeeId);
+                childrenContainer.classList.remove('expanded');
+                button.textContent = '+';
+                button.classList.remove('expanded');
+                console.log('📁 Node collapsed');
+            } else {
+                // Expand
+                expandedNodes.add(employeeId);
+                childrenContainer.classList.add('expanded');
+                button.textContent = '−';
+                button.classList.add('expanded');
+                console.log('📂 Node expanded');
+            }
+        }
+
+        // Zoom Functions
+        function zoomIn() {
+            currentZoom = Math.min(currentZoom * 1.2, 3);
+            applyZoom();
+        }
+
+        function zoomOut() {
+            currentZoom = Math.max(currentZoom * 0.8, 0.3);
+            applyZoom();
+        }
+
+        function resetZoom() {
+            currentZoom = 1;
+            applyZoom();
+        }
+
+        function applyZoom() {
+            const viewport = document.getElementById('org-chart-viewport');
+            viewport.style.transform = `scale(${currentZoom})`;
+        }
+
+        // Legacy functions for backward compatibility
+        function buildTreeStructure(rootEmployee) {
+            return {
+                employee: rootEmployee,
+                children: []
+            };
+        }
+
+        function createTreeHTML(node) {
+            return document.createElement('div');
+        }
+
+        function createTreeNode(employee) {
+            return document.createElement('div');
+        }
+        // Department filtering functions (updated for collapsible chart)
         function filterDepartments(department) {
             const badge = document.querySelector(`.legend-badge[data-dept="${department}"]`);
             
@@ -2347,7 +2511,8 @@
                 });
             }
             
-            renderOrgChart();
+            // Apply visual filtering
+            applyDepartmentFilter();
         }
 
         function resetDepartmentFilter() {
@@ -2356,8 +2521,35 @@
                 badge.classList.remove('inactive');
                 badge.classList.add('active');
             });
-            renderOrgChart();
+            applyDepartmentFilter();
         }
+
+        function applyDepartmentFilter() {
+            const nodes = document.querySelectorAll('.org-node');
+            
+            nodes.forEach(node => {
+                const employeeId = node.getAttribute('data-employee-id');
+                const employee = employees.find(emp => emp.id == employeeId);
+                
+                if (employee) {
+                    if (filteredDepartments.size === 0 || filteredDepartments.has(employee.department)) {
+                        node.style.display = 'flex';
+                        node.style.opacity = '1';
+                    } else {
+                        node.style.opacity = '0.3';
+                        // Don't completely hide, just fade for better UX
+                    }
+                }
+            });
+        }
+
+        // Make functions globally available
+        window.toggleNode = toggleNode;
+        window.zoomIn = zoomIn;
+        window.zoomOut = zoomOut;
+        window.resetZoom = resetZoom;
+        window.filterDepartments = filterDepartments;
+        window.resetDepartmentFilter = resetDepartmentFilter;
 
         function createEmployeeCard(employee, cardType = '') {
             const card = document.createElement('div');
