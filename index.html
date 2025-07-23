@@ -1513,23 +1513,63 @@
                 <div class="legend">
                     <h3>🏢 Filtrovat podle oddělení</h3>
                     <div class="legend-items">
-                        <span class="legend-badge badge-clevel active" onclick="filterDepartments('C-Level')" data-dept="C-Level">C-Level</span>
-                        <span class="legend-badge badge-performance active" onclick="filterDepartments('Performance')" data-dept="Performance">Performance</span>
-                        <span class="legend-badge badge-customer-experience-retention active" onclick="filterDepartments('Customer Experience & Retention')" data-dept="Customer Experience & Retention">Customer Experience</span>
-                        <span class="legend-badge badge-consulting active" onclick="filterDepartments('Consulting')" data-dept="Consulting">Consulting</span>
-                        <span class="legend-badge badge-blueglue active" onclick="filterDepartments('Blueglue')" data-dept="Blueglue">Blueglue</span>
-                        <span class="legend-badge badge-hr active" onclick="filterDepartments('HR')" data-dept="HR">HR</span>
-                        <span class="legend-badge badge-media active" onclick="filterDepartments('Media')" data-dept="Media">Media</span>
-                        <span class="legend-badge badge-customer-experience-retention active" onclick="filterDepartments('Controlling & Finance')" data-dept="Controlling & Finance">Finance</span>
-                        <span class="legend-badge badge-consulting active" onclick="filterDepartments('Sales')" data-dept="Sales">Sales</span>
-                        <span class="legend-badge badge-media active" onclick="filterDepartments('Marketing')" data-dept="Marketing">Marketing</span>
-                        <span class="legend-badge badge-hr active" onclick="filterDepartments('Back Office')" data-dept="Back Office">Back Office</span>
+                        <span class="legend-badge badge-clevel" onclick="toggleDepartmentFilter('C-Level')" data-dept="C-Level">
+                            <span class="badge-checkbox">✓</span>
+                            C-Level
+                        </span>
+                        <span class="legend-badge badge-performance" onclick="toggleDepartmentFilter('Performance')" data-dept="Performance">
+                            <span class="badge-checkbox">✓</span>
+                            Performance
+                        </span>
+                        <span class="legend-badge badge-customer-experience-retention" onclick="toggleDepartmentFilter('Customer Experience & Retention')" data-dept="Customer Experience & Retention">
+                            <span class="badge-checkbox">✓</span>
+                            Customer Experience
+                        </span>
+                        <span class="legend-badge badge-consulting" onclick="toggleDepartmentFilter('Consulting')" data-dept="Consulting">
+                            <span class="badge-checkbox">✓</span>
+                            Consulting
+                        </span>
+                        <span class="legend-badge badge-blueglue" onclick="toggleDepartmentFilter('Blueglue')" data-dept="Blueglue">
+                            <span class="badge-checkbox">✓</span>
+                            Blueglue
+                        </span>
+                        <span class="legend-badge badge-hr" onclick="toggleDepartmentFilter('HR')" data-dept="HR">
+                            <span class="badge-checkbox">✓</span>
+                            HR
+                        </span>
+                        <span class="legend-badge badge-media" onclick="toggleDepartmentFilter('Media')" data-dept="Media">
+                            <span class="badge-checkbox">✓</span>
+                            Media
+                        </span>
+                        <span class="legend-badge badge-customer-experience-retention" onclick="toggleDepartmentFilter('Controlling & Finance')" data-dept="Controlling & Finance">
+                            <span class="badge-checkbox">✓</span>
+                            Finance
+                        </span>
+                        <span class="legend-badge badge-consulting" onclick="toggleDepartmentFilter('Sales')" data-dept="Sales">
+                            <span class="badge-checkbox">✓</span>
+                            Sales
+                        </span>
+                        <span class="legend-badge badge-media" onclick="toggleDepartmentFilter('Marketing')" data-dept="Marketing">
+                            <span class="badge-checkbox">✓</span>
+                            Marketing
+                        </span>
+                        <span class="legend-badge badge-hr" onclick="toggleDepartmentFilter('Back Office')" data-dept="Back Office">
+                            <span class="badge-checkbox">✓</span>
+                            Back Office
+                        </span>
                     </div>
-                    <div style="text-align: center; margin-top: 1rem;">
-                        <button class="btn btn-secondary" onclick="resetDepartmentFilter()" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
-                            <span>🔄</span>
-                            Zobrazit všechny
+                    <div style="text-align: center; margin-top: 1rem; display: flex; gap: 1rem; justify-content: center;">
+                        <button class="btn btn-secondary" onclick="selectAllDepartments()" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                            <span>✅</span>
+                            Vybrat vše
                         </button>
+                        <button class="btn btn-secondary" onclick="deselectAllDepartments()" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                            <span>❌</span>
+                            Zrušit vše
+                        </button>
+                        <div id="active-filter-count" style="display: flex; align-items: center; padding: 0.5rem 1rem; background: rgba(30, 58, 138, 0.1); border-radius: 8px; font-size: 0.9rem; font-weight: 600; color: var(--acw-primary);">
+                            Zobrazeno: <span id="filter-count">11</span>/11 oddělení
+                        </div>
                     </div>
                 </div>
 
