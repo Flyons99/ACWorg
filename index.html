@@ -44,8 +44,8 @@
 
         .header {
             background: var(--acw-white);
-            border-bottom: 3px solid var(--acw-primary);
-            box-shadow: var(--acw-shadow-lg);
+            border-bottom: 1px solid rgba(30, 58, 138, 0.1);
+            box-shadow: var(--acw-shadow-sm);
             position: relative;
             overflow: hidden;
         }
@@ -57,7 +57,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(45deg, rgba(30, 58, 138, 0.03) 0%, rgba(249, 115, 22, 0.02) 100%);
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(30,58,138,0.02)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
             pointer-events: none;
         }
 
@@ -76,16 +76,15 @@
             display: flex;
             align-items: center;
             gap: 1.5rem;
-            background: var(--acw-white);
-            padding: 0.75rem 1.5rem;
-            border-radius: 16px;
-            box-shadow: var(--acw-shadow-md);
-            border: 2px solid rgba(30, 58, 138, 0.1);
         }
 
         .logo {
-            height: 45px;
-            width: auto;
+            width: 60px;
+            height: 60px;
+            background-image: url('https://raw.githubusercontent.com/Flyons99/ACWorg/main/data/logo.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
             filter: none;
         }
 
@@ -94,7 +93,7 @@
             font-size: 1.75rem;
             font-weight: 700;
             letter-spacing: -0.025em;
-            margin: 0;
+            text-shadow: none;
         }
 
         .data-status {
@@ -113,22 +112,22 @@
         .data-status.loaded {
             background: rgba(16, 185, 129, 0.15);
             color: #059669;
+            border: 1px solid rgba(16, 185, 129, 0.3);
             box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
-            border: 2px solid rgba(16, 185, 129, 0.3);
         }
 
         .data-status.error {
             background: rgba(239, 68, 68, 0.15);
             color: #dc2626;
+            border: 1px solid rgba(239, 68, 68, 0.3);
             box-shadow: 0 4px 16px rgba(239, 68, 68, 0.2);
-            border: 2px solid rgba(239, 68, 68, 0.3);
         }
 
         .data-status.loading {
             background: rgba(59, 130, 246, 0.15);
             color: #2563eb;
+            border: 1px solid rgba(59, 130, 246, 0.3);
             box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2);
-            border: 2px solid rgba(59, 130, 246, 0.3);
         }
 
         .nav {
@@ -732,7 +731,7 @@
             margin: 2rem 0;
         }
 
-        /* UPDATED Organization Node Cards - Show initials in small view */
+        /* UPDATED Organization Node Cards - Responsive to zoom */
         .org-node-card {
             background: var(--acw-white);
             border-radius: 12px;
@@ -761,29 +760,16 @@
         }
 
         .org-chart-content[data-zoom="small"] .org-node-name {
-            font-size: 1rem;
+            font-size: 1.2rem;
             font-weight: 800;
             margin: 0;
             line-height: 1;
-            color: var(--acw-primary);
         }
 
         .org-chart-content[data-zoom="small"] .org-node-position,
         .org-chart-content[data-zoom="small"] .org-node-department,
         .org-chart-content[data-zoom="small"] .org-node-photo {
             display: none;
-        }
-
-        /* In small view, show initials directly in the card */
-        .org-chart-content[data-zoom="small"] .org-node-card::before {
-            content: attr(data-initials);
-            font-size: 1.2rem;
-            font-weight: 800;
-            color: var(--acw-primary);
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
         }
 
         .org-chart-content[data-zoom="small"] .employee-count {
@@ -1217,9 +1203,13 @@
         }
 
         .login-logo {
-            height: 80px;
-            width: auto;
-            margin-bottom: 1rem;
+            width: 100px;
+            height: 100px;
+            background-image: url('https://raw.githubusercontent.com/Flyons99/ACWorg/main/data/logo.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            margin: 0 auto 1rem;
         }
 
         .login-title {
@@ -1414,7 +1404,7 @@
     <!-- Login Screen -->
     <div id="login-overlay" class="login-overlay">
         <div class="login-box">
-            <img src="https://raw.githubusercontent.com/Flyons99/ACWorg/main/data/logo.png" alt="Acomware" class="login-logo">
+            <div class="login-logo"></div>
             <h1 class="login-title">Acomware</h1>
             <p class="login-subtitle">Organizační schéma</p>
             
@@ -1441,7 +1431,7 @@
         <div class="header">
             <div class="header-content">
                 <div class="header-left">
-                    <img src="https://raw.githubusercontent.com/Flyons99/ACWorg/main/data/logo.png" alt="Acomware" class="logo">
+                    <div class="logo"></div>
                     <h1>Acomware - Organizační schéma</h1>
                 </div>
                 <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1776,18 +1766,18 @@
             }
         }
 
-        // SIMPLE Initialize app 
+        // Initialize app
         function initializeApp() {
             console.log('🚀 Initializing Acomware app...');
             updateDataStatus('loading', 'Načítání dat...');
             
             setupEventListeners();
-            loadFallbackData();
+            loadEmployeesFromGitHub();
             
-            // Initialize pan/drag after short delay
+            // Initialize pan/drag after a short delay to ensure DOM is ready
             setTimeout(() => {
                 initializePanDrag();
-            }, 500);
+            }, 100);
         }
 
         // FIXED Pan/Drag initialization
@@ -1949,52 +1939,40 @@
             updateTransform();
         }
 
-        // FIXED Center employee function - improved
+        // FIXED Center employee function
         function centerOnEmployee(employeeId) {
             const nodeElement = document.querySelector(`[data-employee-id="${employeeId}"]`);
             const viewport = document.getElementById('org-chart-viewport');
-            const content = document.getElementById('org-chart-content');
             
-            if (!nodeElement || !viewport || !content) return;
+            if (!nodeElement || !viewport) return;
             
             console.log('🎯 Centering on employee:', employeeId);
             
-            // Get the bounds
             const viewportRect = viewport.getBoundingClientRect();
-            const contentRect = content.getBoundingClientRect();
             const nodeRect = nodeElement.getBoundingClientRect();
             
-            // Calculate the center of viewport
+            // Calculate center position
             const viewportCenterX = viewportRect.width / 2;
             const viewportCenterY = viewportRect.height / 2;
             
-            // Calculate node position relative to content center
-            const nodeCenterX = nodeRect.left + nodeRect.width / 2;
-            const nodeCenterY = nodeRect.top + nodeRect.height / 2;
+            const nodeCenterX = nodeRect.left + nodeRect.width / 2 - viewportRect.left;
+            const nodeCenterY = nodeRect.top + nodeRect.height / 2 - viewportRect.top;
             
-            // Calculate where content center currently is in viewport
-            const contentCenterX = contentRect.left + contentRect.width / 2;
-            const contentCenterY = contentRect.top + contentRect.height / 2;
+            // Calculate required pan offset to center the node
+            const targetPanX = viewportCenterX - nodeCenterX;
+            const targetPanY = viewportCenterY - nodeCenterY;
             
-            // Calculate offset needed to center the node
-            const offsetX = nodeCenterX - contentCenterX;
-            const offsetY = nodeCenterY - contentCenterY;
-            
-            // Calculate new pan offset (invert the offset)
-            const targetPanX = panOffset.x - offsetX / currentZoom;
-            const targetPanY = panOffset.y - offsetY / currentZoom;
-            
-            // Animate to center
+            // Smooth animation to center
             const startPanX = panOffset.x;
             const startPanY = panOffset.y;
-            const duration = 600;
+            const duration = 500;
             const startTime = performance.now();
             
             function animateCenter(currentTime) {
                 const elapsed = currentTime - startTime;
                 const progress = Math.min(elapsed / duration, 1);
                 
-                // Smooth easing function
+                // Easing function for smooth animation
                 const easeProgress = 1 - Math.pow(1 - progress, 3);
                 
                 panOffset.x = startPanX + (targetPanX - startPanX) * easeProgress;
@@ -2006,13 +1984,6 @@
                     requestAnimationFrame(animateCenter);
                 } else {
                     console.log('✅ Employee centered');
-                    // Show employee detail after centering
-                    setTimeout(() => {
-                        const employee = employees.find(emp => emp.id == employeeId);
-                        if (employee) {
-                            showEmployeeDetail(employee);
-                        }
-                    }, 100);
                 }
             }
             
@@ -2263,9 +2234,9 @@
             }
         }
 
-        // SIMPLE Load fallback data
+        // Load fallback data
         function loadFallbackData() {
-            console.log('📦 Loading fallback data...');
+            console.log('📦 Loading fallback Acomware data...');
             
             employees = [
                 {
@@ -2309,8 +2280,8 @@
                 }
             ];
             
-            console.log(`✅ Loaded ${employees.length} employees`);
-            updateDataStatus('error', `Načteno ${employees.length} zaměstnanců (fallback)`);
+            console.log(`📋 Loaded ${employees.length} employees (fallback data)`);
+            updateDataStatus('error', `Načteno ${employees.length} zaměstnanců (fallback data)`);
             renderAll();
         }
 
@@ -2524,63 +2495,14 @@
             renderAll();
         }
 
-        // SIMPLE Rendering functions
+        // Rendering functions
         function renderAll() {
             console.log('🎨 Rendering all components...');
             renderEmployeesTable();
             renderOrgChart();
             renderSearchResults();
-        }.25rem;">David Vurma</div>
-                        <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 0.5rem;">CEO</div>
-                        <div style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.2) 0%, rgba(15, 23, 42, 0.15) 100%); color: #1e3a8a; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.65rem; display: inline-block; border: 1px solid #1e3a8a;">C-Level</div>
-                        <div style="position: absolute; top: -8px; right: -8px; background: #f97316; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">3</div>
-                        <button style="position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%); background: #1e3a8a; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; font-weight: bold;">+</button>
-                    </div>
-                    
-                    <div style="margin-top: 4rem; display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
-                        <div style="background: white; border: 2px solid #f97316; border-radius: 12px; padding: 1rem; display: inline-block; cursor: pointer; transition: transform 0.2s;" onclick="alert('Clicked Dušan Smoljak - COO')">
-                            <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; font-weight: 800; color: #1e3a8a;">DS</div>
-                            <div style="font-weight: bold; color: #1e3a8a; margin-bottom: 0.25rem;">Dušan Smoljak</div>
-                            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 0.5rem;">Chief Operating Officer</div>
-                            <div style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.2) 0%, rgba(15, 23, 42, 0.15) 100%); color: #1e3a8a; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.65rem; display: inline-block; border: 1px solid #1e3a8a;">C-Level</div>
-                            <div style="position: absolute; top: -8px; right: -8px; background: #f97316; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">2</div>
-                        </div>
-                        
-                        <div style="background: white; border: 2px solid #f97316; border-radius: 12px; padding: 1rem; display: inline-block; cursor: pointer; transition: transform 0.2s;" onclick="alert('Clicked Roman Oravec - CFO')">
-                            <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; font-weight: 800; color: #1e3a8a;">RO</div>
-                            <div style="font-weight: bold; color: #1e3a8a; margin-bottom: 0.25rem;">Roman Oravec</div>
-                            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 0.5rem;">Chief Financial Officer</div>
-                            <div style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.2) 0%, rgba(15, 23, 42, 0.15) 100%); color: #1e3a8a; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.65rem; display: inline-block; border: 1px solid #1e3a8a;">C-Level</div>
-                        </div>
-                        
-                        <div style="background: white; border: 2px solid #f97316; border-radius: 12px; padding: 1rem; display: inline-block; cursor: pointer; transition: transform 0.2s;" onclick="alert('Clicked Ondřej Smékal - CBO')">
-                            <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; font-weight: 800; color: #1e3a8a;">OS</div>
-                            <div style="font-weight: bold; color: #1e3a8a; margin-bottom: 0.25rem;">Ondřej Smékal</div>
-                            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 0.5rem;">Chief Business Officer</div>
-                            <div style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.2) 0%, rgba(15, 23, 42, 0.15) 100%); color: #1e3a8a; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.65rem; display: inline-block; border: 1px solid #1e3a8a;">C-Level</div>
-                        </div>
-                    </div>
-                    
-                    <div style="margin-top: 2rem; color: #64748b; font-size: 0.9rem;">
-                        ✅ Test organizační schéma - klikněte na karty pro test interakce
-                    </div>
-                </div>
-            `;
-            
-            console.log('✅ Test content rendered with interactive cards');
         }
 
-        function renderEmployeesTable() {
-            const tbody = document.getElementById('employees-table');
-            tbody.innerHTML = '';
-
-            if (employees.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem; color: #6b7280;">Žádná data k zobrazení</td></tr>';
-                return;
-            }
-
-            employees.forEach(employee => {
-                const row = document.createElement('tr');
         function renderEmployeesTable() {
             const tbody = document.getElementById('employees-table');
             tbody.innerHTML = '';
@@ -2596,304 +2518,4 @@
                     <td>
                         ${employee.photo ? 
                             `<img src="${employee.photo}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" alt="${employee.name}">` :
-                            `<div style="width: 40px; height: 40px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; color: #9ca3af;">👤</div>`
-                        }
-                    </td>
-                    <td>
-                        <div style="font-weight: 600;">${employee.name}</div>
-                    </td>
-                    <td>${employee.position}</td>
-                    <td>
-                        <span class="badge badge-${getDepartmentClass(employee.department)}">${employee.department}</span>
-                    </td>
-                    <td>
-                        <a href="mailto:${employee.email}" style="color: inherit; text-decoration: none;">${employee.email}</a>
-                    </td>
-                    <td>${employee.location || ''}</td>
-                    <td>
-                        <button onclick="openEmployeeModal(${JSON.stringify(employee).replace(/"/g, '&quot;')})" style="background: none; border: none; color: #2563eb; cursor: pointer; margin-right: 0.5rem; font-size: 1.2rem;" title="Upravit">
-                            ✏️
-                        </button>
-                        <button onclick="deleteEmployee(${employee.id})" style="background: none; border: none; color: #dc2626; cursor: pointer; font-size: 1.2rem;" title="Smazat">
-                            🗑️
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        // SIMPLE Organization chart rendering
-        function renderOrgChart() {
-            console.log('🎨 Rendering org chart...');
-            const container = document.getElementById('org-chart-content');
-            
-            if (!container) {
-                console.error('❌ Container not found!');
-                return;
-            }
-
-            container.innerHTML = '';
-
-            if (employees.length === 0) {
-                container.innerHTML = '<div style="text-align: center; padding: 3rem;">Načítání dat...</div>';
-                return;
-            }
-
-            // Find CEO
-            const ceo = employees.find(emp => !emp.parentId);
-            if (!ceo) {
-                container.innerHTML = '<div style="text-align: center; padding: 3rem;">❌ CEO nenalezen</div>';
-                return;
-            }
-
-            console.log('👑 Found CEO:', ceo.name);
-
-            // Create CEO node
-            const ceoNode = createOrgNode(ceo, true);
-            container.appendChild(ceoNode);
-
-            console.log('✅ Org chart rendered');
-        }
-
-        // Employee Detail Modal Functions
-        function showEmployeeDetail(employee) {
-            const modal = document.getElementById('employee-detail-modal') || createEmployeeDetailModal();
-            
-            const photoElement = employee.photo ? 
-                `<img src="${employee.photo}" class="employee-detail-photo" alt="${employee.name}">` :
-                `<div class="employee-detail-photo" style="display: flex; align-items: center; justify-content: center;">👤</div>`;
-
-            modal.querySelector('.employee-detail-content').innerHTML = `
-                <button class="modal-close" onclick="closeEmployeeDetail()">×</button>
-                ${photoElement}
-                <div class="employee-detail-name">${employee.name}</div>
-                <div class="employee-detail-position">${employee.position}</div>
-                <div class="org-node-department" style="text-align: center; margin-bottom: 2rem;">
-                    <span class="badge badge-${getDepartmentClass(employee.department)}">${employee.department}</span>
-                </div>
-                <div class="employee-detail-info">
-                    <div>
-                        <span style="font-size: 1.2rem;">📧</span>
-                        <div>
-                            <strong>Email:</strong><br>
-                            <a href="mailto:${employee.email}" style="color: var(--acw-primary); text-decoration: none;">${employee.email}</a>
-                        </div>
-                    </div>
-                    ${employee.phone ? `
-                    <div>
-                        <span style="font-size: 1.2rem;">📞</span>
-                        <div>
-                            <strong>Telefon:</strong><br>
-                            <a href="tel:${employee.phone}" style="color: var(--acw-primary); text-decoration: none;">${employee.phone}</a>
-                        </div>
-                    </div>` : ''}
-                    ${employee.location ? `
-                    <div>
-                        <span style="font-size: 1.2rem;">📍</span>
-                        <div>
-                            <strong>Lokace:</strong><br>
-                            <span>${employee.location}</span>
-                        </div>
-                    </div>` : ''}
-                    ${employee.startDate ? `
-                    <div>
-                        <span style="font-size: 1.2rem;">📅</span>
-                        <div>
-                            <strong>Datum nástupu:</strong><br>
-                            <span>${new Date(employee.startDate).toLocaleDateString('cs-CZ')}</span>
-                        </div>
-                    </div>` : ''}
-                </div>
-            `;
-            
-            modal.classList.add('show');
-            console.log('👤 Employee detail opened:', employee.name);
-        }
-
-        function createEmployeeDetailModal() {
-            const modal = document.createElement('div');
-            modal.id = 'employee-detail-modal';
-            modal.className = 'employee-detail-modal';
-            modal.innerHTML = '<div class="employee-detail-content"></div>';
-            
-            // Close on background click
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    closeEmployeeDetail();
-                }
-            });
-            
-            document.body.appendChild(modal);
-            return modal;
-        }
-
-        function closeEmployeeDetail() {
-            const modal = document.getElementById('employee-detail-modal');
-            if (modal) {
-                modal.classList.remove('show');
-            }
-        }
-
-        function toggleNode(employeeId) {
-            console.log('🔄 Toggling node:', employeeId);
-            
-            const button = document.querySelector(`[data-employee-id="${employeeId}"] .expand-toggle`);
-            const childrenContainer = document.querySelector(`[data-parent-id="${employeeId}"]`);
-            
-            if (!button || !childrenContainer) {
-                console.error('❌ Could not find button or children container for:', employeeId);
-                return;
-            }
-
-            if (expandedNodes.has(employeeId)) {
-                // Collapse
-                expandedNodes.delete(employeeId);
-                childrenContainer.classList.remove('expanded');
-                button.textContent = '+';
-                button.classList.remove('expanded');
-                console.log('📁 Node collapsed');
-            } else {
-                // Expand
-                expandedNodes.add(employeeId);
-                childrenContainer.classList.add('expanded');
-                button.textContent = '−';
-                button.classList.add('expanded');
-                console.log('📂 Node expanded');
-            }
-        }
-
-        // Make functions globally available
-        window.toggleNode = toggleNode;
-        window.zoomIn = zoomIn;
-        window.zoomOut = zoomOut;
-        window.resetZoom = resetZoom;
-        window.showEmployeeDetail = showEmployeeDetail;
-        window.centerOnEmployee = centerOnEmployee;
-
-        function createEmployeeCard(employee, cardType = '') {
-            const card = document.createElement('div');
-            card.className = `employee-card ${cardType}`;
-
-            const photoElement = employee.photo ? 
-                `<img src="${employee.photo}" class="employee-photo" alt="${employee.name}">` :
-                `<div class="employee-photo" style="display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%); color: #9ca3af; font-size: 2rem;">👤</div>`;
-
-            card.innerHTML = `
-                ${photoElement}
-                <div class="employee-info">
-                    <h3>${employee.name}</h3>
-                    <div class="position">${employee.position}</div>
-                    <div class="department">
-                        <span class="badge badge-${getDepartmentClass(employee.department)}">${employee.department}</span>
-                    </div>
-                </div>
-                <div class="employee-details">
-                    <div>
-                        <span>📧</span>
-                        <a href="mailto:${employee.email}" style="color: inherit; text-decoration: none;">${employee.email}</a>
-                    </div>
-                    ${employee.phone ? `
-                    <div>
-                        <span>📞</span>
-                        <a href="tel:${employee.phone}" style="color: inherit; text-decoration: none;">${employee.phone}</a>
-                    </div>` : ''}
-                    ${employee.location ? `
-                    <div>
-                        <span>📍</span>
-                        <span>${employee.location}</span>
-                    </div>` : ''}
-                    ${employee.startDate ? `
-                    <div>
-                        <span>📅</span>
-                        <span>Nástup: ${new Date(employee.startDate).toLocaleDateString('cs-CZ')}</span>
-                    </div>` : ''}
-                </div>
-            `;
-
-            return card;
-        }
-
-        function renderSearchResults() {
-            const searchQuery = document.getElementById('search-input')?.value.toLowerCase() || '';
-            const departmentFilter = document.getElementById('department-filter')?.value || '';
-            const container = document.getElementById('search-results');
-
-            const filteredEmployees = employees.filter(emp => {
-                const matchesSearch = emp.name.toLowerCase().includes(searchQuery) ||
-                                     emp.position.toLowerCase().includes(searchQuery);
-                const matchesDepartment = !departmentFilter || emp.department === departmentFilter;
-                return matchesSearch && matchesDepartment;
-            });
-
-            container.innerHTML = '';
-
-            if (filteredEmployees.length === 0) {
-                container.innerHTML = `
-                    <div style="text-align: center; padding: 3rem; color: #6b7280;">
-                        <div style="font-size: 3rem; margin-bottom: 1rem;">👥</div>
-                        <h3>Žádní zaměstnanci nenalezeni</h3>
-                        <p>Zkuste změnit vyhledávací kritéria nebo přidat GitHub token pro načtení všech dat.</p>
-                    </div>
-                `;
-            } else {
-                filteredEmployees.forEach(employee => {
-                    container.appendChild(createEmployeeCard(employee));
-                });
-            }
-        }
-
-        // Helper functions
-        function getDepartmentClass(department) {
-            const classes = {
-                'C-Level': 'clevel',
-                'Performance': 'performance',
-                'Customer Experience & Retention': 'customer-experience-retention',
-                'Consulting': 'consulting',
-                'Blueglue': 'blueglue',
-                'HR': 'hr',
-                'Media': 'media',
-                'Controlling & Finance': 'customer-experience-retention',
-                'Sales': 'consulting',
-                'Marketing': 'media',
-                'Back Office': 'hr'
-            };
-            return classes[department] || 'performance';
-        }
-
-        function showAlert(message, type, containerId) {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-            
-            const alert = document.createElement('div');
-            alert.className = `alert alert-${type}`;
-            
-            const icon = type === 'success' ? '✅' : '❌';
-            alert.innerHTML = `
-                <span>${icon}</span>
-                <span>${message}</span>
-            `;
-            
-            // Replace existing alerts
-            container.innerHTML = '';
-            container.appendChild(alert);
-            
-            // Auto-hide after timeout
-            const timeout = type === 'success' ? 8000 : 12000;
-            setTimeout(() => {
-                if (alert.parentNode) {
-                    alert.parentNode.removeChild(alert);
-                }
-            }, timeout);
-        }
-
-        // Initialize on DOM load
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Acomware org chart - DOM loaded');
-            if (!checkAuthentication()) {
-                console.log('Showing login screen');
-            }
-        });
-    </script>
-</body>
-</html>
+                                                                `<div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%); display: flex; align-items: center; justify-content: center; color: #9ca3af; font-size: 1.2rem;">👤</div>`
