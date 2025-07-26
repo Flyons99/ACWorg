@@ -3132,15 +3132,17 @@
             }
         }
 
-        // Updated zoom functions
+        // Updated zoom functions - FIX
         function zoomIn() {
             currentZoom = Math.min(currentZoom * 1.2, 3);
             applyZoom();
+            console.log('🔍 Zoom in:', currentZoom);
         }
 
         function zoomOut() {
             currentZoom = Math.max(currentZoom * 0.8, 0.3);
             applyZoom();
+            console.log('🔍 Zoom out:', currentZoom);
         }
 
         function resetZoom() {
@@ -3148,37 +3150,76 @@
             panOffset = { x: 0, y: 0 };
             lastPanOffset = { x: 0, y: 0 };
             applyZoom();
-            console.log('🔄 Zoom and pan reset');
+            console.log('🔄 Zoom reset');
         }
 
-        // Pan/Drag functionality
+        function applyZoom() {
+            const content = document.getElementById('org-chart-content');
+            const zoomLevel = document.getElementById('zoom-level');
+            
+            if (!content) return;
+            
+            // Update zoom level indicator
+            if (zoomLevel) {
+                zoomLevel.textContent = `${Math.round(currentZoom * 100)}%`;
+            }
+            
+            // Apply zoom and pan transform
+            updatePanTransform();
+        }
+
+        function updatePanTransform() {
+            const content = document.getElementById('org-chart-content');
+            if (content) {
+                content.style.transform = `scale(${currentZoom}) translate(${panOffset.x}px, ${panOffset.y}px)`;
+            }
+        }
+
+        // Pan/Drag functionality - FIX
         function initializePanDrag() {
             const viewport = document.getElementById('org-chart-viewport');
-            const content = document.getElementById('org-chart-content');
             
-            if (!viewport || !content) return;
+            if (!viewport) {
+                console.error('❌ Viewport not found for pan/drag');
+                return;
+            }
 
-            // Mouse events
+            // Remove existing listeners first
+            viewport.removeEventListener('mousedown', startDrag);
+            viewport.removeEventListener('mousemove', drag);
+            viewport.removeEventListener('mouseup', endDrag);
+            viewport.removeEventListener('mouseleave', endDrag);
+            
+            // Add fresh listeners
             viewport.addEventListener('mousedown', startDrag);
-            viewport.addEventListener('mousemove', drag);
-            viewport.addEventListener('mouseup', endDrag);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', endDrag);
             viewport.addEventListener('mouseleave', endDrag);
             
             // Touch events for mobile
             viewport.addEventListener('touchstart', startDrag, { passive: false });
-            viewport.addEventListener('touchmove', drag, { passive: false });
-            viewport.addEventListener('touchend', endDrag);
+            document.addEventListener('touchmove', drag, { passive: false });
+            document.addEventListener('touchend', endDrag);
             
-            // Prevent context menu on right click
+            // Prevent context menu
             viewport.addEventListener('contextmenu', e => e.preventDefault());
+            
+            console.log('✅ Pan/drag initialized');
         }
 
         function startDrag(e) {
+            // Don't start drag if clicking on a button or card
+            if (e.target.closest('.expand-toggle') || e.target.closest('.org-node-card')) {
+                return;
+            }
+            
             e.preventDefault();
             isDragging = true;
             
             const viewport = document.getElementById('org-chart-viewport');
-            viewport.classList.add('dragging');
+            if (viewport) {
+                viewport.classList.add('dragging');
+            }
             
             const clientX = e.clientX || (e.touches && e.touches[0].clientX);
             const clientY = e.clientY || (e.touches && e.touches[0].clientY);
@@ -3208,7 +3249,9 @@
             
             isDragging = false;
             const viewport = document.getElementById('org-chart-viewport');
-            viewport.classList.remove('dragging');
+            if (viewport) {
+                viewport.classList.remove('dragging');
+            }
             
             lastPanOffset.x = panOffset.x;
             lastPanOffset.y = panOffset.y;
@@ -3216,24 +3259,33 @@
             console.log('🖱️ Drag ended');
         }
 
-        function updatePanTransform() {
-            const content = document.getElementById('org-chart-content');
-            if (content) {
-                content.style.transform = `scale(${currentZoom}) translate(${panOffset.x}px, ${panOffset.y}px)`;
+        // Toggle node function - FIX
+        function toggleNode(employeeId) {
+            console.log('🔄 Toggling node:', employeeId);
+            
+            const button = document.querySelector(`[data-employee-id="${employeeId}"] .expand-toggle`);
+            const childrenContainer = document.querySelector(`[data-parent-id="${employeeId}"]`);
+            
+            if (!button || !childrenContainer) {
+                console.error('❌ Could not find button or children container for:', employeeId);
+                return;
             }
-        }
 
-        function applyZoom() {
-            const content = document.getElementById('org-chart-content');
-            const zoomLevel = document.getElementById('zoom-level');
-            
-            // Update zoom level indicator
-            zoomLevel.textContent = `${Math.round(currentZoom * 100)}%`;
-            
-            // Apply zoom and pan transform
-            updatePanTransform();
-            
-            console.log(`🔍 Zoom applied: ${Math.round(currentZoom * 100)}%`);
+            if (expandedNodes.has(employeeId)) {
+                // Collapse
+                expandedNodes.delete(employeeId);
+                childrenContainer.classList.remove('expanded');
+                button.textContent = '+';
+                button.classList.remove('expanded');
+                console.log('📁 Node collapsed');
+            } else {
+                // Expand
+                expandedNodes.add(employeeId);
+                childrenContainer.classList.add('expanded');
+                button.textContent = '−';
+                button.classList.add('expanded');
+                console.log('📂 Node expanded');
+            }
         }
 
         // Auto-center when expanding nodes
