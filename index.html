@@ -647,10 +647,23 @@
             overflow: hidden;
             position: relative;
             cursor: grab;
+            background: transparent;
         }
 
         .org-chart-viewport.dragging {
             cursor: grabbing;
+        }
+
+        /* Make sure viewport captures clicks */
+        .org-chart-viewport::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
+            pointer-events: none;
         }
 
         .org-chart-content {
@@ -664,6 +677,15 @@
             transform-origin: center top;
             transition: transform 0.3s ease;
             position: relative;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* Re-enable pointer events for interactive elements */
+        .org-node-card,
+        .expand-toggle,
+        .zoom-controls {
+            pointer-events: all;
         }
 
         /* Fixed Zoom Controls - No Overlap */
@@ -2830,7 +2852,7 @@
             }
         }
 
-        // Pan/Drag functionality - FIX
+        // Fixed Pan/Drag functionality
         function initializePanDrag() {
             const viewport = document.getElementById('org-chart-viewport');
             
@@ -2839,32 +2861,33 @@
                 return;
             }
 
-            // Remove existing listeners first
-            viewport.removeEventListener('mousedown', startDrag);
-            viewport.removeEventListener('mousemove', drag);
-            viewport.removeEventListener('mouseup', endDrag);
-            viewport.removeEventListener('mouseleave', endDrag);
+            console.log('🖱️ Initializing pan/drag on viewport...');
+
+            // Remove any existing listeners
+            viewport.removeEventListener('mousedown', handleMouseDown);
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
             
             // Add fresh listeners
-            viewport.addEventListener('mousedown', startDrag);
-            document.addEventListener('mousemove', drag);
-            document.addEventListener('mouseup', endDrag);
-            viewport.addEventListener('mouseleave', endDrag);
+            viewport.addEventListener('mousedown', handleMouseDown);
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
             
             // Touch events for mobile
-            viewport.addEventListener('touchstart', startDrag, { passive: false });
-            document.addEventListener('touchmove', drag, { passive: false });
-            document.addEventListener('touchend', endDrag);
+            viewport.addEventListener('touchstart', handleTouchStart, { passive: false });
+            document.addEventListener('touchmove', handleTouchMove, { passive: false });
+            document.addEventListener('touchend', handleTouchEnd);
             
             // Prevent context menu
             viewport.addEventListener('contextmenu', e => e.preventDefault());
             
-            console.log('✅ Pan/drag initialized');
+            console.log('✅ Pan/drag initialized successfully');
         }
 
-        function startDrag(e) {
-            // Don't start drag if clicking on a button or card
-            if (e.target.closest('.expand-toggle') || e.target.closest('.org-node-card')) {
+        function handleMouseDown(e) {
+            // Only start drag if clicking directly on viewport background, not on cards
+            if (e.target !== e.currentTarget) {
+                console.log('🚫 Not dragging - clicked on child element:', e.target.className);
                 return;
             }
             
@@ -2876,30 +2899,24 @@
                 viewport.classList.add('dragging');
             }
             
-            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            dragStart.x = e.clientX - panOffset.x;
+            dragStart.y = e.clientY - panOffset.y;
             
-            dragStart.x = clientX - panOffset.x;
-            dragStart.y = clientY - panOffset.y;
-            
-            console.log('🖱️ Drag started');
+            console.log('🖱️ Drag started at:', e.clientX, e.clientY);
         }
 
-        function drag(e) {
+        function handleMouseMove(e) {
             if (!isDragging) return;
             
             e.preventDefault();
             
-            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-            
-            panOffset.x = clientX - dragStart.x;
-            panOffset.y = clientY - dragStart.y;
+            panOffset.x = e.clientX - dragStart.x;
+            panOffset.y = e.clientY - dragStart.y;
             
             updatePanTransform();
         }
 
-        function endDrag(e) {
+        function handleMouseUp(e) {
             if (!isDragging) return;
             
             isDragging = false;
@@ -2912,6 +2929,51 @@
             lastPanOffset.y = panOffset.y;
             
             console.log('🖱️ Drag ended');
+        }
+
+        function handleTouchStart(e) {
+            if (e.target !== e.currentTarget) return;
+            
+            e.preventDefault();
+            isDragging = true;
+            
+            const viewport = document.getElementById('org-chart-viewport');
+            if (viewport) {
+                viewport.classList.add('dragging');
+            }
+            
+            const touch = e.touches[0];
+            dragStart.x = touch.clientX - panOffset.x;
+            dragStart.y = touch.clientY - panOffset.y;
+            
+            console.log('👆 Touch drag started');
+        }
+
+        function handleTouchMove(e) {
+            if (!isDragging) return;
+            
+            e.preventDefault();
+            
+            const touch = e.touches[0];
+            panOffset.x = touch.clientX - dragStart.x;
+            panOffset.y = touch.clientY - dragStart.y;
+            
+            updatePanTransform();
+        }
+
+        function handleTouchEnd(e) {
+            if (!isDragging) return;
+            
+            isDragging = false;
+            const viewport = document.getElementById('org-chart-viewport');
+            if (viewport) {
+                viewport.classList.remove('dragging');
+            }
+            
+            lastPanOffset.x = panOffset.x;
+            lastPanOffset.y = panOffset.y;
+            
+            console.log('👆 Touch drag ended');
         }
 
         // Toggle node function - FIX
