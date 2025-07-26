@@ -80,6 +80,17 @@
         }
 
         .logo {
+            height: 50px;
+            width: auto;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .logo-fallback {
             color: var(--acw-white);
             font-size: 2.5rem;
             font-weight: 800;
@@ -383,13 +394,21 @@
             background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(251, 191, 36, 0.1) 100%);
             color: var(--acw-accent-2);
         }
-        .badge-hr { 
-            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(168, 85, 247, 0.1) 100%);
-            color: #a855f7;
+        .badge-finance { 
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.1) 100%);
+            color: #059669;
         }
-        .badge-media { 
+        .badge-sales { 
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.15) 0%, rgba(249, 115, 22, 0.1) 100%);
+            color: var(--acw-accent-1);
+        }
+        .badge-marketing { 
             background: linear-gradient(135deg, rgba(236, 72, 153, 0.15) 0%, rgba(236, 72, 153, 0.1) 100%);
             color: #ec4899;
+        }
+        .badge-back-office { 
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(168, 85, 247, 0.1) 100%);
+            color: #a855f7;
         }
 
         .modal {
@@ -628,7 +647,7 @@
             transform: translateX(4px);
         }
 
-        /* Collapsible Organization Chart Styles - with Pan & Compact Cards */
+        /* Collapsible Organization Chart Styles - Fixed Overflow */
         .org-chart-container {
             position: relative;
             width: 100%;
@@ -637,17 +656,18 @@
             border-radius: 20px;
             box-shadow: var(--acw-shadow-lg);
             border: 1px solid rgba(30, 58, 138, 0.05);
-            overflow: hidden;
+            overflow: auto;
             user-select: none;
         }
 
         .org-chart-viewport {
             width: 100%;
             height: 100%;
-            overflow: hidden;
+            overflow: visible;
             position: relative;
             cursor: grab;
-            scroll-behavior: smooth;
+            min-width: max-content;
+            min-height: max-content;
         }
 
         .org-chart-viewport.dragging {
@@ -675,7 +695,7 @@
             margin: 2rem 0;
         }
 
-        /* Compact Organization Node Cards */
+        /* Compact Organization Node Cards with Lazy Loading */
         .org-node-card {
             background: var(--acw-white);
             border-radius: 12px;
@@ -689,12 +709,20 @@
             cursor: pointer;
             position: relative;
             z-index: 10;
+            role: button;
+            tabindex: 0;
         }
 
-        .org-node-card:hover {
+        .org-node-card:hover,
+        .org-node-card:focus {
             transform: translateY(-2px);
             box-shadow: var(--acw-shadow-lg);
             border-color: var(--acw-primary);
+            outline: none;
+        }
+
+        .org-node-card:focus {
+            box-shadow: var(--acw-shadow-lg), 0 0 0 3px rgba(30, 58, 138, 0.2);
         }
 
         .org-node-card.ceo {
@@ -1204,6 +1232,13 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        .login-logo-img {
+            height: 80px;
+            width: auto;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 4px 8px rgba(30, 58, 138, 0.3));
+        }
+
         .login-logo {
             font-size: 3rem;
             color: var(--acw-primary);
@@ -1376,8 +1411,9 @@
     <!-- Login Screen -->
     <div id="login-overlay" class="login-overlay">
         <div class="login-box">
-            <div class="login-logo">🏢</div>
-            <h1 class="login-title">Acomware</h1>
+            <img src="data/logo.png" alt="ACWorg Logo" class="login-logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <div class="login-logo" style="display: none;">🏢</div>
+            <h1 class="login-title">ACWorg</h1>
             <p class="login-subtitle">Organizační schéma</p>
             
             <form class="login-form" onsubmit="handleLogin(event)">
@@ -1403,7 +1439,8 @@
         <div class="header">
             <div class="header-content">
                 <div class="header-left">
-                    <span class="logo">🏢</span>
+                    <img src="data/logo.png" alt="ACWorg Logo" class="logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <span class="logo-fallback" style="display: none;">🏢</span>
                     <h1>Acomware - Organizační schéma</h1>
                 </div>
                 <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1620,13 +1657,13 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-input" id="employee-email" required>
+                    <label class="form-label">Email *</label>
+                    <input type="email" class="form-input" id="employee-email" required pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Telefon</label>
-                    <input type="tel" class="form-input" id="employee-phone">
+                    <input type="tel" class="form-input" id="employee-phone" pattern="[\+]?[\d\s\-\(\)]{9,15}">
                 </div>
 
                 <div class="form-group">
@@ -2583,10 +2620,10 @@
                 card.classList.add('department-head');
             }
 
-            // Photo element
+            // Photo element with lazy loading
             const photoElement = employee.photo ? 
-                `<img src="${employee.photo}" class="org-node-photo" alt="${employee.name}">` :
-                `<div class="org-node-photo" style="display: flex; align-items: center; justify-content: center;">${isCeo ? '👤' : '👤'}</div>`;
+                `<img src="${employee.photo}" class="org-node-photo" alt="${employee.name}" loading="lazy">` :
+                `<div class="org-node-photo" style="display: flex; align-items: center; justify-content: center;" role="img" aria-label="Výchozí avatar">${isCeo ? '👤' : '👤'}</div>`;
 
             // Get direct reports
             const directReports = employees.filter(emp => emp.parentId === employee.id);
@@ -2600,12 +2637,24 @@
                     <span class="badge badge-${getDepartmentClass(employee.department)}">${employee.department}</span>
                 </div>
                 ${hasChildren ? `
-                    <div class="employee-count">${directReports.length}</div>
-                    <button class="expand-toggle" onclick="event.stopPropagation(); toggleNode(${employee.id})" title="Rozbalit/sbalit">
+                    <div class="employee-count" aria-label="${directReports.length} podřízených">${directReports.length}</div>
+                    <button class="expand-toggle" onclick="event.stopPropagation(); toggleNode(${employee.id})" 
+                            title="Rozbalit/sbalit" aria-expanded="${expandedNodes.has(employee.id)}" 
+                            aria-label="${expandedNodes.has(employee.id) ? 'Sbalit' : 'Rozbalit'} podřízené">
                         ${expandedNodes.has(employee.id) ? '−' : '+'}
                     </button>
                 ` : ''}
             `;
+
+            // Add keyboard support
+            card.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    if (!e.target.classList.contains('expand-toggle')) {
+                        showEmployeeDetail(employee);
+                    }
+                }
+            });
 
             // Add click handler for employee details
             card.addEventListener('click', (e) => {
