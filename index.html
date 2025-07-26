@@ -80,9 +80,8 @@
         }
 
         .logo {
-            color: var(--acw-white);
-            font-size: 2.5rem;
-            font-weight: 800;
+            height: 50px;
+            width: auto;
             filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
         }
 
@@ -628,7 +627,7 @@
             transform: translateX(4px);
         }
 
-        /* Simple Chart Container - Fixed for Drag */
+        /* FIXED Organization Chart Container */
         .org-chart-container {
             position: relative;
             width: 100%;
@@ -641,6 +640,7 @@
             user-select: none;
         }
 
+        /* FIXED Viewport - Properly handle drag */
         .org-chart-viewport {
             width: 100%;
             height: 100%;
@@ -653,19 +653,18 @@
             cursor: grabbing;
         }
 
+        /* FIXED Content - Transform properly */
         .org-chart-content {
             position: absolute;
-            top: 0;
-            left: 0;
+            top: 50%;
+            left: 50%;
             padding: 4rem;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            min-width: 100%;
-            min-height: 100%;
-            transform-origin: 0 0;
-            transition: none;
+            transform-origin: center center;
+            transition: transform 0.3s ease;
             will-change: transform;
         }
 
@@ -726,7 +725,7 @@
             margin: 2rem 0;
         }
 
-        /* Compact Organization Node Cards */
+        /* UPDATED Organization Node Cards - Show initials in small view */
         .org-node-card {
             background: var(--acw-white);
             border-radius: 12px;
@@ -740,6 +739,59 @@
             cursor: pointer;
             position: relative;
             z-index: 10;
+        }
+
+        /* ZOOMED OUT - Show only initials when zoom < 0.6 */
+        .org-chart-content[data-zoom="small"] .org-node-card {
+            min-width: 60px;
+            max-width: 60px;
+            padding: 0.5rem;
+            border-radius: 50%;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .org-chart-content[data-zoom="small"] .org-node-name {
+            font-size: 1rem;
+            font-weight: 800;
+            margin: 0;
+            line-height: 1;
+            color: var(--acw-primary);
+        }
+
+        .org-chart-content[data-zoom="small"] .org-node-position,
+        .org-chart-content[data-zoom="small"] .org-node-department,
+        .org-chart-content[data-zoom="small"] .org-node-photo {
+            display: none;
+        }
+
+        /* In small view, show initials directly in the card */
+        .org-chart-content[data-zoom="small"] .org-node-card::before {
+            content: attr(data-initials);
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--acw-primary);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .org-chart-content[data-zoom="small"] .employee-count {
+            top: -5px;
+            right: -5px;
+            width: 18px;
+            height: 18px;
+            font-size: 0.6rem;
+        }
+
+        .org-chart-content[data-zoom="small"] .expand-toggle {
+            width: 20px;
+            height: 20px;
+            font-size: 0.8rem;
+            bottom: -10px;
         }
 
         .org-node-card:hover {
@@ -756,6 +808,11 @@
             box-shadow: var(--acw-shadow-lg);
         }
 
+        .org-chart-content[data-zoom="small"] .org-node-card.ceo {
+            min-width: 80px;
+            max-width: 80px;
+        }
+
         .org-node-card.ceo::after {
             content: '👑';
             position: absolute;
@@ -764,10 +821,21 @@
             font-size: 1.2rem;
         }
 
+        .org-chart-content[data-zoom="small"] .org-node-card.ceo::after {
+            font-size: 0.8rem;
+            top: 0.2rem;
+            right: 0.2rem;
+        }
+
         .org-node-card.department-head {
             background: linear-gradient(135deg, rgba(249, 115, 22, 0.06) 0%, rgba(251, 191, 36, 0.04) 100%);
             border-color: var(--acw-accent-1);
             min-width: 200px;
+        }
+
+        .org-chart-content[data-zoom="small"] .org-node-card.department-head {
+            min-width: 70px;
+            max-width: 70px;
         }
 
         .org-node-photo {
@@ -955,7 +1023,7 @@
             background: var(--acw-accent-1);
         }
 
-        /* Children Container - Better horizontal layout */
+        /* Children Container */
         .org-children {
             display: none;
             flex-direction: row;
@@ -1028,59 +1096,6 @@
             right: -1.5rem;
         }
 
-        /* Zoom Controls with zoom level indicator */
-        .zoom-controls {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            z-index: 20;
-        }
-
-        .zoom-buttons {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .zoom-btn {
-            background: var(--acw-white);
-            border: 2px solid var(--acw-primary);
-            border-radius: 8px;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: var(--acw-primary);
-            transition: all 0.3s ease;
-            box-shadow: var(--acw-shadow-sm);
-        }
-
-        .zoom-btn:hover {
-            background: var(--acw-primary);
-            color: var(--acw-white);
-            transform: scale(1.1);
-            box-shadow: var(--acw-shadow-md);
-        }
-
-        .zoom-level {
-            background: var(--acw-white);
-            border: 2px solid var(--acw-primary);
-            border-radius: 6px;
-            padding: 0.25rem 0.5rem;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--acw-primary);
-            text-align: center;
-            box-shadow: var(--acw-shadow-sm);
-            min-width: 60px;
-        }
-
         /* Employee Counter Badge */
         .employee-count {
             position: absolute;
@@ -1097,67 +1112,6 @@
             font-size: 0.7rem;
             font-weight: bold;
             box-shadow: var(--acw-shadow-sm);
-        }
-
-        /* Responsive - Better mobile handling */
-        @media (max-width: 1200px) {
-            .org-children {
-                gap: 1.5rem;
-            }
-            
-            .org-node-card {
-                min-width: 260px;
-                max-width: 280px;
-            }
-        }
-
-        @media (max-width: 1024px) {
-            .org-children {
-                flex-direction: column;
-                gap: 2rem;
-                align-items: center;
-                width: auto;
-                min-width: auto;
-            }
-
-            .org-children .org-node::after {
-                display: none;
-            }
-
-            .org-node-card {
-                min-width: 260px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .org-chart-content {
-                padding: 2rem;
-            }
-
-            .org-node-card {
-                min-width: 240px;
-                padding: 1.2rem;
-            }
-
-            .org-node-name {
-                font-size: 1.1rem;
-            }
-
-            .zoom-controls {
-                top: 0.5rem;
-                right: 0.5rem;
-            }
-
-            .zoom-btn {
-                width: 35px;
-                height: 35px;
-                font-size: 1rem;
-            }
-
-            .zoom-level {
-                font-size: 0.7rem;
-                padding: 0.2rem 0.4rem;
-            }
         }
 
         .org-chart {
@@ -1256,8 +1210,8 @@
         }
 
         .login-logo {
-            font-size: 3rem;
-            color: var(--acw-primary);
+            height: 80px;
+            width: auto;
             margin-bottom: 1rem;
         }
 
@@ -1367,12 +1321,18 @@
                 padding: 1rem 1.5rem;
             }
             
-            .departments-container {
+            .org-children {
                 flex-direction: column;
-                align-items: center;
                 gap: 2rem;
+                align-items: center;
+                width: auto;
+                min-width: auto;
             }
-            
+
+            .org-children .org-node::after {
+                display: none;
+            }
+
             .employee-card {
                 min-width: 280px;
             }
@@ -1420,6 +1380,26 @@
                 padding: 1rem;
                 font-size: 0.9rem;
             }
+
+            .org-chart-content {
+                padding: 2rem;
+            }
+
+            .org-node-card {
+                min-width: 160px;
+                padding: 1rem;
+            }
+
+            .zoom-controls {
+                top: 0.5rem;
+                right: 0.5rem;
+            }
+
+            .zoom-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
@@ -1427,7 +1407,7 @@
     <!-- Login Screen -->
     <div id="login-overlay" class="login-overlay">
         <div class="login-box">
-            <div class="login-logo">🏢</div>
+            <img src="https://raw.githubusercontent.com/Flyons99/ACWorg/main/data/logo.png" alt="Acomware" class="login-logo">
             <h1 class="login-title">Acomware</h1>
             <p class="login-subtitle">Organizační schéma</p>
             
@@ -1454,7 +1434,7 @@
         <div class="header">
             <div class="header-content">
                 <div class="header-left">
-                    <span class="logo">🏢</span>
+                    <img src="https://raw.githubusercontent.com/Flyons99/ACWorg/main/data/logo.png" alt="Acomware" class="logo">
                     <h1>Acomware - Organizační schéma</h1>
                 </div>
                 <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1711,11 +1691,10 @@
         let expandedNodes = new Set();
         let currentZoom = 1;
         
-        // Pan/Drag variables
+        // FIXED Pan/Drag variables
         let isDragging = false;
         let dragStart = { x: 0, y: 0 };
         let panOffset = { x: 0, y: 0 };
-        let lastPanOffset = { x: 0, y: 0 };
         
         // GitHub configuration
         let githubConfig = {
@@ -1797,6 +1776,249 @@
             
             setupEventListeners();
             loadEmployeesFromGitHub();
+            
+            // Initialize pan/drag after a short delay to ensure DOM is ready
+            setTimeout(() => {
+                initializePanDrag();
+            }, 100);
+        }
+
+        // FIXED Pan/Drag initialization
+        function initializePanDrag() {
+            const viewport = document.getElementById('org-chart-viewport');
+            
+            if (!viewport) {
+                console.error('❌ Viewport not found for pan/drag');
+                return;
+            }
+
+            console.log('🖱️ Initializing pan/drag...');
+
+            // Mouse events
+            viewport.addEventListener('mousedown', handleMouseDown, { passive: false });
+            document.addEventListener('mousemove', handleMouseMove, { passive: false });
+            document.addEventListener('mouseup', handleMouseUp, { passive: false });
+            
+            // Touch events for mobile
+            viewport.addEventListener('touchstart', handleTouchStart, { passive: false });
+            document.addEventListener('touchmove', handleTouchMove, { passive: false });
+            document.addEventListener('touchend', handleTouchEnd, { passive: false });
+            
+            // Prevent context menu
+            viewport.addEventListener('contextmenu', e => e.preventDefault());
+            
+            console.log('✅ Pan/drag initialized successfully');
+        }
+
+        // FIXED Mouse handlers
+        function handleMouseDown(e) {
+            // Only start drag if clicking on the viewport itself, not on cards or buttons
+            if (e.target.closest('.org-node-card') || e.target.closest('.expand-toggle') || e.target.closest('.zoom-controls')) {
+                return;
+            }
+            
+            e.preventDefault();
+            isDragging = true;
+            
+            const viewport = document.getElementById('org-chart-viewport');
+            viewport.classList.add('dragging');
+            
+            dragStart.x = e.clientX - panOffset.x;
+            dragStart.y = e.clientY - panOffset.y;
+            
+            console.log('🖱️ Drag started');
+        }
+
+        function handleMouseMove(e) {
+            if (!isDragging) return;
+            
+            e.preventDefault();
+            
+            panOffset.x = e.clientX - dragStart.x;
+            panOffset.y = e.clientY - dragStart.y;
+            
+            updateTransform();
+        }
+
+        function handleMouseUp(e) {
+            if (!isDragging) return;
+            
+            isDragging = false;
+            const viewport = document.getElementById('org-chart-viewport');
+            viewport.classList.remove('dragging');
+            
+            console.log('🖱️ Drag ended');
+        }
+
+        // FIXED Touch handlers
+        function handleTouchStart(e) {
+            if (e.target.closest('.org-node-card') || e.target.closest('.expand-toggle') || e.target.closest('.zoom-controls')) {
+                return;
+            }
+            
+            e.preventDefault();
+            isDragging = true;
+            
+            const viewport = document.getElementById('org-chart-viewport');
+            viewport.classList.add('dragging');
+            
+            const touch = e.touches[0];
+            dragStart.x = touch.clientX - panOffset.x;
+            dragStart.y = touch.clientY - panOffset.y;
+            
+            console.log('👆 Touch drag started');
+        }
+
+        function handleTouchMove(e) {
+            if (!isDragging) return;
+            
+            e.preventDefault();
+            
+            const touch = e.touches[0];
+            panOffset.x = touch.clientX - dragStart.x;
+            panOffset.y = touch.clientY - dragStart.y;
+            
+            updateTransform();
+        }
+
+        function handleTouchEnd(e) {
+            if (!isDragging) return;
+            
+            isDragging = false;
+            const viewport = document.getElementById('org-chart-viewport');
+            viewport.classList.remove('dragging');
+            
+            console.log('👆 Touch drag ended');
+        }
+
+        // FIXED Transform update function
+        function updateTransform() {
+            const content = document.getElementById('org-chart-content');
+            if (content) {
+                // Apply both zoom and pan
+                content.style.transform = `translate(-50%, -50%) translate(${panOffset.x}px, ${panOffset.y}px) scale(${currentZoom})`;
+            }
+        }
+
+        // FIXED Zoom functions
+        function zoomIn() {
+            currentZoom = Math.min(currentZoom * 1.2, 3);
+            applyZoom();
+            console.log('🔍 Zoom in:', currentZoom);
+        }
+
+        function zoomOut() {
+            currentZoom = Math.max(currentZoom * 0.8, 0.3);
+            applyZoom();
+            console.log('🔍 Zoom out:', currentZoom);
+        }
+
+        function resetZoom() {
+            currentZoom = 1;
+            panOffset = { x: 0, y: 0 };
+            applyZoom();
+            console.log('🔄 Zoom reset');
+        }
+
+        function applyZoom() {
+            const content = document.getElementById('org-chart-content');
+            const zoomLevel = document.getElementById('zoom-level');
+            
+            if (!content) return;
+            
+            // Update zoom level indicator
+            if (zoomLevel) {
+                zoomLevel.textContent = `${Math.round(currentZoom * 100)}%`;
+            }
+            
+            // Apply zoom responsive classes for initials view
+            if (currentZoom < 0.6) {
+                content.setAttribute('data-zoom', 'small');
+            } else {
+                content.removeAttribute('data-zoom');
+            }
+            
+            // Apply transform
+            updateTransform();
+        }
+
+        // FIXED Center employee function - improved
+        function centerOnEmployee(employeeId) {
+            const nodeElement = document.querySelector(`[data-employee-id="${employeeId}"]`);
+            const viewport = document.getElementById('org-chart-viewport');
+            const content = document.getElementById('org-chart-content');
+            
+            if (!nodeElement || !viewport || !content) return;
+            
+            console.log('🎯 Centering on employee:', employeeId);
+            
+            // Get the bounds
+            const viewportRect = viewport.getBoundingClientRect();
+            const contentRect = content.getBoundingClientRect();
+            const nodeRect = nodeElement.getBoundingClientRect();
+            
+            // Calculate the center of viewport
+            const viewportCenterX = viewportRect.width / 2;
+            const viewportCenterY = viewportRect.height / 2;
+            
+            // Calculate node position relative to content center
+            const nodeCenterX = nodeRect.left + nodeRect.width / 2;
+            const nodeCenterY = nodeRect.top + nodeRect.height / 2;
+            
+            // Calculate where content center currently is in viewport
+            const contentCenterX = contentRect.left + contentRect.width / 2;
+            const contentCenterY = contentRect.top + contentRect.height / 2;
+            
+            // Calculate offset needed to center the node
+            const offsetX = nodeCenterX - contentCenterX;
+            const offsetY = nodeCenterY - contentCenterY;
+            
+            // Calculate new pan offset (invert the offset)
+            const targetPanX = panOffset.x - offsetX / currentZoom;
+            const targetPanY = panOffset.y - offsetY / currentZoom;
+            
+            // Animate to center
+            const startPanX = panOffset.x;
+            const startPanY = panOffset.y;
+            const duration = 600;
+            const startTime = performance.now();
+            
+            function animateCenter(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Smooth easing function
+                const easeProgress = 1 - Math.pow(1 - progress, 3);
+                
+                panOffset.x = startPanX + (targetPanX - startPanX) * easeProgress;
+                panOffset.y = startPanY + (targetPanY - startPanY) * easeProgress;
+                
+                updateTransform();
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animateCenter);
+                } else {
+                    console.log('✅ Employee centered');
+                    // Show employee detail after centering
+                    setTimeout(() => {
+                        const employee = employees.find(emp => emp.id == employeeId);
+                        if (employee) {
+                            showEmployeeDetail(employee);
+                        }
+                    }, 100);
+                }
+            }
+            
+            requestAnimationFrame(animateCenter);
+        }
+
+        // Helper function to get employee initials
+        function getEmployeeInitials(name) {
+            return name.split(' ')
+                      .map(part => part[0])
+                      .join('')
+                      .toUpperCase()
+                      .substring(0, 2);
         }
 
         // Set GitHub token
@@ -1868,7 +2090,7 @@
             document.body.appendChild(helpModal);
         }
 
-        // Test GitHub API with detailed debugging
+        // Test GitHub API
         async function testGitHubAPI() {
             console.log('🔧 === GITHUB API DEBUG TEST ===');
             
@@ -1880,8 +2102,6 @@
                 return;
             }
 
-            // Test 1: Check repository exists
-            console.log('TEST 1: Checking repository access...');
             try {
                 const repoResponse = await fetch(`https://api.github.com/repos/${githubConfig.repo}`, {
                     headers: {
@@ -1892,190 +2112,19 @@
                     }
                 });
                 
-                console.log('Repository check status:', repoResponse.status);
-                
                 if (repoResponse.ok) {
                     const repoData = await repoResponse.json();
-                    console.log('✅ Repository found:', repoData.full_name);
                     alerts.innerHTML += `<div class="alert alert-success">✅ Repository nalezen: ${repoData.full_name}</div>`;
-                    
-                    if (repoData.permissions) {
-                        const perms = Object.entries(repoData.permissions)
-                            .filter(([key, value]) => value === true)
-                            .map(([key]) => key)
-                            .join(', ');
-                        alerts.innerHTML += `<div class="alert alert-success">🔑 Token oprávnění: ${perms}</div>`;
-                    }
-                    
-                    // Test 2: Try to access the file
-                    await testFileAccess(repoData.default_branch || 'main');
-                } else if (repoResponse.status === 403) {
-                    console.log('❌ 403 Forbidden accessing repository');
-                    alerts.innerHTML += '<div class="alert alert-error">❌ 403 Forbidden - Token nemá oprávnění nebo chybí SAML SSO autorizace</div>';
-                    return;
+                    loadEmployeesFromGitHub();
                 } else {
-                    console.log('❌ Repository not found or no access:', repoResponse.status);
                     alerts.innerHTML += `<div class="alert alert-error">❌ Repository nenalezen: ${repoResponse.status}</div>`;
-                    return;
                 }
             } catch (error) {
-                console.error('Repository check error:', error);
-                alerts.innerHTML += `<div class="alert alert-error">❌ Chyba při kontrole repository: ${error.message}</div>`;
-                return;
+                alerts.innerHTML += `<div class="alert alert-error">❌ Chyba: ${error.message}</div>`;
             }
         }
 
-        async function testFileAccess(defaultBranch) {
-            console.log('TEST 2: Testing file access...');
-            const alerts = document.getElementById('admin-alerts');
-            
-            try {
-                const fileResponse = await fetch(`https://api.github.com/repos/${githubConfig.repo}/contents/data/employees.json?ref=${defaultBranch}`, {
-                    headers: {
-                        'Authorization': `Bearer ${githubConfig.token}`,
-                        'Accept': 'application/vnd.github+json',
-                        'X-GitHub-Api-Version': '2022-11-28',
-                        'User-Agent': 'Acomware-OrgChart'
-                    }
-                });
-                
-                console.log('File access status:', fileResponse.status);
-                
-                if (fileResponse.ok) {
-                    const fileData = await fileResponse.json();
-                    console.log('✅ File found:', fileData.name, 'Size:', fileData.size, 'bytes');
-                    
-                    try {
-                        const content = atob(fileData.content.replace(/\s/g, ''));
-                        const employeesData = JSON.parse(content);
-                        console.log('✅ File parsed successfully, employees:', employeesData.length);
-                        
-                        alerts.innerHTML += `<div class="alert alert-success">✅ Soubor employees.json načten úspěšně! Zaměstnanců: ${employeesData.length}</div>`;
-                        alerts.innerHTML += `<div class="alert alert-success">📄 SHA: ${fileData.sha.substring(0, 8)}... (${fileData.size} bytes)</div>`;
-                        
-                        // Use this data
-                        employees = employeesData;
-                        renderAll();
-                        updateDataStatus('loaded', `Načteno ${employees.length} zaměstnanců z GitHub (debug test)`);
-                        
-                        // Test 3: Try write access
-                        await testWriteAccess();
-                        
-                    } catch (parseError) {
-                        console.error('JSON parse error:', parseError);
-                        alerts.innerHTML += `<div class="alert alert-error">❌ Chyba při parsování JSON: ${parseError.message}</div>`;
-                    }
-                    
-                } else if (fileResponse.status === 403) {
-                    console.log('❌ 403 Forbidden accessing file');
-                    alerts.innerHTML += '<div class="alert alert-error">❌ 403 Forbidden - Token nemá "Contents: read" oprávnění</div>';
-                } else if (fileResponse.status === 404) {
-                    console.log('❌ File not found');
-                    alerts.innerHTML += '<div class="alert alert-error">❌ Soubor data/employees.json nenalezen v repository</div>';
-                } else {
-                    console.log('❌ Cannot read employees.json:', fileResponse.status);
-                    alerts.innerHTML += `<div class="alert alert-error">❌ Nelze načíst employees.json: ${fileResponse.status}</div>`;
-                }
-            } catch (error) {
-                console.error('File access error:', error);
-                alerts.innerHTML += `<div class="alert alert-error">❌ Chyba při přístupu k souboru: ${error.message}</div>`;
-            }
-        }
-
-        async function testWriteAccess() {
-            console.log('TEST 3: Testing write access...');
-            const alerts = document.getElementById('admin-alerts');
-            
-            try {
-                const testContent = btoa(JSON.stringify({ 
-                    test: true, 
-                    timestamp: new Date().toISOString(),
-                    message: 'Acomware org chart write test'
-                }, null, 2));
-                
-                const testBody = {
-                    message: 'Test write access - Acomware OrgChart',
-                    content: testContent,
-                    branch: 'main',
-                    committer: {
-                        name: 'Acomware System',
-                        email: 'system@acomware.cz'
-                    },
-                    author: {
-                        name: 'Acomware System',
-                        email: 'system@acomware.cz'
-                    }
-                };
-
-                const testResponse = await fetch(`https://api.github.com/repos/${githubConfig.repo}/contents/test-acomware-write.json`, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `Bearer ${githubConfig.token}`,
-                        'Accept': 'application/vnd.github+json',
-                        'X-GitHub-Api-Version': '2022-11-28',
-                        'User-Agent': 'Acomware-OrgChart',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(testBody)
-                });
-
-                console.log('Write test status:', testResponse.status);
-
-                if (testResponse.ok) {
-                    const result = await testResponse.json();
-                    console.log('✅ Write test successful, commit SHA:', result.commit?.sha);
-                    alerts.innerHTML += '<div class="alert alert-success">✅ Zápis funguje! Token má "Contents: write" oprávnění</div>';
-                    
-                    // Clean up test file after 3 seconds
-                    setTimeout(() => deleteTestFile(result.content.sha), 3000);
-                    
-                } else if (testResponse.status === 403) {
-                    console.log('❌ 403 Forbidden on write');
-                    alerts.innerHTML += '<div class="alert alert-error">❌ 403 Forbidden - Token nemá "Contents: write" oprávnění</div>';
-                } else {
-                    console.log('❌ Write test failed:', testResponse.status);
-                    alerts.innerHTML += `<div class="alert alert-error">❌ Test zápisu selhal: ${testResponse.status}</div>`;
-                }
-            } catch (error) {
-                console.error('Write test error:', error);
-                alerts.innerHTML += `<div class="alert alert-error">❌ Chyba při testu zápisu: ${error.message}</div>`;
-            }
-        }
-
-        async function deleteTestFile(sha) {
-            try {
-                const deleteResponse = await fetch(`https://api.github.com/repos/${githubConfig.repo}/contents/test-acomware-write.json`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${githubConfig.token}`,
-                        'Accept': 'application/vnd.github+json',
-                        'X-GitHub-Api-Version': '2022-11-28',
-                        'User-Agent': 'Acomware-OrgChart',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        message: 'Clean up test file - Acomware OrgChart',
-                        sha: sha,
-                        committer: {
-                            name: 'Acomware System',
-                            email: 'system@acomware.cz'
-                        }
-                    })
-                });
-                
-                if (deleteResponse.ok) {
-                    console.log('✅ Test file cleaned up');
-                    const alerts = document.getElementById('admin-alerts');
-                    alerts.innerHTML += '<div class="alert alert-success">🧹 Test soubor automaticky smazán</div>';
-                } else {
-                    console.log('⚠️ Could not clean up test file:', deleteResponse.status);
-                }
-            } catch (error) {
-                console.log('⚠️ Error cleaning up test file:', error);
-            }
-        }
-
-        // Load employees from GitHub with better error handling and encoding
+        // Load employees from GitHub
         async function loadEmployeesFromGitHub() {
             console.log('📥 Loading employees from GitHub...');
             
@@ -2086,8 +2135,6 @@
             }
 
             try {
-                // Try GitHub API with explicit UTF-8 handling
-                console.log('🔗 Trying GitHub API...');
                 const apiUrl = `https://api.github.com/repos/${githubConfig.repo}/contents/data/employees.json`;
                 
                 const response = await fetch(apiUrl, {
@@ -2095,22 +2142,17 @@
                         'Authorization': `Bearer ${githubConfig.token}`,
                         'Accept': 'application/vnd.github+json',
                         'X-GitHub-Api-Version': '2022-11-28',
-                        'User-Agent': 'Acomware-OrgChart',
-                        'Accept-Charset': 'utf-8'
+                        'User-Agent': 'Acomware-OrgChart'
                     }
                 });
-
-                console.log('GitHub API response status:', response.status);
 
                 if (response.ok) {
                     const data = await response.json();
                     
                     if (data.content) {
-                        // Decode base64 content with proper UTF-8 handling
                         const base64Content = data.content.replace(/\s/g, '');
                         const binaryString = atob(base64Content);
                         
-                        // Convert binary string to UTF-8
                         const bytes = new Uint8Array(binaryString.length);
                         for (let i = 0; i < binaryString.length; i++) {
                             bytes[i] = binaryString.charCodeAt(i);
@@ -2119,21 +2161,13 @@
                         const utf8Content = new TextDecoder('utf-8').decode(bytes);
                         employees = JSON.parse(utf8Content);
                         
-                        console.log(`✅ SUCCESS: Loaded ${employees.length} employees from GitHub with UTF-8 encoding`);
+                        console.log(`✅ SUCCESS: Loaded ${employees.length} employees from GitHub`);
                         updateDataStatus('loaded', `Načteno ${employees.length} zaměstnanců z GitHub`);
                         renderAll();
                         showAlert(`Úspěšně načteno ${employees.length} zaměstnanců z GitHub`, 'success', 'admin-alerts');
                     } else {
                         throw new Error('GitHub API response missing content field');
                     }
-                } else if (response.status === 404) {
-                    console.error('404: employees.json file does not exist');
-                    showAlert('Soubor employees.json neexistuje na GitHub', 'error', 'admin-alerts');
-                    loadFallbackData();
-                } else if (response.status === 403) {
-                    console.error('403: Forbidden - token issue');
-                    showAlert('Přístup odmítnut - zkontrolujte GitHub token', 'error', 'admin-alerts');
-                    loadFallbackData();
                 } else {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
@@ -2144,16 +2178,15 @@
             }
         }
 
-        // Save employees to GitHub with UTF-8 encoding
+        // Save employees to GitHub
         async function saveEmployeesToGitHub() {
             if (!githubConfig.token) {
                 return false;
             }
 
             try {
-                console.log('💾 Saving to GitHub with UTF-8 encoding...');
+                console.log('💾 Saving to GitHub...');
                 
-                // Get existing file SHA (needed for updates)
                 let sha = null;
                 try {
                     const getResponse = await fetch(`https://api.github.com/repos/${githubConfig.repo}/contents/data/employees.json`, {
@@ -2168,13 +2201,11 @@
                     if (getResponse.ok) {
                         const existing = await getResponse.json();
                         sha = existing.sha;
-                        console.log('Existing file SHA:', sha);
                     }
                 } catch (e) {
                     console.log('File does not exist yet, will create new');
                 }
 
-                // Prepare content with proper UTF-8 encoding
                 const jsonString = JSON.stringify(employees, null, 2);
                 const utf8Bytes = new TextEncoder().encode(jsonString);
                 const binaryString = String.fromCharCode.apply(null, utf8Bytes);
@@ -2213,24 +2244,14 @@
                 });
 
                 if (response.ok) {
-                    const result = await response.json();
-                    console.log('✅ Successfully saved to GitHub with UTF-8 encoding');
-                    console.log('Commit SHA:', result.commit?.sha);
+                    console.log('✅ Successfully saved to GitHub');
                     return true;
                 } else {
                     console.error('❌ GitHub save error:', response.status);
-                    
-                    if (response.status === 403) {
-                        showAlert('403 Forbidden - Token nemá oprávnění "Contents: write"', 'error', 'admin-alerts');
-                    } else if (response.status === 422) {
-                        showAlert('422 Unprocessable Entity - Chyba v metadatech commitu', 'error', 'admin-alerts');
-                    }
-                    
                     return false;
                 }
             } catch (error) {
                 console.error('Error saving to GitHub:', error);
-                showAlert(`Chyba při ukládání na GitHub: ${error.message}`, 'error', 'admin-alerts');
                 return false;
             }
         }
@@ -2239,7 +2260,6 @@
         function loadFallbackData() {
             console.log('📦 Loading fallback Acomware data...');
             
-            // Use your actual employees data
             employees = [
                 {
                     "id": 1,
@@ -2279,38 +2299,11 @@
                     "photo": "",
                     "parentId": 1,
                     "level": 1
-                },
-                {
-                    "id": 5,
-                    "name": "Vladimír Spurný",
-                    "position": "Head of Performance",
-                    "department": "Performance",
-                    "email": "vladimir.spurny@acomware.cz",
-                    "phone": "+420 734 395 426",
-                    "location": "Praha",
-                    "startDate": "",
-                    "photo": "",
-                    "parentId": 2,
-                    "level": 2
-                },
-                {
-                    "id": 6,
-                    "name": "Ivona Ševčíková",
-                    "position": "Head of Customer Experience & Retention",
-                    "department": "Customer Experience & Retention",
-                    "email": "ivona.sevcikova@acomware.cz",
-                    "phone": "+420 777 251 991",
-                    "location": "Praha",
-                    "startDate": "",
-                    "photo": "",
-                    "parentId": 2,
-                    "level": 2
                 }
-                // Adding just a few for testing - full data will come from GitHub
             ];
             
             console.log(`📋 Loaded ${employees.length} employees (fallback data)`);
-            updateDataStatus('error', `Načteno ${employees.length} zaměstnanců (fallback data - nastavte GitHub token)`);
+            updateDataStatus('error', `Načteno ${employees.length} zaměstnanců (fallback data)`);
             renderAll();
         }
 
@@ -2345,18 +2338,21 @@
                 if (e.target.id === 'employee-modal') {
                     closeEmployeeModal();
                 }
+                if (e.target.id === 'employee-detail-modal') {
+                    closeEmployeeDetail();
+                }
             });
 
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
                     closeEmployeeModal();
+                    closeEmployeeDetail();
                 }
             });
         }
 
-        // Navigation with admin access control
+        // Navigation
         function showTab(tabName) {
-            // Remove active from all tabs and buttons
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
@@ -2365,10 +2361,8 @@
                 btn.classList.remove('active');
             });
             
-            // Add active to selected tab
             document.getElementById(tabName + '-tab').classList.add('active');
             
-            // Add active to corresponding nav button (if exists)
             const navButtons = document.querySelectorAll('.nav-button');
             navButtons.forEach(btn => {
                 if ((tabName === 'chart' && btn.textContent.includes('Organizační schéma')) ||
@@ -2376,12 +2370,6 @@
                     btn.classList.add('active');
                 }
             });
-            
-            // Special handling for admin - no nav button highlight
-            if (tabName === 'admin') {
-                console.log('🔐 Admin panel accessed');
-                // Optionally add some admin access logging here
-            }
             
             console.log(`📑 Switched to tab: ${tabName}`);
         }
@@ -2517,7 +2505,6 @@
 
             employees = employees.filter(emp => emp.id !== id);
             
-            // Save to GitHub
             const saved = await saveEmployeesToGitHub();
             if (saved) {
                 showAlert('Zaměstnanec byl smazán a změny uloženy na GitHub', 'success', 'admin-alerts');
@@ -2608,81 +2595,6 @@
             console.log('✅ Org chart rendered successfully');
         }
 
-        function createOrgNode(employee, isCeo = false) {
-            const nodeContainer = document.createElement('div');
-            nodeContainer.className = 'org-node';
-            nodeContainer.setAttribute('data-employee-id', employee.id);
-
-            // Create card
-            const card = document.createElement('div');
-            card.className = `org-node-card ${isCeo ? 'ceo' : ''}`;
-            
-            // Determine if this is a department head
-            const isHead = employees.some(emp => emp.parentId === employee.id);
-            if (isHead && !isCeo) {
-                card.classList.add('department-head');
-            }
-
-            // Photo element
-            const photoElement = employee.photo ? 
-                `<img src="${employee.photo}" class="org-node-photo" alt="${employee.name}">` :
-                `<div class="org-node-photo" style="display: flex; align-items: center; justify-content: center;">${isCeo ? '👤' : '👤'}</div>`;
-
-            // Get direct reports
-            const directReports = employees.filter(emp => emp.parentId === employee.id);
-            const hasChildren = directReports.length > 0;
-
-            card.innerHTML = `
-                ${photoElement}
-                <div class="org-node-name">${employee.name}</div>
-                <div class="org-node-position">${employee.position}</div>
-                <div class="org-node-department">
-                    <span class="badge badge-${getDepartmentClass(employee.department)}">${employee.department}</span>
-                </div>
-                ${hasChildren ? `
-                    <div class="employee-count">${directReports.length}</div>
-                    <button class="expand-toggle" onclick="event.stopPropagation(); toggleNode(${employee.id})" title="Rozbalit/sbalit">
-                        ${expandedNodes.has(employee.id) ? '−' : '+'}
-                    </button>
-                ` : ''}
-            `;
-
-            // Add click handler for employee details
-            card.addEventListener('click', (e) => {
-                // Don't trigger if clicking on expand button
-                if (!e.target.classList.contains('expand-toggle')) {
-                    showEmployeeDetail(employee);
-                }
-            });
-
-            nodeContainer.appendChild(card);
-
-            // Create children container if has children
-            if (hasChildren) {
-                const childrenContainer = document.createElement('div');
-                childrenContainer.className = `org-children ${expandedNodes.has(employee.id) ? 'expanded' : ''}`;
-                childrenContainer.setAttribute('data-parent-id', employee.id);
-
-                // Sort children by department priority
-                const departmentOrder = ['C-Level', 'Performance', 'Customer Experience & Retention', 'Consulting', 'Blueglue', 'HR', 'Media', 'Controlling & Finance', 'Sales', 'Marketing', 'Back Office'];
-                const sortedReports = directReports.sort((a, b) => {
-                    const aIndex = departmentOrder.indexOf(a.department);
-                    const bIndex = departmentOrder.indexOf(b.department);
-                    return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
-                });
-
-                // Add children
-                sortedReports.forEach(child => {
-                    const childNode = createOrgNode(child, false);
-                    childrenContainer.appendChild(childNode);
-                });
-
-                nodeContainer.appendChild(childrenContainer);
-            }
-
-            return nodeContainer;
-        }
-
         // Employee Detail Modal Functions
         function showEmployeeDetail(employee) {
             const modal = document.getElementById('employee-detail-modal') || createEmployeeDetailModal();
@@ -2769,202 +2681,6 @@
             const childrenContainer = document.querySelector(`[data-parent-id="${employeeId}"]`);
             
             if (!button || !childrenContainer) {
-                console.error('❌ Could not find button or children container');
-                return;
-            }
-
-            if (expandedNodes.has(employeeId)) {
-                // Collapse
-                expandedNodes.delete(employeeId);
-                childrenContainer.classList.remove('expanded');
-                button.textContent = '+';
-                button.classList.remove('expanded');
-                console.log('📁 Node collapsed');
-            } else {
-                // Expand
-                expandedNodes.add(employeeId);
-                childrenContainer.classList.add('expanded');
-                button.textContent = '−';
-                button.classList.add('expanded');
-                console.log('📂 Node expanded');
-            }
-        }
-
-        // Updated zoom functions - FIX
-        function zoomIn() {
-            currentZoom = Math.min(currentZoom * 1.2, 3);
-            applyZoom();
-            console.log('🔍 Zoom in:', currentZoom);
-        }
-
-        function zoomOut() {
-            currentZoom = Math.max(currentZoom * 0.8, 0.3);
-            applyZoom();
-            console.log('🔍 Zoom out:', currentZoom);
-        }
-
-        function resetZoom() {
-            currentZoom = 1;
-            panOffset = { x: 0, y: 0 };
-            lastPanOffset = { x: 0, y: 0 };
-            applyZoom();
-            console.log('🔄 Zoom reset');
-        }
-
-        function applyZoom() {
-            const content = document.getElementById('org-chart-content');
-            const zoomLevel = document.getElementById('zoom-level');
-            
-            if (!content) return;
-            
-            // Update zoom level indicator
-            if (zoomLevel) {
-                zoomLevel.textContent = `${Math.round(currentZoom * 100)}%`;
-            }
-            
-            // Apply zoom and pan transform
-            updatePanTransform();
-        }
-
-        function updatePanTransform() {
-            const content = document.getElementById('org-chart-content');
-            if (content) {
-                content.style.transform = `scale(${currentZoom}) translate(${panOffset.x}px, ${panOffset.y}px)`;
-            }
-        }
-
-        // Fixed Pan/Drag functionality
-        function initializePanDrag() {
-            const viewport = document.getElementById('org-chart-viewport');
-            
-            if (!viewport) {
-                console.error('❌ Viewport not found for pan/drag');
-                return;
-            }
-
-            console.log('🖱️ Initializing pan/drag on viewport...');
-
-            // Remove any existing listeners
-            viewport.removeEventListener('mousedown', handleMouseDown);
-            document.removeEventListener('mousemove', handleMouseMove);
-            document.removeEventListener('mouseup', handleMouseUp);
-            
-            // Add fresh listeners
-            viewport.addEventListener('mousedown', handleMouseDown);
-            document.addEventListener('mousemove', handleMouseMove);
-            document.addEventListener('mouseup', handleMouseUp);
-            
-            // Touch events for mobile
-            viewport.addEventListener('touchstart', handleTouchStart, { passive: false });
-            document.addEventListener('touchmove', handleTouchMove, { passive: false });
-            document.addEventListener('touchend', handleTouchEnd);
-            
-            // Prevent context menu
-            viewport.addEventListener('contextmenu', e => e.preventDefault());
-            
-            console.log('✅ Pan/drag initialized successfully');
-        }
-
-        function handleMouseDown(e) {
-            // Only start drag if clicking directly on viewport background, not on cards
-            if (e.target !== e.currentTarget) {
-                console.log('🚫 Not dragging - clicked on child element:', e.target.className);
-                return;
-            }
-            
-            e.preventDefault();
-            isDragging = true;
-            
-            const viewport = document.getElementById('org-chart-viewport');
-            if (viewport) {
-                viewport.classList.add('dragging');
-            }
-            
-            dragStart.x = e.clientX - panOffset.x;
-            dragStart.y = e.clientY - panOffset.y;
-            
-            console.log('🖱️ Drag started at:', e.clientX, e.clientY);
-        }
-
-        function handleMouseMove(e) {
-            if (!isDragging) return;
-            
-            e.preventDefault();
-            
-            panOffset.x = e.clientX - dragStart.x;
-            panOffset.y = e.clientY - dragStart.y;
-            
-            updatePanTransform();
-        }
-
-        function handleMouseUp(e) {
-            if (!isDragging) return;
-            
-            isDragging = false;
-            const viewport = document.getElementById('org-chart-viewport');
-            if (viewport) {
-                viewport.classList.remove('dragging');
-            }
-            
-            lastPanOffset.x = panOffset.x;
-            lastPanOffset.y = panOffset.y;
-            
-            console.log('🖱️ Drag ended');
-        }
-
-        function handleTouchStart(e) {
-            if (e.target !== e.currentTarget) return;
-            
-            e.preventDefault();
-            isDragging = true;
-            
-            const viewport = document.getElementById('org-chart-viewport');
-            if (viewport) {
-                viewport.classList.add('dragging');
-            }
-            
-            const touch = e.touches[0];
-            dragStart.x = touch.clientX - panOffset.x;
-            dragStart.y = touch.clientY - panOffset.y;
-            
-            console.log('👆 Touch drag started');
-        }
-
-        function handleTouchMove(e) {
-            if (!isDragging) return;
-            
-            e.preventDefault();
-            
-            const touch = e.touches[0];
-            panOffset.x = touch.clientX - dragStart.x;
-            panOffset.y = touch.clientY - dragStart.y;
-            
-            updatePanTransform();
-        }
-
-        function handleTouchEnd(e) {
-            if (!isDragging) return;
-            
-            isDragging = false;
-            const viewport = document.getElementById('org-chart-viewport');
-            if (viewport) {
-                viewport.classList.remove('dragging');
-            }
-            
-            lastPanOffset.x = panOffset.x;
-            lastPanOffset.y = panOffset.y;
-            
-            console.log('👆 Touch drag ended');
-        }
-
-        // Toggle node function - FIX
-        function toggleNode(employeeId) {
-            console.log('🔄 Toggling node:', employeeId);
-            
-            const button = document.querySelector(`[data-employee-id="${employeeId}"] .expand-toggle`);
-            const childrenContainer = document.querySelector(`[data-parent-id="${employeeId}"]`);
-            
-            if (!button || !childrenContainer) {
                 console.error('❌ Could not find button or children container for:', employeeId);
                 return;
             }
@@ -2986,151 +2702,13 @@
             }
         }
 
-        // Auto-center when expanding nodes
-        function toggleNode(employeeId) {
-            console.log('🔄 Toggling node:', employeeId);
-            
-            const button = document.querySelector(`[data-employee-id="${employeeId}"] .expand-toggle`);
-            const childrenContainer = document.querySelector(`[data-parent-id="${employeeId}"]`);
-            
-            if (!button || !childrenContainer) {
-                console.error('❌ Could not find button or children container');
-                return;
-            }
-
-            if (expandedNodes.has(employeeId)) {
-                // Collapse
-                expandedNodes.delete(employeeId);
-                childrenContainer.classList.remove('expanded');
-                button.textContent = '+';
-                button.classList.remove('expanded');
-                console.log('📁 Node collapsed');
-            } else {
-                // Expand
-                expandedNodes.add(employeeId);
-                childrenContainer.classList.add('expanded');
-                button.textContent = '−';
-                button.classList.add('expanded');
-                console.log('📂 Node expanded');
-                
-                // Auto-scroll to center the expanded content after animation
-                setTimeout(() => {
-                    centerExpandedNode(employeeId);
-                }, 500);
-            }
-        }
-
-        function centerExpandedNode(employeeId) {
-            const viewport = document.getElementById('org-chart-viewport');
-            const nodeElement = document.querySelector(`[data-employee-id="${employeeId}"]`);
-            const childrenContainer = document.querySelector(`[data-parent-id="${employeeId}"]`);
-            
-            if (nodeElement && childrenContainer) {
-                const nodeRect = nodeElement.getBoundingClientRect();
-                const viewportRect = viewport.getBoundingClientRect();
-                const childrenRect = childrenContainer.getBoundingClientRect();
-                
-                // Calculate scroll position to center the expanded content
-                const targetScrollLeft = (childrenRect.width - viewportRect.width) / 2 + viewport.scrollLeft + (childrenRect.left - viewportRect.left);
-                
-                // Smooth scroll to center
-                viewport.scrollTo({
-                    left: Math.max(0, targetScrollLeft),
-                    behavior: 'smooth'
-                });
-                
-                console.log('🎯 Centered expanded node');
-            }
-        }
-
-        // Legacy functions for backward compatibility
-        function buildTreeStructure(rootEmployee) {
-            return {
-                employee: rootEmployee,
-                children: []
-            };
-        }
-
-        function createTreeHTML(node) {
-            return document.createElement('div');
-        }
-
-        function createTreeNode(employee) {
-            return document.createElement('div');
-        }
-        // Department filtering functions (updated for collapsible chart)
-        function filterDepartments(department) {
-            const badge = document.querySelector(`.legend-badge[data-dept="${department}"]`);
-            
-            if (filteredDepartments.has(department)) {
-                // Remove from filter
-                filteredDepartments.delete(department);
-                badge.classList.remove('inactive');
-                badge.classList.add('active');
-            } else {
-                // Add to filter - but first check if we need to clear others
-                if (filteredDepartments.size === 0) {
-                    // First selection - make all others inactive
-                    document.querySelectorAll('.legend-badge').forEach(b => {
-                        if (b !== badge) {
-                            b.classList.add('inactive');
-                            b.classList.remove('active');
-                        }
-                    });
-                }
-                
-                filteredDepartments.add(department);
-                badge.classList.remove('inactive');
-                badge.classList.add('active');
-            }
-            
-            // If no departments selected, show all
-            if (filteredDepartments.size === 0) {
-                document.querySelectorAll('.legend-badge').forEach(b => {
-                    b.classList.remove('inactive');
-                    b.classList.add('active');
-                });
-            }
-            
-            // Apply visual filtering
-            applyDepartmentFilter();
-        }
-
-        function resetDepartmentFilter() {
-            filteredDepartments.clear();
-            document.querySelectorAll('.legend-badge').forEach(badge => {
-                badge.classList.remove('inactive');
-                badge.classList.add('active');
-            });
-            applyDepartmentFilter();
-        }
-
-        function applyDepartmentFilter() {
-            const nodes = document.querySelectorAll('.org-node');
-            
-            nodes.forEach(node => {
-                const employeeId = node.getAttribute('data-employee-id');
-                const employee = employees.find(emp => emp.id == employeeId);
-                
-                if (employee) {
-                    if (filteredDepartments.size === 0 || filteredDepartments.has(employee.department)) {
-                        node.style.display = 'flex';
-                        node.style.opacity = '1';
-                    } else {
-                        node.style.opacity = '0.3';
-                        // Don't completely hide, just fade for better UX
-                    }
-                }
-            });
-        }
-
         // Make functions globally available
         window.toggleNode = toggleNode;
         window.zoomIn = zoomIn;
         window.zoomOut = zoomOut;
         window.resetZoom = resetZoom;
-        window.filterDepartments = filterDepartments;
-        window.resetDepartmentFilter = resetDepartmentFilter;
+        window.showEmployeeDetail = showEmployeeDetail;
+        window.centerOnEmployee = centerOnEmployee;
 
         function createEmployeeCard(employee, cardType = '') {
             const card = document.createElement('div');
@@ -3173,15 +2751,6 @@
             `;
 
             return card;
-        }
-
-        function toggleDepartment(department) {
-            if (expandedDepartments.has(department)) {
-                expandedDepartments.delete(department);
-            } else {
-                expandedDepartments.add(department);
-            }
-            renderOrgChart();
         }
 
         function renderSearchResults() {
