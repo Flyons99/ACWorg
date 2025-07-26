@@ -43,9 +43,8 @@
         }
 
         .header {
-            background: var(--acw-gradient-primary);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--acw-white);
+            border-bottom: 3px solid var(--acw-primary);
             box-shadow: var(--acw-shadow-lg);
             position: relative;
             overflow: hidden;
@@ -58,7 +57,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            background: linear-gradient(45deg, rgba(30, 58, 138, 0.03) 0%, rgba(249, 115, 22, 0.02) 100%);
             pointer-events: none;
         }
 
@@ -77,20 +76,25 @@
             display: flex;
             align-items: center;
             gap: 1.5rem;
+            background: var(--acw-white);
+            padding: 0.75rem 1.5rem;
+            border-radius: 16px;
+            box-shadow: var(--acw-shadow-md);
+            border: 2px solid rgba(30, 58, 138, 0.1);
         }
 
         .logo {
-            height: 50px;
+            height: 45px;
             width: auto;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+            filter: none;
         }
 
         .header-left h1 {
-            color: var(--acw-white);
+            color: var(--acw-primary);
             font-size: 1.75rem;
             font-weight: 700;
             letter-spacing: -0.025em;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            margin: 0;
         }
 
         .data-status {
@@ -108,20 +112,23 @@
 
         .data-status.loaded {
             background: rgba(16, 185, 129, 0.15);
-            color: var(--acw-white);
+            color: #059669;
             box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
+            border: 2px solid rgba(16, 185, 129, 0.3);
         }
 
         .data-status.error {
             background: rgba(239, 68, 68, 0.15);
-            color: var(--acw-white);
+            color: #dc2626;
             box-shadow: 0 4px 16px rgba(239, 68, 68, 0.2);
+            border: 2px solid rgba(239, 68, 68, 0.3);
         }
 
         .data-status.loading {
             background: rgba(59, 130, 246, 0.15);
-            color: var(--acw-white);
+            color: #2563eb;
             box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2);
+            border: 2px solid rgba(59, 130, 246, 0.3);
         }
 
         .nav {
@@ -2256,7 +2263,7 @@
             }
         }
 
-        // Load fallback data
+        // Load fallback data with more employees for testing
         function loadFallbackData() {
             console.log('📦 Loading fallback Acomware data...');
             
@@ -2299,6 +2306,71 @@
                     "photo": "",
                     "parentId": 1,
                     "level": 1
+                },
+                {
+                    "id": 4,
+                    "name": "Ondřej Smékal",
+                    "position": "Chief Business Officer",
+                    "department": "C-Level",
+                    "email": "ondrej.smekal@acomware.cz",
+                    "phone": "+420 737 289 528",
+                    "location": "Praha",
+                    "startDate": "",
+                    "photo": "",
+                    "parentId": 1,
+                    "level": 1
+                },
+                {
+                    "id": 5,
+                    "name": "Vladimír Spurný",
+                    "position": "Head of Performance",
+                    "department": "Performance",
+                    "email": "vladimir.spurny@acomware.cz",
+                    "phone": "+420 734 395 426",
+                    "location": "Praha",
+                    "startDate": "",
+                    "photo": "",
+                    "parentId": 2,
+                    "level": 2
+                },
+                {
+                    "id": 6,
+                    "name": "Ivona Ševčíková",
+                    "position": "Head of Customer Experience & Retention",
+                    "department": "Customer Experience & Retention",
+                    "email": "ivona.sevcikova@acomware.cz",
+                    "phone": "+420 777 251 991",
+                    "location": "Praha",
+                    "startDate": "",
+                    "photo": "",
+                    "parentId": 2,
+                    "level": 2
+                },
+                {
+                    "id": 12,
+                    "name": "Nikola Audová",
+                    "position": "Performance Specialist",
+                    "department": "Performance",
+                    "email": "nikola.audova@acomware.cz",
+                    "phone": "+420 604 906 723",
+                    "location": "Praha",
+                    "startDate": "",
+                    "photo": "",
+                    "parentId": 5,
+                    "level": 3
+                },
+                {
+                    "id": 25,
+                    "name": "Gabriel Berger",
+                    "position": "Web analyst",
+                    "department": "Customer Experience & Retention",
+                    "email": "gabriel.berger@acomware.cz",
+                    "phone": "+421 911 904 083",
+                    "location": "Praha",
+                    "startDate": "",
+                    "photo": "",
+                    "parentId": 6,
+                    "level": 3
                 }
             ];
             
@@ -2517,12 +2589,21 @@
             renderAll();
         }
 
-        // Rendering functions
+        // FIXED Rendering functions with debugging
         function renderAll() {
             console.log('🎨 Rendering all components...');
+            console.log('📊 Current employees:', employees.length);
+            
             renderEmployeesTable();
             renderOrgChart();
             renderSearchResults();
+            
+            // Initialize pan/drag after chart is rendered
+            setTimeout(() => {
+                if (document.getElementById('org-chart-content').children.length > 0) {
+                    initializePanDrag();
+                }
+            }, 200);
         }
 
         function renderEmployeesTable() {
@@ -2567,32 +2648,49 @@
             });
         }
 
-        // Collapsible Organization Chart Functions
+        // FIXED Organization chart rendering with better debugging
         function renderOrgChart() {
-            console.log('🎨 Rendering collapsible org chart...');
+            console.log('🎨 Rendering org chart...');
             const container = document.getElementById('org-chart-content');
+            
+            if (!container) {
+                console.error('❌ Org chart container not found!');
+                return;
+            }
+
             container.innerHTML = '';
 
             if (employees.length === 0) {
-                container.innerHTML = '<div style="text-align: center; padding: 3rem; color: var(--acw-gray);">Načítání organizačního schématu...</div>';
+                container.innerHTML = '<div style="text-align: center; padding: 3rem; color: var(--acw-gray); font-size: 1.2rem;">Načítání organizačního schématu...</div>';
                 return;
             }
 
-            // Find CEO
-            const ceo = employees.find(emp => !emp.parentId || emp.parentId === null);
+            console.log('👥 Processing', employees.length, 'employees');
+
+            // Find CEO (employee without parent)
+            const ceo = employees.find(emp => !emp.parentId || emp.parentId === null || emp.parentId === "");
+            
             if (!ceo) {
-                container.innerHTML = '<div style="text-align: center; padding: 3rem; color: var(--acw-gray);">Není definován CEO (zaměstnanec bez nadřízeného)</div>';
+                console.error('❌ No CEO found! Looking for employee without parentId');
+                console.log('Available employees:', employees.map(e => ({id: e.id, name: e.name, parentId: e.parentId})));
+                container.innerHTML = '<div style="text-align: center; padding: 3rem; color: var(--acw-gray);">❌ Není definován CEO (zaměstnanec bez nadřízeného)</div>';
                 return;
             }
 
-            console.log('👑 CEO found:', ceo.name);
-            console.log('👥 Total employees:', employees.length);
+            console.log('👑 CEO found:', ceo.name, 'ID:', ceo.id);
 
-            // Create CEO node
-            const ceoNode = createOrgNode(ceo, true);
-            container.appendChild(ceoNode);
-
-            console.log('✅ Org chart rendered successfully');
+            try {
+                // Create CEO node
+                const ceoNode = createOrgNode(ceo, true);
+                container.appendChild(ceoNode);
+                
+                console.log('✅ Org chart rendered successfully');
+                console.log('📦 Container children:', container.children.length);
+                
+            } catch (error) {
+                console.error('❌ Error creating org chart:', error);
+                container.innerHTML = `<div style="text-align: center; padding: 3rem; color: red;">Chyba při vytváření schématu: ${error.message}</div>`;
+            }
         }
 
         // Employee Detail Modal Functions
