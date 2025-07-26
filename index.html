@@ -628,15 +628,243 @@
             transform: translateX(4px);
         }
 
-        /* Collapsible Organization Chart Styles - with Pan & Compact Cards */
-        .org-chart-container {
+        /* Modern Chart Header & Controls */
+        .chart-header {
+            background: var(--acw-white);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--acw-shadow-md);
+            border: 1px solid rgba(30, 58, 138, 0.05);
+        }
+
+        .chart-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid rgba(30, 58, 138, 0.1);
+        }
+
+        .chart-title h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--acw-gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+        }
+
+        .chart-stats {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.05) 0%, rgba(249, 115, 22, 0.02) 100%);
+            border-radius: 12px;
+            font-weight: 600;
+            color: var(--acw-primary);
+        }
+
+        .stat-icon {
+            font-size: 1.2rem;
+        }
+
+        .chart-controls {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 2rem;
+            align-items: end;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .control-label {
+            font-weight: 600;
+            color: var(--acw-primary);
+            font-size: 0.9rem;
+        }
+
+        /* Department Filter Chips */
+        .department-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .department-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .department-chip.active {
+            transform: scale(1.05);
+            box-shadow: var(--acw-shadow-md);
+        }
+
+        .department-chip.inactive {
+            opacity: 0.4;
+            transform: scale(0.95);
+        }
+
+        .department-chip:hover {
+            transform: scale(1.1);
+            box-shadow: var(--acw-shadow-lg);
+        }
+
+        /* View Toggle */
+        .view-toggle {
+            display: flex;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid var(--acw-primary);
+        }
+
+        .view-btn {
+            background: var(--acw-white);
+            border: none;
+            padding: 0.75rem 1.25rem;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--acw-primary);
+            transition: all 0.3s ease;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .view-btn.active {
+            background: var(--acw-primary);
+            color: var(--acw-white);
+        }
+
+        .view-btn:hover:not(.active) {
+            background: rgba(30, 58, 138, 0.1);
+        }
+
+        /* Search Box */
+        .search-box {
             position: relative;
+        }
+
+        .search-input {
             width: 100%;
-            height: 80vh;
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 0.75rem 1rem 0.75rem 3rem;
+            border: 2px solid rgba(30, 58, 138, 0.1);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            background: rgba(248, 250, 252, 0.5);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--acw-primary);
+            box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.1);
+            background: var(--acw-white);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.1rem;
+            color: var(--acw-gray);
+        }
+
+        /* Chart Wrapper */
+        .org-chart-wrapper {
+            position: relative;
+            background: var(--acw-white);
             border-radius: 20px;
             box-shadow: var(--acw-shadow-lg);
             border: 1px solid rgba(30, 58, 138, 0.05);
+            overflow: hidden;
+        }
+
+        /* Chart Navigation */
+        .chart-navigation {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 100;
+        }
+
+        .zoom-controls, .pan-controls, .expand-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            background: var(--acw-white);
+            border-radius: 12px;
+            padding: 0.5rem;
+            box-shadow: var(--acw-shadow-md);
+            border: 1px solid rgba(30, 58, 138, 0.1);
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--acw-primary);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-btn:hover {
+            background: var(--acw-primary);
+            color: var(--acw-white);
+            transform: scale(1.1);
+        }
+
+        .zoom-level {
+            text-align: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--acw-primary);
+            padding: 0.25rem;
+        }
+
+        /* Updated Chart Container */
+        .org-chart-container {
+            position: relative;
+            width: 100%;
+            height: 75vh;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             overflow: hidden;
             user-select: none;
         }
@@ -647,7 +875,6 @@
             overflow: hidden;
             position: relative;
             cursor: grab;
-            scroll-behavior: smooth;
         }
 
         .org-chart-viewport.dragging {
@@ -665,6 +892,95 @@
             transform-origin: center top;
             transition: transform 0.3s ease;
             position: relative;
+        }
+
+        /* Loading State */
+        .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+            color: var(--acw-gray);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(30, 58, 138, 0.1);
+            border-top: 4px solid var(--acw-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        /* Pan Hint */
+        .pan-hint {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .pan-hint.show {
+            opacity: 1;
+        }
+
+        /* Responsive Chart Header */
+        @media (max-width: 1024px) {
+            .chart-controls {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .chart-stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .chart-header {
+                padding: 1.5rem;
+            }
+            
+            .chart-title {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .chart-title h2 {
+                font-size: 2rem;
+            }
+            
+            .department-chips {
+                gap: 0.25rem;
+            }
+            
+            .department-chip {
+                font-size: 0.7rem;
+                padding: 0.4rem 0.8rem;
+            }
+            
+            .chart-navigation {
+                flex-direction: row;
+                top: 0.5rem;
+                right: 0.5rem;
+                gap: 0.5rem;
+            }
+            
+            .zoom-controls, .pan-controls, .expand-controls {
+                flex-direction: row;
+            }
         }
 
         .org-node {
@@ -1508,84 +1824,110 @@
 
             <!-- Organizational Chart -->
             <div id="chart-tab" class="tab-content active">
-                <h2 style="font-size: 2rem; font-weight: bold; color: #111827; margin-bottom: 2rem;">Organizační schéma</h2>
-                
-                <div class="legend">
-                    <h3>🏢 Filtrovat podle oddělení</h3>
-                    <div class="legend-items">
-                        <span class="legend-badge badge-clevel" onclick="toggleDepartmentFilter('C-Level')" data-dept="C-Level">
-                            <span class="badge-checkbox">✓</span>
-                            C-Level
-                        </span>
-                        <span class="legend-badge badge-performance" onclick="toggleDepartmentFilter('Performance')" data-dept="Performance">
-                            <span class="badge-checkbox">✓</span>
-                            Performance
-                        </span>
-                        <span class="legend-badge badge-customer-experience-retention" onclick="toggleDepartmentFilter('Customer Experience & Retention')" data-dept="Customer Experience & Retention">
-                            <span class="badge-checkbox">✓</span>
-                            Customer Experience
-                        </span>
-                        <span class="legend-badge badge-consulting" onclick="toggleDepartmentFilter('Consulting')" data-dept="Consulting">
-                            <span class="badge-checkbox">✓</span>
-                            Consulting
-                        </span>
-                        <span class="legend-badge badge-blueglue" onclick="toggleDepartmentFilter('Blueglue')" data-dept="Blueglue">
-                            <span class="badge-checkbox">✓</span>
-                            Blueglue
-                        </span>
-                        <span class="legend-badge badge-hr" onclick="toggleDepartmentFilter('HR')" data-dept="HR">
-                            <span class="badge-checkbox">✓</span>
-                            HR
-                        </span>
-                        <span class="legend-badge badge-media" onclick="toggleDepartmentFilter('Media')" data-dept="Media">
-                            <span class="badge-checkbox">✓</span>
-                            Media
-                        </span>
-                        <span class="legend-badge badge-customer-experience-retention" onclick="toggleDepartmentFilter('Controlling & Finance')" data-dept="Controlling & Finance">
-                            <span class="badge-checkbox">✓</span>
-                            Finance
-                        </span>
-                        <span class="legend-badge badge-consulting" onclick="toggleDepartmentFilter('Sales')" data-dept="Sales">
-                            <span class="badge-checkbox">✓</span>
-                            Sales
-                        </span>
-                        <span class="legend-badge badge-media" onclick="toggleDepartmentFilter('Marketing')" data-dept="Marketing">
-                            <span class="badge-checkbox">✓</span>
-                            Marketing
-                        </span>
-                        <span class="legend-badge badge-hr" onclick="toggleDepartmentFilter('Back Office')" data-dept="Back Office">
-                            <span class="badge-checkbox">✓</span>
-                            Back Office
-                        </span>
+                <!-- Chart Header with Controls -->
+                <div class="chart-header">
+                    <div class="chart-title">
+                        <h2>🏢 Organizační schéma</h2>
+                        <div class="chart-stats" id="chart-stats">
+                            <span class="stat-item">
+                                <span class="stat-icon">👥</span>
+                                <span id="total-employees">0</span> zaměstnanců
+                            </span>
+                            <span class="stat-item">
+                                <span class="stat-icon">🏛️</span>
+                                <span id="total-departments">0</span> oddělení
+                            </span>
+                        </div>
                     </div>
-                    <div style="text-align: center; margin-top: 1rem; display: flex; gap: 1rem; justify-content: center;">
-                        <button class="btn btn-secondary" onclick="selectAllDepartments()" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
-                            <span>✅</span>
-                            Vybrat vše
-                        </button>
-                        <button class="btn btn-secondary" onclick="deselectAllDepartments()" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
-                            <span>❌</span>
-                            Zrušit vše
-                        </button>
-                        <div id="active-filter-count" style="display: flex; align-items: center; padding: 0.5rem 1rem; background: rgba(30, 58, 138, 0.1); border-radius: 8px; font-size: 0.9rem; font-weight: 600; color: var(--acw-primary);">
-                            Zobrazeno: <span id="filter-count">11</span>/11 oddělení
+                    
+                    <!-- Chart Controls -->
+                    <div class="chart-controls">
+                        <!-- Department Filter -->
+                        <div class="control-group">
+                            <label class="control-label">Filtr oddělení:</label>
+                            <div class="department-chips" id="department-chips">
+                                <!-- Filled by JS -->
+                            </div>
+                        </div>
+                        
+                        <!-- View Options -->
+                        <div class="control-group">
+                            <label class="control-label">Zobrazení:</label>
+                            <div class="view-toggle">
+                                <button class="view-btn active" data-view="tree" onclick="switchView('tree')">
+                                    <span>🌳</span> Strom
+                                </button>
+                                <button class="view-btn" data-view="compact" onclick="switchView('compact')">
+                                    <span>📋</span> Kompaktní
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Search -->
+                        <div class="control-group">
+                            <div class="search-box">
+                                <input type="text" id="org-search" placeholder="Hledat zaměstnance..." class="search-input">
+                                <span class="search-icon">🔍</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="org-chart-container">
-                    <div class="zoom-controls">
-                        <div class="zoom-buttons">
-                            <button class="zoom-btn" onclick="zoomIn()" title="Přiblížit">+</button>
-                            <button class="zoom-btn" onclick="zoomOut()" title="Oddálit">−</button>
-                            <button class="zoom-btn" onclick="resetZoom()" title="Reset zoom">⌂</button>
+                <!-- Chart Container -->
+                <div class="org-chart-wrapper" id="org-chart-wrapper">
+                    <!-- Zoom & Navigation Controls -->
+                    <div class="chart-navigation">
+                        <div class="zoom-controls">
+                            <button class="nav-btn" onclick="zoomIn()" title="Přiblížit">
+                                <span>+</span>
+                            </button>
+                            <div class="zoom-level" id="zoom-level">100%</div>
+                            <button class="nav-btn" onclick="zoomOut()" title="Oddálit">
+                                <span>−</span>
+                            </button>
                         </div>
-                        <div class="zoom-level" id="zoom-level">100%</div>
+                        
+                        <div class="pan-controls">
+                            <button class="nav-btn" onclick="resetView()" title="Vycentrovat">
+                                <span>⌂</span>
+                            </button>
+                            <button class="nav-btn" onclick="fitToWindow()" title="Přizpůsobit oknu">
+                                <span>⛶</span>
+                            </button>
+                        </div>
+                        
+                        <div class="expand-controls">
+                            <button class="nav-btn" onclick="expandAll()" title="Rozbalit vše">
+                                <span>📂</span>
+                            </button>
+                            <button class="nav-btn" onclick="collapseAll()" title="Sbalit vše">
+                                <span>📁</span>
+                            </button>
+                        </div>
                     </div>
-                    <div class="org-chart-viewport" id="org-chart-viewport">
-                        <div class="org-chart-content" id="org-chart-content">
-                            <div style="text-align: center; padding: 3rem; color: var(--acw-gray);">Načítání organizačního schématu...</div>
+
+                    <!-- Chart Viewport -->
+                    <div class="org-chart-container">
+                        <div class="org-chart-viewport" id="org-chart-viewport">
+                            <div class="org-chart-content" id="org-chart-content">
+                                <div class="loading-state">
+                                    <div class="loading-spinner"></div>
+                                    <p>Načítání organizačního schématu...</p>
+                                </div>
+                            </div>
                         </div>
+                        
+                        <!-- Pan Helper -->
+                        <div class="pan-hint" id="pan-hint">
+                            <span>💡 Tip: Chyťte a táhněte pro posun, kolečko myši pro zoom</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Employee Detail Modal -->
+                <div id="employee-detail-modal" class="employee-detail-modal">
+                    <div class="employee-detail-content">
+                        <!-- Content filled by JS -->
                     </div>
                 </div>
             </div>
