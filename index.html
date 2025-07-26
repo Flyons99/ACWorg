@@ -628,7 +628,7 @@
             transform: translateX(4px);
         }
 
-        /* Simple Chart Container - Fixed Overlapping */
+        /* Simple Chart Container - Fixed for Drag */
         .org-chart-container {
             position: relative;
             width: 100%;
@@ -644,48 +644,29 @@
         .org-chart-viewport {
             width: 100%;
             height: 100%;
-            overflow: hidden;
             position: relative;
             cursor: grab;
-            background: transparent;
+            overflow: hidden;
         }
 
         .org-chart-viewport.dragging {
             cursor: grabbing;
         }
 
-        /* Make sure viewport captures clicks */
-        .org-chart-viewport::before {
-            content: '';
+        .org-chart-content {
             position: absolute;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        .org-chart-content {
             padding: 4rem;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            min-width: max-content;
+            min-width: 100%;
             min-height: 100%;
-            transform-origin: center top;
-            transition: transform 0.3s ease;
-            position: relative;
-            z-index: 2;
-            pointer-events: none;
-        }
-
-        /* Re-enable pointer events for interactive elements */
-        .org-node-card,
-        .expand-toggle,
-        .zoom-controls {
-            pointer-events: all;
+            transform-origin: 0 0;
+            transition: none;
+            will-change: transform;
         }
 
         /* Fixed Zoom Controls - No Overlap */
