@@ -1776,18 +1776,24 @@
             }
         }
 
-        // Initialize app
+        // FIXED Initialize app with immediate fallback
         function initializeApp() {
             console.log('🚀 Initializing Acomware app...');
             updateDataStatus('loading', 'Načítání dat...');
             
             setupEventListeners();
-            loadEmployeesFromGitHub();
             
-            // Initialize pan/drag after a short delay to ensure DOM is ready
-            setTimeout(() => {
-                initializePanDrag();
-            }, 100);
+            // ALWAYS load fallback first, then try GitHub
+            console.log('📦 Loading fallback data first...');
+            loadFallbackData();
+            
+            // Then try GitHub if token is available
+            if (githubConfig.token) {
+                console.log('🔗 GitHub token available, trying to load from GitHub...');
+                loadEmployeesFromGitHub();
+            } else {
+                console.log('ℹ️ No GitHub token, using fallback data only');
+            }
         }
 
         // FIXED Pan/Drag initialization
@@ -2263,7 +2269,7 @@
             }
         }
 
-        // Load fallback data with more employees for testing
+        // FIXED Load fallback data immediately
         function loadFallbackData() {
             console.log('📦 Loading fallback Acomware data...');
             
@@ -2374,9 +2380,18 @@
                 }
             ];
             
-            console.log(`📋 Loaded ${employees.length} employees (fallback data)`);
+            console.log(`📋 Fallback data loaded: ${employees.length} employees`);
+            console.log('👑 CEO:', employees.find(e => !e.parentId));
+            
             updateDataStatus('error', `Načteno ${employees.length} zaměstnanců (fallback data)`);
+            
+            // Render immediately
             renderAll();
+            
+            // Initialize interactions after render
+            setTimeout(() => {
+                initializePanDrag();
+            }, 300);
         }
 
         // Update data status indicator
@@ -2589,21 +2604,101 @@
             renderAll();
         }
 
-        // FIXED Rendering functions with debugging
-        function renderAll() {
-            console.log('🎨 Rendering all components...');
-            console.log('📊 Current employees:', employees.length);
+        // SIMPLE test rendering function
+        function testRender() {
+            console.log('🧪 TEST: Manually rendering org chart...');
             
-            renderEmployeesTable();
-            renderOrgChart();
-            renderSearchResults();
+            const container = document.getElementById('org-chart-content');
+            if (!container) {
+                console.error('❌ Container not found!');
+                return;
+            }
             
-            // Initialize pan/drag after chart is rendered
-            setTimeout(() => {
-                if (document.getElementById('org-chart-content').children.length > 0) {
-                    initializePanDrag();
-                }
-            }, 200);
+            // Clear and add simple test content
+            container.innerHTML = `
+                <div style="text-align: center; padding: 2rem;">
+                    <div style="background: white; border: 2px solid #1e3a8a; border-radius: 12px; padding: 1rem; display: inline-block; margin: 1rem; cursor: pointer; transition: transform 0.2s; position: relative;" onclick="alert('Clicked David Vurma - CEO')">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; font-weight: 800; color: #1e3a8a;">DV</div>
+                        <div style="font-weight: bold; color: #1e3a8a; margin-bottom: 0.25rem;">David Vurma</div>
+                        <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 0.5rem;">CEO</div>
+                        <div style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.2) 0%, rgba(15, 23, 42, 0.15) 100%); color: #1e3a8a; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.65rem; display: inline-block; border: 1px solid #1e3a8a;">C-Level</div>
+                        <div style="position: absolute; top: -8px; right: -8px; background: #f97316; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">3</div>
+                        <button style="position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%); background: #1e3a8a; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; font-weight: bold;">+</button>
+                    </div>
+                    
+                    <div style="margin-top: 4rem; display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+                        <div style="background: white; border: 2px solid #f97316; border-radius: 12px; padding: 1rem; display: inline-block; cursor: pointer; transition: transform 0.2s; position: relative;" onclick="alert('Clicked Dušan Smoljak - COO')">
+                            <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; font-weight: 800; color: #1e3a8a;">DS</div>
+                            <div style="font-weight: bold; color: #1e3a8a; margin-bottom: 0.25rem;">Dušan Smoljak</div>
+                            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 0.5rem;">Chief Operating Officer</div>
+                            <div style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.2) 0%, rgba(15, 23, 42, 0.15) 100%); color: #1e3a8a; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.65rem; display: inline-block; border: 1px solid #1e3a8a;">C-Level</div>
+                            <div style="position: absolute; top: -8px; right: -8px; background: #f97316; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">2</div>
+                        </div>
+                        
+                        <div style="background: white; border: 2px solid #f97316; border-radius: 12px; padding: 1rem; display: inline-block; cursor: pointer; transition: transform 0.2s;" onclick="alert('Clicked Roman Oravec - CFO')">
+                            <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; font-weight: 800; color: #1e3a8a;">RO</div>
+                            <div style="font-weight: bold; color: #1e3a8a; margin-bottom: 0.25rem;">Roman Oravec</div>
+                            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 0.5rem;">Chief Financial Officer</div>
+                            <div style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.2) 0%, rgba(15, 23, 42, 0.15) 100%); color: #1e3a8a; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.65rem; display: inline-block; border: 1px solid #1e3a8a;">C-Level</div>
+                        </div>
+                        
+                        <div style="background: white; border: 2px solid #f97316; border-radius: 12px; padding: 1rem; display: inline-block; cursor: pointer; transition: transform 0.2s;" onclick="alert('Clicked Ondřej Smékal - CBO')">
+                            <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; font-weight: 800; color: #1e3a8a;">OS</div>
+                            <div style="font-weight: bold; color: #1e3a8a; margin-bottom: 0.25rem;">Ondřej Smékal</div>
+                            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 0.5rem;">Chief Business Officer</div>
+                            <div style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.2) 0%, rgba(15, 23, 42, 0.15) 100%); color: #1e3a8a; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.65rem; display: inline-block; border: 1px solid #1e3a8a;">C-Level</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 2rem; color: #64748b; font-size: 0.9rem;">
+                        ✅ Test organizační schéma - klikněte na karty pro test interakce<br>
+                        🔧 Otevřte Developer Tools (F12) a podívejte se do konzole pro debugging info
+                    </div>
+                </div>
+            `;
+            
+            console.log('✅ Test content rendered with interactive cards');
+        }
+
+        // Add manual test button to page - temporary for debugging
+        window.testRender = testRender;.25rem;">David Vurma</div>
+                        <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 0.5rem;">CEO</div>
+                        <div style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.2) 0%, rgba(15, 23, 42, 0.15) 100%); color: #1e3a8a; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.65rem; display: inline-block; border: 1px solid #1e3a8a;">C-Level</div>
+                        <div style="position: absolute; top: -8px; right: -8px; background: #f97316; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">3</div>
+                        <button style="position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%); background: #1e3a8a; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; font-weight: bold;">+</button>
+                    </div>
+                    
+                    <div style="margin-top: 4rem; display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+                        <div style="background: white; border: 2px solid #f97316; border-radius: 12px; padding: 1rem; display: inline-block; cursor: pointer; transition: transform 0.2s;" onclick="alert('Clicked Dušan Smoljak - COO')">
+                            <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; font-weight: 800; color: #1e3a8a;">DS</div>
+                            <div style="font-weight: bold; color: #1e3a8a; margin-bottom: 0.25rem;">Dušan Smoljak</div>
+                            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 0.5rem;">Chief Operating Officer</div>
+                            <div style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.2) 0%, rgba(15, 23, 42, 0.15) 100%); color: #1e3a8a; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.65rem; display: inline-block; border: 1px solid #1e3a8a;">C-Level</div>
+                            <div style="position: absolute; top: -8px; right: -8px; background: #f97316; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">2</div>
+                        </div>
+                        
+                        <div style="background: white; border: 2px solid #f97316; border-radius: 12px; padding: 1rem; display: inline-block; cursor: pointer; transition: transform 0.2s;" onclick="alert('Clicked Roman Oravec - CFO')">
+                            <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; font-weight: 800; color: #1e3a8a;">RO</div>
+                            <div style="font-weight: bold; color: #1e3a8a; margin-bottom: 0.25rem;">Roman Oravec</div>
+                            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 0.5rem;">Chief Financial Officer</div>
+                            <div style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.2) 0%, rgba(15, 23, 42, 0.15) 100%); color: #1e3a8a; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.65rem; display: inline-block; border: 1px solid #1e3a8a;">C-Level</div>
+                        </div>
+                        
+                        <div style="background: white; border: 2px solid #f97316; border-radius: 12px; padding: 1rem; display: inline-block; cursor: pointer; transition: transform 0.2s;" onclick="alert('Clicked Ondřej Smékal - CBO')">
+                            <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; font-weight: 800; color: #1e3a8a;">OS</div>
+                            <div style="font-weight: bold; color: #1e3a8a; margin-bottom: 0.25rem;">Ondřej Smékal</div>
+                            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 0.5rem;">Chief Business Officer</div>
+                            <div style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.2) 0%, rgba(15, 23, 42, 0.15) 100%); color: #1e3a8a; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.65rem; display: inline-block; border: 1px solid #1e3a8a;">C-Level</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 2rem; color: #64748b; font-size: 0.9rem;">
+                        ✅ Test organizační schéma - klikněte na karty pro test interakce
+                    </div>
+                </div>
+            `;
+            
+            console.log('✅ Test content rendered with interactive cards');
         }
 
         function renderEmployeesTable() {
