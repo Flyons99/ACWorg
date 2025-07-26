@@ -1408,7 +1408,7 @@
             <h1 class="login-title">Acomware</h1>
             <p class="login-subtitle">Organizační schéma</p>
             
-            <form class="login-form" onsubmit="handleLogin(event)">
+            <form class="login-form" onsubmit="return handleLogin(event)">
                 <input 
                     type="password" 
                     id="password-input" 
@@ -1701,46 +1701,67 @@
 
         // Authentication check on load
         function checkAuthentication() {
+            console.log('🔍 Checking authentication...');
             try {
                 const isAuthenticated = sessionStorage.getItem('acw_authenticated');
+                console.log('Auth status:', isAuthenticated);
+                
                 if (isAuthenticated === 'true') {
-                    document.getElementById('login-overlay').classList.add('hidden');
-                    document.getElementById('app-content').classList.add('unlocked');
+                    console.log('✅ Already authenticated, showing app');
+                    const loginOverlay = document.getElementById('login-overlay');
+                    const appContent = document.getElementById('app-content');
+                    
+                    loginOverlay.style.display = 'none';
+                    appContent.classList.add('unlocked');
                     loadStoredToken();
                     initializeApp();
                     return true;
                 }
             } catch (e) {
-                console.log('SessionStorage not available');
+                console.log('❌ SessionStorage not available:', e);
             }
+            
+            console.log('❌ Not authenticated, showing login');
             return false;
         }
 
         // Handle login
         function handleLogin(event) {
             event.preventDefault();
+            event.stopPropagation();
+            
+            console.log('🔐 Login attempt...');
+            
             const passwordInput = document.getElementById('password-input');
             const errorDiv = document.getElementById('login-error');
-            const enteredPassword = passwordInput.value;
+            const enteredPassword = passwordInput.value.trim();
+            
+            console.log('Password entered:', enteredPassword.length > 0 ? '***' : 'empty');
             
             if (enteredPassword === CORRECT_PASSWORD) {
+                console.log('✅ Correct password!');
+                
                 const loginOverlay = document.getElementById('login-overlay');
                 const appContent = document.getElementById('app-content');
                 
                 // Store authentication
                 try {
                     sessionStorage.setItem('acw_authenticated', 'true');
+                    console.log('✅ Auth stored in sessionStorage');
                 } catch (e) {
-                    console.log('Could not store auth state');
+                    console.log('❌ Could not store auth state:', e);
                 }
                 
+                // Hide login and show app
                 loginOverlay.style.animation = 'fadeOut 0.5s ease-out forwards';
                 setTimeout(() => {
-                    loginOverlay.classList.add('hidden');
+                    loginOverlay.style.display = 'none';
                     appContent.classList.add('unlocked');
+                    console.log('🚀 Initializing app...');
                     initializeApp();
                 }, 500);
             } else {
+                console.log('❌ Wrong password');
                 errorDiv.textContent = 'Nesprávné heslo';
                 errorDiv.classList.add('show');
                 passwordInput.value = '';
@@ -1750,6 +1771,8 @@
                     errorDiv.classList.remove('show');
                 }, 3000);
             }
+            
+            return false;
         }
 
         // Load stored token
